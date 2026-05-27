@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# portfolio
 
-## Getting Started
+My personal portfolio website. A multi-page site with a terminal / developer aesthetic — sticky `$` prompt nav, JetBrains Mono, GitHub-dark palette, typewriter hero, and per-project case study pages.
 
-First, run the development server:
+Live at: _(deploying soon)_
+
+## Stack
+
+- Next.js 16 (App Router, Turbopack)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- JetBrains Mono via `next/font`
+- `lucide-react` for icons + inline SVGs for brand marks
+- `framer-motion`, `clsx`, `tailwind-merge`
+
+## Pages
+
+- `/` — hero, featured projects, quick contact
+- `/about` — background, philosophy, education, achievements
+- `/experience` — current and past roles
+- `/projects` — index of all projects
+- `/projects/[slug]` — per-project case study (problem, approach, highlights, metrics)
+- `/skills` — categorised tech stack
+- `/contact` — contact info + availability
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Editing content
 
-To learn more about Next.js, take a look at the following resources:
+All site content (name, contact, about copy, experience, projects, skills) lives in [`lib/data.ts`](lib/data.ts). Edit that one file to update anything text-related on the site — no component changes needed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To add a new project, append an entry to the `projects` array in `lib/data.ts`. The dynamic route `/projects/[slug]` and `generateStaticParams` will pick it up automatically.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
+```
+app/
+  layout.tsx          # root layout, fonts, nav + footer
+  page.tsx            # home
+  globals.css         # tailwind v4 @theme + custom CSS (terminal palette, CRT effect)
+  about/              # /about
+  experience/         # /experience
+  projects/
+    page.tsx          # /projects index
+    [slug]/page.tsx   # /projects/<slug> detail
+  skills/             # /skills
+  contact/            # /contact
+components/
+  nav.tsx, footer.tsx
+  terminal-window.tsx # ASCII-style window chrome
+  page-header.tsx     # $ command-prompt page header
+  section-card.tsx    # filename-tagged card
+  project-card.tsx, tag.tsx
+  typewriter.tsx      # client component, animated hero
+  brand-icons.tsx     # inline SVGs for github/linkedin
+lib/
+  data.ts             # all site content
+  utils.ts            # cn() helper (clsx + tailwind-merge)
+public/
+  GORRE_DINESH_CV.pdf
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Tailwind v4 has no `tailwind.config.ts` — theme tokens live in `app/globals.css` under `@theme inline { ... }`.
+- Dynamic-route `params` are a `Promise` in Next.js 16 (`const { slug } = await params`).
+- `lucide-react@1.x` dropped brand icons, so GitHub and LinkedIn marks are inline SVGs in `components/brand-icons.tsx`.
