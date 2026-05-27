@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: `${profile.name} — ${profile.role}`,
   description: profile.tagline,
-  metadataBase: new URL("https://gorredinesh21.dev"),
+  metadataBase: new URL("https://portfolio-eight-coral-tabh47k4e7.vercel.app"),
   openGraph: {
     title: `${profile.name} — ${profile.role}`,
     description: profile.tagline,
