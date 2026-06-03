@@ -91,6 +91,47 @@ export const experience = [
 
 export const projects = [
   {
+    slug: "dating-profile-optimizer",
+    name: "AI Dating Profile Optimizer",
+    tagline:
+      "Human-in-the-loop LLM agent that analyzes, rewrites and one-click-publishes a dating profile",
+    period: "2026",
+    stack: [
+      "Python",
+      "FastAPI",
+      "LangChain",
+      "Hugging Face",
+      "Google Gemini",
+      "Ollama",
+      "Pydantic",
+      "Vision (VLM)",
+    ],
+    github: "https://github.com/gorredinesh21/TINDER_MCP_AI",
+    summary:
+      "A local web app that scores a user's dating profile, rewrites the bio and prompt answers from their real details, plans their photos with a vision model, and publishes the approved changes live — backed by a pluggable LLM brain (Hugging Face / Gemini / local Ollama) tuned for the Indian market.",
+    problem:
+      "Dating-profile advice is generic and people rarely know what is actually holding their profile back. I wanted an AI that reasons over a real profile against a research-backed rubric, proposes specific and original improvements (never invented facts), and can push them live — while staying strictly human-in-the-loop: it drafts, the user decides and publishes. It deliberately never auto-messages matches, which would deceive people and risk bans.",
+    approach: [
+      "Defined a clean Pydantic data contract (Profile / Match) that the AI works against, decoupled from any single provider via a connector layer.",
+      "Built a pluggable LLM brain in LangChain with three swappable backends — Hugging Face Inference (Qwen2.5-72B), Google Gemini, and local Ollama — selectable by an env flag, with no proprietary keys required.",
+      "Used prompt-and-parse structured output (ask for JSON matching the schema, then validate) so it works on any instruct model without native tool-calling.",
+      "Encoded a research-backed knowledge pack (bio, prompts, photos, India context) as the system rubric the model must follow when scoring and rewriting.",
+      "Added a vision step (Gemini or a local VLM via Ollama) that actually looks at each photo to drive keep/drop and ordering advice.",
+      "Wrapped everything in a FastAPI dashboard (bound to localhost) where the user reviews scores, edits suggestions inline, and clicks to publish the bio and prompts back to the live profile.",
+    ],
+    highlights: [
+      "Provider-agnostic LLM brain: Hugging Face, Gemini, or fully-local Ollama — switchable at runtime.",
+      "Multimodal photo analysis via a vision model — keep/drop, ordering, and gap detection on real images.",
+      "One-click live publishing of AI-drafted bios and prompts, with a strict human-in-the-loop guarantee.",
+      "Offline test suite (26/26) and CI; tokens used in-memory per request and never stored.",
+    ],
+    metrics: [
+      { label: "LLM backends", value: "HF / Gemini / Ollama" },
+      { label: "Modalities", value: "Text + Vision" },
+      { label: "Control", value: "100% human-in-the-loop" },
+    ],
+  },
+  {
     slug: "careeros",
     name: "CareerOS",
     tagline: "AI Job Application Pipeline — sourcing → scoring → tailored resumes",
