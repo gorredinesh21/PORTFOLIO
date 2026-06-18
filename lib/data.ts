@@ -91,6 +91,90 @@ export const experience = [
 
 export const projects = [
   {
+    slug: "startup-intelligence-platform",
+    name: "Startup Intelligence Platform",
+    tagline:
+      "GraphRAG + RAPTOR market-intelligence engine with an agentic research chat",
+    period: "2026",
+    stack: [
+      "Python",
+      "FastAPI",
+      "LangGraph",
+      "GraphRAG",
+      "RAPTOR",
+      "Qdrant",
+      "Neo4j / NetworkX",
+      "BGE Embeddings",
+      "Mistral (HF)",
+      "Next.js 16",
+      "React Flow",
+    ],
+    github: "https://github.com/gorredinesh21/Startup-Intelligence-Platform.",
+    summary:
+      "An AI-powered market-intelligence system that continuously maps startup ecosystems — competitors, funding histories, partnerships and emerging tech — using a hybrid GraphRAG + RAPTOR engine. A Perplexity-style research agent answers multi-hop questions with inline citations, while an interactive React Flow graph lets you explore the relationships visually.",
+    problem:
+      "Understanding a startup ecosystem means stitching together scattered, unstructured signals — who competes with whom, who funded whom, which partnerships matter. Pure vector RAG flattens those relationships and pure keyword search misses semantics. I wanted a system that reasons over both a semantic knowledge hierarchy and an explicit relationship graph, and shows its work with traceable citations.",
+    approach: [
+      "Built a RAPTOR ingestion pipeline: chunk → embed → K-Means cluster → recursive LLM summarization into a multi-level tree (raw chunks up to global summaries) stored in Qdrant.",
+      "Extracted structured entities and relationships (COMPETES_WITH, FUNDED_BY, PARTNERED_WITH) into a Neo4j / NetworkX graph during ingestion, with a rule-based parser fallback.",
+      "Implemented the reasoning agent as a LangGraph loop: intent detection → query planning → parallel graph + RAPTOR retrieval → BGE cross-encoder reranking → cited answer synthesis.",
+      "Used BAAI/bge-large-en-v1.5 (1024-d) embeddings, bge-reranker-large for relevance, and Mistral-Small-3.1-24B via the Hugging Face Inference API for generation.",
+      "Designed a full LOCAL_FALLBACK mode — SQLite, in-memory NetworkX, file-based Qdrant and mocked inference — so the whole stack runs offline with zero external keys.",
+      "Shipped a Next.js 16 frontend: a LangGraph node-stepper that visualizes agent execution live, citation popups to source chunks, and an interactive React Flow ecosystem graph with 2-hop neighborhood expansion and an acquisition predictor.",
+    ],
+    highlights: [
+      "Hybrid retrieval: semantic RAPTOR summaries fused with explicit relationship-graph traversal, reranked by a cross-encoder.",
+      "Agentic LangGraph pipeline with a live node-stepper UI and click-through citations to the exact source chunks.",
+      "Interactive React Flow graph — color-coded entities, multi-hop path highlights, and double-click neighborhood expansion.",
+      "Full offline LOCAL_FALLBACK mode (SQLite + NetworkX + local Qdrant + mocked LLM) for keyless local development.",
+    ],
+    metrics: [
+      { label: "Retrieval", value: "GraphRAG + RAPTOR" },
+      { label: "Embeddings", value: "BGE-large (1024-d)" },
+      { label: "Storage", value: "Qdrant + Neo4j + SQL" },
+    ],
+  },
+  {
+    slug: "career-ops-2",
+    name: "Career-Ops 2.0",
+    tagline:
+      "Agentic, India-tuned job-search command center built as an AI-CLI skill",
+    period: "2026",
+    stack: [
+      "Node.js",
+      "Claude Code / Gemini CLI",
+      "Agent Skills (MCP-style)",
+      "Playwright",
+      "Apify",
+      "Telegram",
+      "YAML",
+      "LangGraph-style agents",
+    ],
+    github: "https://github.com/gorredinesh21/Career-ops-2.0",
+    summary:
+      "A heavily customized, India-tuned build of the agentic Career-Ops job-search system — turning any AI coding CLI (Claude Code, Gemini, OpenCode, Codex) into a job-search command center that evaluates offers with a structured A–F rubric, generates ATS-optimized PDF CVs and cover letters per role, and scans portals automatically. I rebuilt the scanner around verified Indian ATS boards and wired in Apify and Telegram sourcing.",
+    problem:
+      "Most job-search tooling is spray-and-pray. I wanted a filter, not a firehose — a system that reasons about my CV against each JD (not keyword matching), scores fit honestly, and tailors a resume only for roles worth applying to. The upstream system was tuned for US/EU AI labs, so I re-targeted the whole thing for the Indian GenAI / Data-Engineering market.",
+    approach: [
+      "Onboarded the open-source Career-Ops agent skill end-to-end: my CV, career story, archetypes, scoring weights and target roles encoded as the system's source-of-truth config.",
+      "Rebuilt the portal scanner around verified Indian ATS boards and seeded it with real Indian companies (CRED, Meesho, Razorpay, PhonePe, Groww, Unacademy and more).",
+      "Added a third sourcing pipeline via the Apify REST API (apify-scan.mjs) running LinkedIn / Naukri / All-Jobs scrapers, plus a Telegram (TechUprise) sourcing feed that auto-adds new companies to portals.yml.",
+      "Wrote analysis tooling (analyze-scan.mjs, analyze-patterns.mjs) over scan output and used batch sub-agents to evaluate 40+ offers in parallel, each producing a tracker entry.",
+      "Kept the system strictly human-in-the-loop and multi-CLI: a single /career-ops skill definition drives Claude Code, Gemini, OpenCode and Codex identically.",
+    ],
+    highlights: [
+      "Re-targeted an open-source agentic system for the Indian GenAI / DE market with verified ATS boards and real company seeds.",
+      "Three-source sourcing: portal scanner + Apify REST scrapers + Telegram feed, auto-merging into one deduped pipeline.",
+      "Structured A–F fit scoring + per-role ATS CV and cover-letter PDFs via an HTML → Playwright pipeline.",
+      "Batch parallel evaluation of 40+ offers with sub-agents; provider-agnostic across four AI coding CLIs.",
+    ],
+    metrics: [
+      { label: "Offers evaluated", value: "40+ (batched)" },
+      { label: "Sources", value: "Portals + Apify + Telegram" },
+      { label: "Market focus", value: "India GenAI / DE" },
+    ],
+  },
+  {
     slug: "dating-profile-optimizer",
     name: "AI Dating Profile Optimizer",
     tagline:
