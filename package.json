@@ -2,6 +2,7 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "description": "Personal portfolio of Gorre Dinesh Chandan Reddy — an engineer across GenAI, full-stack web and data. Next.js 16 + Tailwind v4.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
