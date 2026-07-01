@@ -1,50 +1,57 @@
 export const profile = {
   name: "Gorre Dinesh Chandan Reddy",
   shortName: "Dinesh",
-  role: "Data / AI Engineer",
+  role: "Software Engineer — AI · Web · Data",
   tagline:
-    "Building intelligent data products at the intersection of Data Engineering, ML and Gen AI.",
+    "An engineer who builds across GenAI, full-stack web and data — I pick up whatever a good idea needs and ship things people actually use.",
   location: "Mumbai, India",
   email: "gorredinesh21@gmail.com",
   phone: "+91 74167 67453",
   github: "https://github.com/gorredinesh21",
   linkedin: "https://www.linkedin.com/in/gorredinesh21",
-  resumeUrl: "/GORRE_DINESH_CV.pdf",
+  resumeUrl: "/Gorre_Dinesh_Chandan_Reddy_Resume.pdf",
 };
 
 export const navLinks = [
-  { href: "/", label: "home", path: "~/" },
-  { href: "/about", label: "about", path: "~/about" },
-  { href: "/experience", label: "experience", path: "~/experience" },
-  { href: "/projects", label: "projects", path: "~/projects" },
-  { href: "/skills", label: "skills", path: "~/skills" },
-  { href: "/contact", label: "contact", path: "~/contact" },
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/experience", label: "Experience" },
+  { href: "/projects", label: "Projects" },
+  { href: "/skills", label: "Skills" },
+  { href: "/contact", label: "Contact" },
 ];
+
+// Domains used to colour-code and filter projects, and to signal range.
+export type Domain =
+  | "GenAI"
+  | "Full-Stack"
+  | "ML / DL"
+  | "Web3"
+  | "Systems";
 
 export const aboutBio = [
   {
-    heading: "background.txt",
+    heading: "Background",
     content: [
-      "Computer Science graduate from IIT (ISM) Dhanbad (2025).",
-      "Currently a Graduate Engineer Trainee at Reliance Industries Ltd. in Mumbai, working as a Data / AI Engineer on Databricks, ADF, and Gen AI platforms.",
-      "I started exploring Machine Learning in my third year of B.Tech — what began as curiosity turned into a long journey across ML, Deep Learning, Computer Vision, NLP, and Transformers.",
-      "For the last 12–15 months I have been deeply focused on Generative AI: LangChain, LangGraph, AI agents, MCP, RAG, and the broader agentic stack.",
+      "Computer Science graduate from IIT (ISM) Dhanbad (2025), now a Graduate Engineer Trainee at Reliance Industries in Mumbai — working across data engineering, RAG systems and Gen AI platforms on Databricks and Azure.",
+      "My journey started with Machine Learning in my third year and grew across Deep Learning, Computer Vision, NLP and Transformers. For the last year I have gone deep on Generative AI — LangChain, LangGraph, agents, MCP and RAG.",
+      "Alongside all of that I build full-stack web apps — MERN storefronts, Spring Boot APIs, React frontends and Web3 DApps — because shipping the whole product, not just the model, is what I enjoy most.",
     ],
   },
   {
-    heading: "philosophy.txt",
+    heading: "How I work",
     content: [
-      "I do not believe in being narrowly specialised this early in my career.",
-      "Instead I try to keep one foot in fundamentals (ML / DL / DSA) and one foot in what is current (Gen AI, agentic systems, data platforms).",
-      "I learn by building — every concept becomes a small project, every project becomes a stepping stone for the next idea.",
+      "I do not believe in being narrowly specialised this early. I like being an all-rounder: one foot in fundamentals (ML / DL / DSA), one foot in what is current (Gen AI, data platforms), and both hands building the web layer that makes it usable.",
+      "I learn on demand — when a project needs a skill I do not have yet, I go and get it. Java + Spring Boot, Stripe payments, smart contracts, vector databases: each one started as \"I need this for what I'm building.\"",
+      "I learn by building. Every concept becomes a small project, and I gravitate towards ideas that make everyday life a little easier.",
     ],
   },
   {
-    heading: "currently.txt",
+    heading: "Right now",
     content: [
-      "Designing a Unified Genie Architecture on Databricks that overcomes the 30-table limit of native Genie spaces.",
-      "Building a Talk-to-Genie web app: an OAuth-secured external interface that lets non-Databricks users converse with internal data.",
-      "Writing PySpark notebooks that transform Silver data into Gold KPI tables for operational dashboards.",
+      "At work: designing a Unified Genie architecture on Databricks that beats the native 30-table limit, and a Talk-to-Genie web app that lets non-Databricks users converse with internal data over OAuth.",
+      "On the side: shipping full-stack products end-to-end — an AI market-intelligence platform, a MERN e-commerce store and coded LLM automation pipelines.",
+      "Always: writing PySpark that turns Silver data into Gold KPI tables, and looking for the next thing worth building.",
     ],
   },
 ];
@@ -89,12 +96,30 @@ export const experience = [
   },
 ];
 
-export const projects = [
+type Project = {
+  slug: string;
+  name: string;
+  tagline: string;
+  domain: Domain;
+  featured?: boolean;
+  period: string;
+  stack: string[];
+  github: string;
+  summary: string;
+  problem: string;
+  approach: string[];
+  highlights: string[];
+  metrics: { label: string; value: string }[];
+};
+
+export const projects: Project[] = [
   {
     slug: "startup-intelligence-platform",
     name: "Startup Intelligence Platform",
     tagline:
       "GraphRAG + RAPTOR market-intelligence engine with an agentic research chat",
+    domain: "GenAI",
+    featured: true,
     period: "2026",
     stack: [
       "Python",
@@ -135,43 +160,92 @@ export const projects = [
     ],
   },
   {
-    slug: "career-ops-2",
-    name: "Career-Ops 2.0",
+    slug: "crickkart-ecommerce",
+    name: "CrickKart",
     tagline:
-      "Agentic, India-tuned job-search command center built as an AI-CLI skill",
+      "Full MERN cricket-equipment store with cart, Stripe checkout and an admin panel",
+    domain: "Full-Stack",
+    featured: true,
     period: "2026",
     stack: [
+      "React",
+      "Redux",
+      "Material-UI",
       "Node.js",
-      "Claude Code / Gemini CLI",
-      "Agent Skills (MCP-style)",
-      "Playwright",
-      "Apify",
-      "Telegram",
-      "YAML",
-      "LangGraph-style agents",
+      "Express",
+      "MongoDB",
+      "Mongoose",
+      "Stripe",
+      "Cloudinary",
+      "JWT",
+      "Nodemailer",
     ],
-    github: "https://github.com/gorredinesh21/Career-ops-2.0",
+    github: "https://github.com/gorredinesh21/CricKart",
     summary:
-      "A heavily customized, India-tuned build of the agentic Career-Ops job-search system — turning any AI coding CLI (Claude Code, Gemini, OpenCode, Codex) into a job-search command center that evaluates offers with a structured A–F rubric, generates ATS-optimized PDF CVs and cover letters per role, and scans portals automatically. I rebuilt the scanner around verified Indian ATS boards and wired in Apify and Telegram sourcing.",
+      "A complete MERN-stack e-commerce platform for cricket equipment — a customer storefront with product browsing, cart, wishlist, reviews and secure Stripe checkout, plus a full admin dashboard for managing products, orders and users with role-based access.",
     problem:
-      "Most job-search tooling is spray-and-pray. I wanted a filter, not a firehose — a system that reasons about my CV against each JD (not keyword matching), scores fit honestly, and tailors a resume only for roles worth applying to. The upstream system was tuned for US/EU AI labs, so I re-targeted the whole thing for the Indian GenAI / Data-Engineering market.",
+      "I wanted to build a real, production-shaped web application end to end — not a toy CRUD demo. That meant auth, payments, image hosting, transactional email, global state, an admin control plane and a deployable build, all wired together the way an actual shop would need.",
     approach: [
-      "Onboarded the open-source Career-Ops agent skill end-to-end: my CV, career story, archetypes, scoring weights and target roles encoded as the system's source-of-truth config.",
-      "Rebuilt the portal scanner around verified Indian ATS boards and seeded it with real Indian companies (CRED, Meesho, Razorpay, PhonePe, Groww, Unacademy and more).",
-      "Added a third sourcing pipeline via the Apify REST API (apify-scan.mjs) running LinkedIn / Naukri / All-Jobs scrapers, plus a Telegram (TechUprise) sourcing feed that auto-adds new companies to portals.yml.",
-      "Wrote analysis tooling (analyze-scan.mjs, analyze-patterns.mjs) over scan output and used batch sub-agents to evaluate 40+ offers in parallel, each producing a tracker entry.",
-      "Kept the system strictly human-in-the-loop and multi-CLI: a single /career-ops skill definition drives Claude Code, Gemini, OpenCode and Codex identically.",
+      "Built an Express + MongoDB REST API exposing 18+ endpoints over a Mongoose data layer with User, Product and Order models.",
+      "Implemented JWT auth with HTTP-only cookies, BCrypt password hashing, role-based access control (admin/user), and an email-driven password-reset flow via Nodemailer.",
+      "Integrated Stripe (PaymentIntent) checkout for secure payments and Cloudinary for product-image upload and hosting.",
+      "Built the React 18 + Redux frontend with global cart / wishlist / auth state, a Material-UI component system, and advanced search, filtering and pagination by price, category and rating.",
+      "Added a full admin dashboard — CRUD for products and stock, order management, user promotion/deletion and review moderation — with revenue analytics via react-chartjs-2.",
+      "Configured a single Vercel deployment that builds the Express API and serves the production React build.",
     ],
     highlights: [
-      "Re-targeted an open-source agentic system for the Indian GenAI / DE market with verified ATS boards and real company seeds.",
-      "Three-source sourcing: portal scanner + Apify REST scrapers + Telegram feed, auto-merging into one deduped pipeline.",
-      "Structured A–F fit scoring + per-role ATS CV and cover-letter PDFs via an HTML → Playwright pipeline.",
-      "Batch parallel evaluation of 40+ offers with sub-agents; provider-agnostic across four AI coding CLIs.",
+      "End-to-end MERN app: React 18 + Redux SPA, an 18+ endpoint Express/Mongo REST API, one deployable build.",
+      "Real payments (Stripe PaymentIntent), image hosting (Cloudinary) and transactional email (Nodemailer).",
+      "JWT auth with HTTP-only cookies, BCrypt hashing, password reset and role-based admin access control.",
+      "Admin dashboard with product/order/inventory management and revenue analytics.",
     ],
     metrics: [
-      { label: "Offers evaluated", value: "40+ (batched)" },
-      { label: "Sources", value: "Portals + Apify + Telegram" },
-      { label: "Market focus", value: "India GenAI / DE" },
+      { label: "Stack", value: "MERN + Redux" },
+      { label: "Payments", value: "Stripe" },
+      { label: "Surfaces", value: "Store + Admin" },
+    ],
+  },
+  {
+    slug: "finnest-banking",
+    name: "FinNest",
+    tagline:
+      "Full-stack online banking — Spring Boot REST API + React/Redux SPA",
+    domain: "Full-Stack",
+    featured: false,
+    period: "2026",
+    stack: [
+      "Java",
+      "Spring Boot 2.7",
+      "Spring Data JPA",
+      "Hibernate",
+      "MySQL",
+      "JWT",
+      "React",
+      "Redux",
+      "Material-UI",
+    ],
+    github: "https://github.com/gorredinesh21/FinNest",
+    summary:
+      "A full-stack online-banking application: a layered Spring Boot REST API backend and a React + Redux single-page frontend. It models users, accounts, transactions and payments, runs a full transaction engine (deposits, transfers, withdrawals, bill payments) with balance validation and audit logging, and surfaces everything in a dashboard with live balance charts.",
+    problem:
+      "I wanted to add a strongly-typed, enterprise-style backend to my toolkit — Java and Spring Boot — and pair it with a React frontend, so I could work comfortably across the JVM and JavaScript ecosystems, not just Node.",
+    approach: [
+      "Architected a Spring Boot 2.7 backend with a clean controller–repository structure, Spring Data JPA / Hibernate over MySQL, and custom native queries — modelling users, accounts, transactions and payments.",
+      "Implemented JWT authentication with request-level interceptor middleware, BCrypt password hashing, and an email-verification workflow (Spring Mail) to gate protected endpoints.",
+      "Built the transaction engine — deposits, inter-account transfers, withdrawals and bill payments — with balance validation, failure handling and full audit logging.",
+      "Built the frontend in React with Redux + Redux Thunk for async state and Material UI for the interface.",
+      "Surfaced accounts and transactions in a dashboard with live-updating balance charts driven by Redux-connected components.",
+    ],
+    highlights: [
+      "Layered Spring Boot 2.7 REST API: controller–repository structure, Spring Data JPA / Hibernate and custom native queries.",
+      "JWT auth with interceptor middleware, BCrypt hashing and Spring Mail email verification.",
+      "Full transaction engine — transfers, deposits, withdrawals, payments — with balance validation and audit logging.",
+      "React + Redux dashboard with live balance charts; works across the Java and JavaScript ecosystems.",
+    ],
+    metrics: [
+      { label: "Backend", value: "Spring Boot + MySQL" },
+      { label: "Frontend", value: "React + Redux" },
+      { label: "Auth", value: "JWT + email verify" },
     ],
   },
   {
@@ -179,6 +253,8 @@ export const projects = [
     name: "AI Dating Profile Optimizer",
     tagline:
       "Human-in-the-loop LLM agent that analyzes, rewrites and one-click-publishes a dating profile",
+    domain: "GenAI",
+    featured: false,
     period: "2026",
     stack: [
       "Python",
@@ -216,9 +292,94 @@ export const projects = [
     ],
   },
   {
+    slug: "career-ops-3",
+    name: "Career-Ops 3.0",
+    tagline:
+      "Coded LangChain.js pipeline: JD fetch → fit rating → tailored resume generation",
+    domain: "GenAI",
+    featured: false,
+    period: "2026",
+    stack: [
+      "Node.js",
+      "LangChain.js",
+      "Google Gemini",
+      "Ollama",
+      "Zod",
+      "Playwright",
+      "LaTeX",
+    ],
+    github: "https://github.com/gorredinesh21/career-ops-3.0",
+    summary:
+      "A code-first evolution of my Career-Ops job-search system — instead of an AI-CLI skill, the whole pipeline is written as a LangChain.js program. It fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, scores each job /5 against every resume with Zod-validated chains, and generates ATS-ready, JD-specific resumes — all tracked in a single dashboard.",
+    problem:
+      "The skill-based version depended on an AI coding CLI to orchestrate everything. I wanted a deterministic, portable, code-owned pipeline I could run anywhere, version, and reason about — without a CLI in the loop — while keeping the same India-tuned, honest fit-scoring philosophy.",
+    approach: [
+      "Built an all-in-one job hub that fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, auto-filters noise, and tracks every application's status in one dashboard.",
+      "Scored each job /5 against every resume via Zod-validated LangChain.js chains — surfacing best-fit roles, matched skills and gaps.",
+      "Made the LLM backend switchable between local Ollama and Google Gemini, so it runs fully offline or on a hosted model.",
+      "Generated a JD-specific resume per role from an LLM-distilled catalog of 23 GitHub repos, rendered to ATS-ready PDFs with no fabrication.",
+      "Encoded my CV, story and scoring weights as config so the system stays honest about fit rather than keyword-matching.",
+    ],
+    highlights: [
+      "All-in-one hub: fetches Greenhouse / Ashby / Lever / LinkedIn postings at zero LLM cost, with status tracking.",
+      "Zod-validated LangChain.js chains score every job /5 against every resume, surfacing matched skills and gaps.",
+      "Automated resume tailoring from an LLM-distilled catalog of 23 repos → ATS-ready PDFs, no fabrication.",
+      "Provider-switchable backend (local Ollama or Google Gemini); fully code-owned, no AI-CLI in the loop.",
+    ],
+    metrics: [
+      { label: "Sources", value: "Greenhouse · Ashby · Lever · LinkedIn" },
+      { label: "Scoring", value: "Zod-validated /5" },
+      { label: "LLM cost", value: "$0 to fetch" },
+    ],
+  },
+  {
+    slug: "career-ops-2",
+    name: "Career-Ops 2.0",
+    tagline:
+      "Agentic, India-tuned job-search command center built as an AI-CLI skill",
+    domain: "GenAI",
+    featured: false,
+    period: "2026",
+    stack: [
+      "Node.js",
+      "Claude Code / Gemini CLI",
+      "Agent Skills (MCP-style)",
+      "Playwright",
+      "Apify",
+      "Telegram",
+      "YAML",
+      "LangGraph-style agents",
+    ],
+    github: "https://github.com/gorredinesh21/Career-ops-2.0",
+    summary:
+      "A heavily customized, India-tuned build of the agentic Career-Ops job-search system — turning any AI coding CLI (Claude Code, Gemini, OpenCode, Codex) into a job-search command center that evaluates offers with a structured A–F rubric, generates ATS-optimized PDF CVs and cover letters per role, and scans portals automatically. I rebuilt the scanner around verified Indian ATS boards and wired in Apify and Telegram sourcing.",
+    problem:
+      "Most job-search tooling is spray-and-pray. I wanted a filter, not a firehose — a system that reasons about my CV against each JD (not keyword matching), scores fit honestly, and tailors a resume only for roles worth applying to. The upstream system was tuned for US/EU AI labs, so I re-targeted the whole thing for the Indian GenAI / Data-Engineering market.",
+    approach: [
+      "Onboarded the open-source Career-Ops agent skill end-to-end: my CV, career story, archetypes, scoring weights and target roles encoded as the system's source-of-truth config.",
+      "Rebuilt the portal scanner around verified Indian ATS boards and seeded it with real Indian companies (CRED, Meesho, Razorpay, PhonePe, Groww, Unacademy and more).",
+      "Added a third sourcing pipeline via the Apify REST API (apify-scan.mjs) running LinkedIn / Naukri / All-Jobs scrapers, plus a Telegram (TechUprise) sourcing feed that auto-adds new companies to portals.yml.",
+      "Wrote analysis tooling (analyze-scan.mjs, analyze-patterns.mjs) over scan output and used batch sub-agents to evaluate 40+ offers in parallel, each producing a tracker entry.",
+      "Kept the system strictly human-in-the-loop and multi-CLI: a single /career-ops skill definition drives Claude Code, Gemini, OpenCode and Codex identically.",
+    ],
+    highlights: [
+      "Re-targeted an open-source agentic system for the Indian GenAI / DE market with verified ATS boards and real company seeds.",
+      "Three-source sourcing: portal scanner + Apify REST scrapers + Telegram feed, auto-merging into one deduped pipeline.",
+      "Structured A–F fit scoring + per-role ATS CV and cover-letter PDFs via an HTML → Playwright pipeline.",
+      "Batch parallel evaluation of 40+ offers with sub-agents; provider-agnostic across four AI coding CLIs.",
+    ],
+    metrics: [
+      { label: "Offers evaluated", value: "40+ (batched)" },
+      { label: "Sources", value: "Portals + Apify + Telegram" },
+      { label: "Market focus", value: "India GenAI / DE" },
+    ],
+  },
+  {
     slug: "careeros",
     name: "CareerOS",
     tagline: "AI Job Application Pipeline — sourcing → scoring → tailored resumes",
+    domain: "GenAI",
+    featured: false,
     period: "2026",
     stack: [
       "Python",
@@ -253,9 +414,49 @@ export const projects = [
     ],
   },
   {
+    slug: "ethereum-payments-dapp",
+    name: "Ethereum Payments DApp",
+    tagline: "Multi-chain ETH & ERC-20 transfer DApp with MetaMask",
+    domain: "Web3",
+    featured: false,
+    period: "2024",
+    stack: [
+      "React",
+      "ethers.js",
+      "Tailwind CSS",
+      "Solidity",
+      "Sepolia",
+      "Polygon Mumbai",
+      "MetaMask",
+    ],
+    github: "https://github.com/gorredinesh21/BLOCKCHAIN",
+    summary:
+      "Decentralised payments app for ETH and ERC-20 token transfers, with multi-chain support (Sepolia, Polygon Mumbai), MetaMask integration, and a custom PayPal-like smart contract.",
+    problem:
+      "I wanted to learn Web3 development hands-on — wallet auth, multi-chain detection, ERC-20 token UX, and on-chain transactions — by shipping something that actually moved real testnet value end-to-end.",
+    approach: [
+      "Built a React + Tailwind front-end with React Context for wallet, chain, and token state.",
+      "Integrated MetaMask for wallet connection and signing; auto-detects network changes and re-fetches balances.",
+      "Used ethers.js to read ERC-20 balances by contract address and execute ETH and token transfers.",
+      "Deployed a custom PayPal-like smart contract to handle ETH payments and store transaction history.",
+    ],
+    highlights: [
+      "Multi-chain (Sepolia + Polygon Mumbai) auto-detection and switching.",
+      "Generic ERC-20 support — paste any token contract address and transact.",
+      "Custom Solidity contract for ETH payments with on-chain transaction logging.",
+    ],
+    metrics: [
+      { label: "Chains supported", value: "Sepolia + Mumbai" },
+      { label: "Token standards", value: "ETH + ERC-20" },
+      { label: "Wallet", value: "MetaMask" },
+    ],
+  },
+  {
     slug: "gan-augmentation",
     name: "GAN-Based Data Augmentation",
     tagline: "B.Tech thesis: tabular GAN + SMOTE for severe class imbalance",
+    domain: "ML / DL",
+    featured: true,
     period: "2024 · IIT (ISM) B.Tech Final-Year Project",
     stack: [
       "Python",
@@ -293,6 +494,8 @@ export const projects = [
     slug: "mars-landmark-detection",
     name: "Mars Landmark Detection",
     tagline: "VGG16 transfer learning for 8-class Martian terrain classification",
+    domain: "ML / DL",
+    featured: false,
     period: "2024",
     stack: [
       "Python",
@@ -328,6 +531,8 @@ export const projects = [
     slug: "ocr-extraction",
     name: "Image-Based Entity Extraction",
     tagline: "OCR pipeline for product attribute extraction at scale",
+    domain: "ML / DL",
+    featured: false,
     period: "2024 · Amazon ML Challenge",
     stack: ["Python", "PyTesseract", "OCR", "Regex", "Pandas"],
     github: "https://github.com/gorredinesh21/ImageEntityExtraction",
@@ -356,6 +561,8 @@ export const projects = [
     slug: "movie-recommendation",
     name: "Movie Recommendation System",
     tagline: "Content-based recommender on 5K movies with Streamlit UI",
+    domain: "ML / DL",
+    featured: false,
     period: "2024",
     stack: [
       "Python",
@@ -389,45 +596,11 @@ export const projects = [
     ],
   },
   {
-    slug: "ethereum-payments-dapp",
-    name: "Ethereum Payments DApp",
-    tagline: "Multi-chain ETH & ERC-20 transfer DApp with MetaMask",
-    period: "2024",
-    stack: [
-      "React",
-      "ethers.js",
-      "Tailwind CSS",
-      "Solidity",
-      "Sepolia",
-      "Polygon Mumbai",
-      "MetaMask",
-    ],
-    github: "https://github.com/gorredinesh21/BLOCKCHAIN",
-    summary:
-      "Decentralised payments app for ETH and ERC-20 token transfers, with multi-chain support (Sepolia, Polygon Mumbai), MetaMask integration, and a custom PayPal-like smart contract.",
-    problem:
-      "I wanted to learn Web3 development hands-on — wallet auth, multi-chain detection, ERC-20 token UX, and on-chain transactions — by shipping something that actually moved real testnet value end-to-end.",
-    approach: [
-      "Built a React + Tailwind front-end with React Context for wallet, chain, and token state.",
-      "Integrated MetaMask for wallet connection and signing; auto-detects network changes and re-fetches balances.",
-      "Used ethers.js to read ERC-20 balances by contract address and execute ETH and token transfers.",
-      "Deployed a custom PayPal-like smart contract to handle ETH payments and store transaction history.",
-    ],
-    highlights: [
-      "Multi-chain (Sepolia + Polygon Mumbai) auto-detection and switching.",
-      "Generic ERC-20 support — paste any token contract address and transact.",
-      "Custom Solidity contract for ETH payments with on-chain transaction logging.",
-    ],
-    metrics: [
-      { label: "Chains supported", value: "Sepolia + Mumbai" },
-      { label: "Token standards", value: "ETH + ERC-20" },
-      { label: "Wallet", value: "MetaMask" },
-    ],
-  },
-  {
     slug: "facial-attendance-system",
     name: "Facial Recognition Attendance System",
     tagline: "Hackfest'23 — face-recognition attendance + student/teacher portal",
+    domain: "ML / DL",
+    featured: false,
     period: "2023 · Hackfest, IIT (ISM) Dhanbad",
     stack: [
       "Python",
@@ -464,6 +637,8 @@ export const projects = [
     slug: "tcp-proxy-server",
     name: "Multi-Threaded TCP Client-Proxy Server",
     tagline: "C++ networking course project — TCP socket server with file handling",
+    domain: "Systems",
+    featured: false,
     period: "2023 · Operating Systems coursework, IIT (ISM)",
     stack: ["C++", "TCP Sockets", "POSIX Threads", "File I/O"],
     github: "https://github.com/gorredinesh21/OS-PROJECRT",
@@ -492,6 +667,8 @@ export const projects = [
     slug: "flappy-bird-cpp",
     name: "Flappy Bird (C++ Console)",
     tagline: "Windows console flappy bird written in C++ from scratch",
+    domain: "Systems",
+    featured: false,
     period: "2022 · First year",
     stack: ["C++", "Windows API", "conio.h", "ASCII Rendering"],
     github: "https://github.com/gorredinesh21/flappy-bird-game",
@@ -521,10 +698,53 @@ export const projects = [
 export const skills = [
   {
     category: "languages",
-    items: ["Python", "SQL", "PostgreSQL", "C++", "C"],
+    label: "Languages & Databases",
+    items: ["Python", "JavaScript", "TypeScript", "Java", "SQL", "PostgreSQL", "MySQL", "MongoDB", "C++", "C"],
+  },
+  {
+    category: "full_stack_web",
+    label: "Full-Stack Web",
+    items: [
+      "React",
+      "Next.js",
+      "Redux",
+      "Node.js",
+      "Express",
+      "Spring Boot",
+      "Spring Data JPA",
+      "Hibernate",
+      "Tailwind CSS",
+      "Material-UI",
+      "REST APIs",
+      "JWT / OAuth 2.0",
+      "Stripe",
+      "Solidity",
+      "ethers.js",
+    ],
+  },
+  {
+    category: "gen_ai",
+    label: "Generative AI",
+    items: [
+      "LangChain",
+      "LangGraph",
+      "LangChain.js",
+      "Hugging Face",
+      "Ollama",
+      "Agentic AI",
+      "MCP",
+      "RAG",
+      "GraphRAG",
+      "Fine-tuning",
+      "FAISS",
+      "ChromaDB",
+      "Qdrant",
+      "FastAPI",
+    ],
   },
   {
     category: "data_engineering",
+    label: "Data Engineering",
     items: [
       "Databricks",
       "PySpark",
@@ -537,23 +757,8 @@ export const skills = [
     ],
   },
   {
-    category: "gen_ai",
-    items: [
-      "LangChain",
-      "LangGraph",
-      "Hugging Face",
-      "Ollama",
-      "Agentic AI",
-      "MCP",
-      "RAG",
-      "Fine-tuning",
-      "FAISS",
-      "ChromaDB",
-      "FastAPI",
-    ],
-  },
-  {
     category: "ml_and_dl",
+    label: "ML & Deep Learning",
     items: [
       "Machine Learning",
       "Deep Learning",
@@ -565,12 +770,26 @@ export const skills = [
       "Transformers",
       "Transfer Learning",
       "GANs",
-      "XAI",
       "OCR",
       "TensorFlow",
       "PyTorch",
       "Keras",
       "MLOps",
+    ],
+  },
+  {
+    category: "tools",
+    label: "Tools & Foundations",
+    items: [
+      "Git",
+      "Docker",
+      "Maven",
+      "System Design",
+      "DSA",
+      "OOP",
+      "DBMS",
+      "Operating Systems",
+      "Cloudinary",
     ],
   },
 ];

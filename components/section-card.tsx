@@ -1,24 +1,30 @@
 import { cn } from "@/lib/utils";
 
 type Props = {
-  filename: string;
+  title?: string;
+  eyebrow?: string;
   className?: string;
   children: React.ReactNode;
 };
 
-export function SectionCard({ filename, className, children }: Props) {
+export function SectionCard({ title, eyebrow, className, children }: Props) {
   return (
-    <section
-      className={cn(
-        "rounded-md border border-border bg-background-alt/60 backdrop-blur",
-        className
+    <section className={cn("card p-6 sm:p-7", className)}>
+      {(title || eyebrow) && (
+        <header className="mb-4">
+          {eyebrow && (
+            <div className="text-xs font-semibold uppercase tracking-wider text-accent">
+              {eyebrow}
+            </div>
+          )}
+          {title && (
+            <h3 className="mt-1 text-lg font-semibold text-foreground">
+              {title}
+            </h3>
+          )}
+        </header>
       )}
-    >
-      <header className="flex items-center gap-2 border-b border-border px-4 py-2 text-xs text-muted">
-        <span className="h-2 w-2 rounded-full bg-accent-2" />
-        <span className="font-medium text-foreground">{filename}</span>
-      </header>
-      <div className="p-5 sm:p-6 text-sm sm:text-[15px] leading-relaxed">
+      <div className="text-[15px] leading-relaxed text-foreground/90">
         {children}
       </div>
     </section>

@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { Background } from "@/components/background";
 import { profile } from "@/lib/data";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -29,13 +37,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <div className="crt-overlay" />
-        <div className="scanline" />
+      <body className="min-h-full flex flex-col text-foreground">
+        <Background />
         <Nav />
-        <main className="relative z-10 mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 py-10 sm:py-14">
+        <main className="relative z-10 mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 py-12 sm:py-16">
           {children}
         </main>
         <Footer />

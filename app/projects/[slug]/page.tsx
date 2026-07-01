@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Github } from "@/components/brand-icons";
-import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { DomainBadge } from "@/components/domain-badge";
+import { Reveal } from "@/components/reveal";
 import { Tag } from "@/components/tag";
 import { projects } from "@/lib/data";
 
@@ -18,9 +19,9 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
-  if (!project) return { title: "project — dinesh" };
+  if (!project) return { title: "Project — Dinesh" };
   return {
-    title: `${project.name} — dinesh`,
+    title: `${project.name} — Dinesh`,
     description: project.summary,
   };
 }
@@ -34,40 +35,47 @@ export default async function ProjectDetailPage({
   const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
 
+  const related = projects
+    .filter((p) => p.slug !== project.slug && p.domain === project.domain)
+    .slice(0, 3);
+  const fallback = projects.filter((p) => p.slug !== project.slug).slice(0, 3);
+  const suggestions = related.length ? related : fallback;
+
   return (
     <div>
       <Link
         href="/projects"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent mb-6"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-accent"
       >
-        <ArrowLeft size={14} /> cd ..
+        <ArrowLeft size={15} /> Back to projects
       </Link>
 
-      <PageHeader command={`cat projects/${project.slug}.md`} />
-
-      <div className="grid lg:grid-cols-[1.6fr,1fr] gap-6 items-start">
-        <div className="space-y-5">
-          <SectionCard filename={`${project.slug}/README.md`}>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  <span className="text-accent-2">./</span>
-                  {project.name}
-                </h1>
-                <p className="mt-2 text-muted">{project.tagline}</p>
-              </div>
-              <div className="text-xs text-muted shrink-0">
-                <span className="text-accent-2">[</span>
-                {project.period}
-                <span className="text-accent-2">]</span>
-              </div>
+      {/* Hero */}
+      <Reveal>
+        <div className="card relative overflow-hidden p-7 sm:p-9">
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(30rem 16rem at 100% -20%, rgba(79,70,229,0.10), transparent 70%)",
+            }}
+          />
+          <div className="relative">
+            <div className="flex flex-wrap items-center gap-3">
+              <DomainBadge domain={project.domain} />
+              <span className="text-xs text-muted-2">{project.period}</span>
             </div>
-
-            <p className="mt-5 text-foreground/90 leading-relaxed">
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {project.name}
+            </h1>
+            <p className="mt-3 max-w-2xl text-lg text-muted">
+              {project.tagline}
+            </p>
+            <p className="mt-5 max-w-3xl leading-relaxed text-foreground/85">
               {project.summary}
             </p>
 
-            <div className="mt-5 flex flex-wrap gap-1.5">
+            <div className="mt-6 flex flex-wrap gap-1.5">
               {project.stack.map((s) => (
                 <Tag key={s}>{s}</Tag>
               ))}
@@ -77,93 +85,99 @@ export default async function ProjectDetailPage({
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded border border-border px-3 py-1.5 text-sm hover:border-accent hover:text-accent"
+              className="btn btn-primary mt-7"
             >
-              <Github size={14} /> view on github
+              <Github size={16} /> View on GitHub <ArrowUpRight size={15} />
             </a>
-          </SectionCard>
+          </div>
+        </div>
+      </Reveal>
 
-          <SectionCard filename="problem.md">
-            <div className="text-xs text-muted mb-2">
-              <span className="text-accent-2"># </span>problem
-            </div>
-            <p className="text-foreground/90 leading-relaxed">{project.problem}</p>
-          </SectionCard>
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="space-y-6">
+          <Reveal delay={0.05}>
+            <SectionCard eyebrow="Problem">
+              <p className="leading-relaxed text-foreground/85">
+                {project.problem}
+              </p>
+            </SectionCard>
+          </Reveal>
 
-          <SectionCard filename="approach.md">
-            <div className="text-xs text-muted mb-3">
-              <span className="text-accent-2"># </span>approach
-            </div>
-            <ol className="space-y-3">
-              {project.approach.map((step, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="text-accent shrink-0 mt-0.5">
-                    {String(i + 1).padStart(2, "0")}.
-                  </span>
-                  <span className="text-foreground/90 leading-relaxed">
-                    {step}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </SectionCard>
+          <Reveal delay={0.1}>
+            <SectionCard eyebrow="Approach">
+              <ol className="space-y-4">
+                {project.approach.map((step, i) => (
+                  <li key={i} className="flex gap-4">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-xs font-semibold text-accent">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="leading-relaxed text-foreground/85">
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </SectionCard>
+          </Reveal>
 
-          <SectionCard filename="highlights.md">
-            <div className="text-xs text-muted mb-3">
-              <span className="text-accent-2"># </span>highlights
-            </div>
-            <ul className="space-y-2.5">
-              {project.highlights.map((h, i) => (
-                <li key={i} className="flex gap-2.5">
-                  <span className="text-accent-2 mt-0.5">✓</span>
-                  <span className="text-foreground/90">{h}</span>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
+          <Reveal delay={0.15}>
+            <SectionCard eyebrow="Highlights">
+              <ul className="space-y-3">
+                {project.highlights.map((h, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="mt-0.5 text-accent">✓</span>
+                    <span className="text-foreground/85">{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </Reveal>
         </div>
 
-        <aside className="space-y-5">
-          <SectionCard filename="metrics.json">
-            <ul className="space-y-3">
-              {project.metrics.map((m) => (
-                <li key={m.label}>
-                  <div className="text-xs text-muted">{m.label}</div>
-                  <div className="text-lg text-accent font-semibold">
-                    {m.value}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
+        <aside className="space-y-6">
+          <Reveal delay={0.1}>
+            <SectionCard eyebrow="At a glance">
+              <ul className="space-y-4">
+                {project.metrics.map((m) => (
+                  <li key={m.label}>
+                    <div className="text-xs uppercase tracking-wider text-muted-2">
+                      {m.label}
+                    </div>
+                    <div className="mt-0.5 text-lg font-bold text-foreground">
+                      {m.value}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </Reveal>
 
-          <SectionCard filename="stack.txt">
-            <div className="flex flex-wrap gap-1.5">
-              {project.stack.map((s) => (
-                <Tag key={s}>{s}</Tag>
-              ))}
-            </div>
-          </SectionCard>
-
-          <SectionCard filename="related.md">
-            <div className="space-y-2">
-              {projects
-                .filter((p) => p.slug !== project.slug)
-                .map((p) => (
+          <Reveal delay={0.15}>
+            <SectionCard eyebrow="More projects">
+              <div className="space-y-3">
+                {suggestions.map((p) => (
                   <Link
                     key={p.slug}
                     href={`/projects/${p.slug}`}
-                    className="block group"
+                    className="group flex items-start gap-3 rounded-lg border border-border p-3 transition-colors hover:border-accent hover:bg-accent-soft/40"
                   >
-                    <div className="text-sm text-foreground group-hover:text-accent">
-                      <span className="text-accent-2">./</span>
-                      {p.name}
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-foreground group-hover:text-accent">
+                        {p.name}
+                      </div>
+                      <div className="truncate text-xs text-muted">
+                        {p.tagline}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted">{p.tagline}</div>
+                    <ArrowUpRight
+                      size={15}
+                      className="ml-auto shrink-0 text-muted-2 group-hover:text-accent"
+                    />
                   </Link>
                 ))}
-            </div>
-          </SectionCard>
+              </div>
+            </SectionCard>
+          </Reveal>
         </aside>
       </div>
     </div>

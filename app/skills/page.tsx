@@ -1,51 +1,54 @@
 import { PageHeader } from "@/components/page-header";
-import { SectionCard } from "@/components/section-card";
+import { Reveal } from "@/components/reveal";
 import { Tag } from "@/components/tag";
 import { skills } from "@/lib/data";
 
-export const metadata = { title: "skills — dinesh" };
-
-const labels: Record<string, string> = {
-  languages: "languages & databases",
-  data_engineering: "data engineering",
-  gen_ai: "generative ai",
-  ml_and_dl: "ml & deep learning",
-};
+export const metadata = { title: "Skills — Dinesh" };
 
 export default function SkillsPage() {
   return (
     <div>
       <PageHeader
-        command="cat skills.toml"
-        description="The stack I work with. Some are daily drivers, others are tools I have shipped real projects with."
+        eyebrow="Skills"
+        title="The tools I build with"
+        description="Some are daily drivers, others are things I picked up to ship a specific project. I add to this list whenever an idea demands it."
       />
 
-      <div className="grid md:grid-cols-2 gap-5">
-        {skills.map((group) => (
-          <SectionCard key={group.category} filename={`${group.category}.toml`}>
-            <div className="mb-3 text-xs">
-              <span className="text-accent-2">[</span>
-              <span className="text-magenta">{labels[group.category] ?? group.category}</span>
-              <span className="text-accent-2">]</span>
+      <div className="grid gap-5 md:grid-cols-2">
+        {skills.map((group, i) => (
+          <Reveal key={group.category} delay={i * 0.06}>
+            <div className="card h-full p-6 sm:p-7">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-accent to-violet" />
+                <h2 className="text-base font-bold tracking-tight">
+                  {group.label}
+                </h2>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <Tag key={item} className="!text-[0.8rem] !py-1 !px-2.5">
+                    {item}
+                  </Tag>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {group.items.map((item) => (
-                <Tag key={item} className="text-sm py-1 px-2.5">
-                  {item}
-                </Tag>
-              ))}
-            </div>
-          </SectionCard>
+          </Reveal>
         ))}
       </div>
 
-      <div className="mt-8 rounded-md border border-border bg-background-alt/40 p-5 text-sm text-muted">
-        <span className="text-accent-2">$</span> note --philosophy
-        <p className="mt-2 leading-relaxed text-foreground/85">
-          I prefer building T-shaped knowledge — deep enough in Data Engineering and Gen AI to ship production systems,
-          broad enough across ML, DL, CV and NLP to choose the right tool when the problem calls for it.
-        </p>
-      </div>
+      <Reveal delay={0.1}>
+        <div className="card mt-6 p-6 sm:p-8">
+          <div className="text-xs font-semibold uppercase tracking-wider text-accent">
+            Philosophy
+          </div>
+          <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-foreground/85">
+            I aim for T-shaped range — deep enough in Data Engineering and Gen AI
+            to ship production systems, broad enough across full-stack web, ML,
+            DL, CV and NLP to pick the right tool for the problem. When something
+            new is needed, I learn it on demand and build with it.
+          </p>
+        </div>
+      </Reveal>
     </div>
   );
 }
