@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Clean modern SaaS — light-first, indigo accent */
-  --background: #ffffff;
-  --background-alt: #f8fafc;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --border: #e5e9f0;
-  --border-strong: #d5dbe6;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --muted-2: #94a3b8;
+  /* Dark developer / AI-geek theme — near-black, indigo-violet accent */
+  --background: #09090f;
+  --background-alt: #0e0e17;
+  --surface: #12121c;
+  --surface-2: #1a1a28;
+  --border: #232336;
+  --border-strong: #31314a;
+  --foreground: #ededf5;
+  --muted: #9a9ab3;
+  --muted-2: #6a6a85;
 
-  --accent: #4f46e5;        /* indigo-600 */
-  --accent-hover: #4338ca;  /* indigo-700 */
-  --accent-soft: #eef2ff;   /* indigo-50  */
-  --accent-ring: rgba(79, 70, 229, 0.18);
+  --accent: #818cf8;        /* indigo-400 — bright on dark */
+  --accent-hover: #a5b4fc;  /* indigo-300 */
+  --accent-soft: #1e1b4b;   /* indigo-950 */
+  --accent-ring: rgba(129, 140, 248, 0.25);
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Domain accent hues (used for badges + gradients) */
-  --violet: #7c3aed;
-  --emerald: #059669;
-  --amber: #d97706;
-  --fuchsia: #c026d3;
-  --sky: #0284c7;
+  --violet: #a78bfa;
+  --emerald: #34d399;
+  --amber: #fbbf24;
+  --fuchsia: #e879f9;
+  --sky: #38bdf8;
 }
 
 @theme inline {
@@ -78,9 +78,9 @@ body {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  /* a gentle wash so the page is never pure white */
+  /* a gentle wash so the page is never pure black */
   background:
-    linear-gradient(180deg, #fbfbff 0%, #f6f7fb 55%, #fdf7f6 100%);
+    linear-gradient(180deg, #0b0b14 0%, #09090f 55%, #0d0a14 100%);
 }
 
 /* faint grid on top of the wash */
@@ -89,8 +89,8 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(148, 163, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 255, 0.055) 1px, transparent 1px);
   background-size: 46px 46px;
   mask-image: radial-gradient(circle at 50% 25%, black, transparent 78%);
   -webkit-mask-image: radial-gradient(circle at 50% 25%, black, transparent 78%);
@@ -108,7 +108,7 @@ body {
   height: 38rem;
   top: -10rem;
   left: -8rem;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.55), transparent 68%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.34), transparent 68%);
   animation: orb-1 20s ease-in-out infinite alternate;
 }
 .orb-rose {
@@ -116,7 +116,7 @@ body {
   height: 34rem;
   top: 18%;
   right: -10rem;
-  background: radial-gradient(circle, rgba(251, 146, 158, 0.45), transparent 68%);
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.28), transparent 68%);
   animation: orb-2 24s ease-in-out infinite alternate;
 }
 .orb-teal {
@@ -124,7 +124,7 @@ body {
   height: 36rem;
   bottom: -12rem;
   left: 22%;
-  background: radial-gradient(circle, rgba(94, 234, 212, 0.42), transparent 68%);
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.22), transparent 68%);
   animation: orb-3 22s ease-in-out infinite alternate;
 }
 
@@ -147,8 +147,8 @@ body {
   inset: 0;
   /* faint grid */
   background-image:
-    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, rgba(148, 163, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 255, 0.05) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(circle at 50% 30%, black, transparent 80%);
   -webkit-mask-image: radial-gradient(circle at 50% 30%, black, transparent 80%);
@@ -187,7 +187,7 @@ a {
 
 /* --- Gradient text --- */
 .gradient-text {
-  background: linear-gradient(100deg, #4f46e5 0%, #7c3aed 45%, #0284c7 100%);
+  background: linear-gradient(100deg, #818cf8 0%, #c084fc 45%, #22d3ee 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

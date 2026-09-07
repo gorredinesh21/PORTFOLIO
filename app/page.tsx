@@ -7,19 +7,20 @@ import { ProjectCard } from "@/components/project-card";
 import { profile, projects } from "@/lib/data";
 
 const heroTags = [
-  "Next.js",
-  "React",
   "LangGraph",
-  "Spring Boot",
-  "Databricks",
-  "PyTorch",
+  "Agentic AI",
+  "RAG / GraphRAG",
+  "MCP",
+  "FastAPI",
+  "Go",
+  "Next.js",
 ];
 
 const pillars = [
   {
     icon: Sparkles,
     title: "Generative AI",
-    body: "Agentic systems, RAG & GraphRAG, LangChain / LangGraph, MCP, and LLM pipelines — from prototype to shipped product.",
+    body: "Agentic systems, RAG & GraphRAG, LangChain / LangGraph, MCP and LLM pipelines — from prototype to shipped product, including an AI payment agent running in production.",
     gradient: "from-indigo-500 to-violet-500",
   },
   {
@@ -37,9 +38,9 @@ const pillars = [
 ];
 
 const stats = [
-  { value: "15+", label: "Projects shipped" },
-  { value: "3", label: "Domains — AI · Web · Data" },
-  { value: "Top 200", label: "Amazon ML Challenge" },
+  { value: "1", label: "Live startup · real users (homatri.com)" },
+  { value: "19+", label: "Projects shipped" },
+  { value: "3", label: "Production Android apps" },
   { value: "IIT (ISM)", label: "CSE '25" },
 ];
 

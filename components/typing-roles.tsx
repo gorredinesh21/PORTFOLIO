@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 const WORDS = [
-  "GenAI systems.",
-  "full-stack web apps.",
-  "data pipelines.",
-  "things people use.",
+  "AI agents people use.",
+  "LLM systems that ship.",
+  "live products end-to-end.",
+  "startups, not demos.",
 ];
 
 export function TypingRoles() {

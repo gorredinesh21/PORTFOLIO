@@ -1,9 +1,9 @@
 export const profile = {
   name: "Gorre Dinesh Chandan Reddy",
   shortName: "Dinesh",
-  role: "Software Engineer — AI · Web · Data",
+  role: "AI Engineer — I build and ship real products",
   tagline:
-    "An engineer who builds across GenAI, full-stack web and data — I pick up whatever a good idea needs and ship things people actually use.",
+    "I build AI-powered products end-to-end and ship them to real users — including Homaatri, my live home-food marketplace startup (homatri.com). Agentic AI, LLM systems, full-stack product engineering.",
   location: "Mumbai, India",
   email: "gorredinesh21@gmail.com",
   phone: "+91 74167 67453",
@@ -50,7 +50,7 @@ export const aboutBio = [
     heading: "Right now",
     content: [
       "At work: designing a Unified Genie architecture on Databricks that beats the native 30-table limit, and a Talk-to-Genie web app that lets non-Databricks users converse with internal data over OAuth.",
-      "On the side: shipping full-stack products end-to-end — an AI market-intelligence platform, a MERN e-commerce store and coded LLM automation pipelines.",
+      "On the side: running Homaatri — my live home-food marketplace startup (homatri.com) with real users: website, three Android apps, GCP infra and an agentic AI payment flow on WhatsApp. Plus LLM infrastructure projects in Go (a concurrent embedding gateway and a Redis-compatible KV store).",
       "Always: writing PySpark that turns Silver data into Gold KPI tables, and looking for the next thing worth building.",
     ],
   },
@@ -105,6 +105,7 @@ type Project = {
   period: string;
   stack: string[];
   github: string;
+  liveUrl?: string;
   summary: string;
   problem: string;
   approach: string[];
@@ -113,6 +114,50 @@ type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    slug: "homaatri",
+    name: "Homaatri — Live AI Startup",
+    tagline:
+      "Home-food marketplace in production: website, 3 Android apps, GCP infra, agentic AI payments on WhatsApp",
+    domain: "GenAI",
+    featured: true,
+    period: "2026 · Live at homatri.com",
+    stack: [
+      "Next.js 14",
+      "React Native (Expo)",
+      "FastAPI",
+      "PostgreSQL",
+      "GCP Cloud Run",
+      "WhatsApp Business API",
+      "Agentic AI",
+      "Razorpay",
+      "Google Maps",
+    ],
+    github: "https://github.com/gorredinesh21/homatri",
+    liveUrl: "https://homatri.com",
+    summary:
+      "I built a startup and shipped it: homatri.com is a hyper-local home-food marketplace connecting customers, home-chef kitchens and delivery riders — live in production with real users and real orders. One FastAPI backend, a Next.js 14 website, three Android apps (customer, chef, rider) and an agentic AI payment flow on WhatsApp Business.",
+    problem:
+      "Restaurants can't cook your region's home food — only a home cook from your own district can. But home cooks have no software: no storefront, no payments, no delivery coordination. I wanted to build the entire production system myself — website, apps, backend, infrastructure and an AI payments agent — and run it with real users, not as a demo.",
+    approach: [
+      "Designed and shipped the full platform solo: Next.js 14 website, FastAPI backend on Cloud Run, PostgreSQL on Cloud SQL, GCS media pipeline and Cloud Build CI/CD.",
+      "Built three React Native (Expo) Android apps — customer, chef and rider — deployed as production APKs sharing one API.",
+      "Built an agentic AI payment flow on WhatsApp Business that conversationally guides customers through ordering and payment end-to-end.",
+      "Engineered two-click guest-first ordering: cart without login, GPS-crosshair address capture via Google Maps Geocoding, Razorpay / COD checkout with login only at payment.",
+      "Shipped multi-portal operations — chef onboarding with admin approval gating, rider onboarding with license verification, and an admin portal running the live marketplace.",
+    ],
+    highlights: [
+      "Live in production at homatri.com with real users and real orders — not a portfolio demo.",
+      "Four production codebases (web + backend + 3 apps) against one API on GCP.",
+      "Agentic AI payments on WhatsApp Business — ordering and checkout handled conversationally.",
+      "Two-click guest-first ordering UX with Google Maps geocoding and Razorpay / COD.",
+    ],
+    metrics: [
+      { label: "Status", value: "Live · real users" },
+      { label: "Surfaces", value: "Web + 3 Android apps" },
+      { label: "Infra", value: "GCP Cloud Run + SQL" },
+    ],
+  },
   {
     slug: "startup-intelligence-platform",
     name: "Startup Intelligence Platform",
@@ -157,6 +202,99 @@ export const projects: Project[] = [
       { label: "Retrieval", value: "GraphRAG + RAPTOR" },
       { label: "Embeddings", value: "BGE-large (1024-d)" },
       { label: "Storage", value: "Qdrant + Neo4j + SQL" },
+    ],
+  },
+  {
+    slug: "llmgateway",
+    name: "LLM Gateway",
+    tagline:
+      "Concurrent LLM / embedding gateway in Go — 32x faster batch embedding",
+    domain: "Systems",
+    featured: false,
+    period: "2026",
+    stack: ["Go", "Worker Pools", "Token-Bucket Rate Limiting", "context", "Benchmarks"],
+    github: "https://github.com/gorredinesh21/llmgateway",
+    summary:
+      "A provider-agnostic concurrent LLM / embedding gateway in Go: a bounded worker pool keeps many provider calls in flight, a token-bucket limiter respects rate limits, and context cancels whole batches cleanly. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled (~32x).",
+    problem:
+      "Embedding or calling LLM providers at scale is embarrassingly parallel but easy to get wrong — unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. I wanted the concurrency, backpressure and cancellation semantics done properly, with benchmarks to prove it.",
+    approach: [
+      "Bounded worker pool with near-linear scaling (1 -> 32 workers: ~32x speedup, verified with Go benchmarks).",
+      "Token-bucket rate limiter so batches respect provider RPS limits without thundering-herd retries.",
+      "context.Context threaded through every call — one cancellation kills the whole batch cleanly.",
+      "Provider-agnostic backend interface with a zero-cost mock, so the gateway runs and benchmarks with no API keys.",
+    ],
+    highlights: [
+      "2,000 chunks: 10.69s serial -> 0.33s pooled (187/sec -> 6,023/sec).",
+      "Near-linear pool scaling proven by BenchmarkPoolSpeedup (4/16/32 workers).",
+      "Rate limiting + clean batch cancellation built in; zero-key mock backend for instant local runs.",
+    ],
+    metrics: [
+      { label: "Speedup", value: "~32x" },
+      { label: "Throughput", value: "6,023 embeds/sec" },
+      { label: "Language", value: "Go" },
+    ],
+  },
+  {
+    slug: "voltkv",
+    name: "voltkv",
+    tagline:
+      "Redis-compatible in-memory KV store written from scratch in Go (RESP2)",
+    domain: "Systems",
+    featured: false,
+    period: "2026",
+    stack: ["Go", "RESP2 Protocol", "TCP Networking", "Sharding", "AOF Persistence", "TTL Sweeper"],
+    github: "https://github.com/gorredinesh21/voltkv",
+    summary:
+      "A Redis-compatible, in-memory key-value store written from scratch in Go. It speaks the real Redis RESP2 wire protocol — redis-cli, redis-benchmark and standard Redis clients just work — with 16 keyspace shards, TTL expiry sweeps and optional append-only-file persistence.",
+    problem:
+      "I wanted to understand what Redis actually is under the hood — protocol parsing, safe concurrency under thousands of connections, memory eviction and durability — by building one rather than reading about one.",
+    approach: [
+      "Implemented the RESP2 wire protocol parser/serializer so real Redis clients connect without knowing the difference.",
+      "Sharded keyspace (power-of-two shards, default 16) with per-shard locking for safe concurrency under many clients.",
+      "Background TTL sweeper for key expiry plus optional append-only-file persistence for durability across restarts.",
+      "Validated with redis-cli and redis-benchmark against live workloads.",
+    ],
+    highlights: [
+      "Speaks real RESP2 — redis-cli and redis-benchmark work out of the box.",
+      "Sharded, concurrency-safe keyspace built for thousands of simultaneous connections.",
+      "AOF persistence + background TTL sweeping, configurable via flags.",
+    ],
+    metrics: [
+      { label: "Protocol", value: "RESP2 (Redis)" },
+      { label: "Shards", value: "16 (default)" },
+      { label: "Persistence", value: "AOF" },
+    ],
+  },
+  {
+    slug: "vectorshift-pipeline-builder",
+    name: "VectorShift Pipeline Builder",
+    tagline:
+      "Drag-and-drop AI pipeline builder — React Flow frontend + FastAPI graph analysis",
+    domain: "GenAI",
+    featured: false,
+    period: "2026",
+    stack: ["React 18", "React Flow", "Zustand", "FastAPI", "JavaScript", "Python"],
+    github: "https://github.com/gorredinesh21/vector_shift",
+    summary:
+      "A polished, extensible no-code builder for AI pipelines: drag nodes onto a canvas, wire inputs and outputs, and run the resulting graph. Built around a reusable node abstraction (5+ custom node types), a cohesive UI, dynamic Text-node logic and a frontend-backend integration that analyzes the pipeline DAG.",
+    problem:
+      "Every AI pipeline builder reinvents its nodes by copy-paste. This assessment was about engineering taste: one clean node abstraction that makes new node types cheap, a UI that feels cohesive, and a backend that actually reasons about the graph (cycles, connectivity, reachability) rather than just storing it.",
+    approach: [
+      "Built a reusable node abstraction with shared styles and handles, then used it to ship 5+ new node types fast.",
+      "Managed canvas state in Zustand with derived edge/node graph structures for analysis.",
+      "Dynamic Text-node logic: output schema adapts to input wiring at runtime.",
+      "FastAPI backend runs graph analysis over the submitted pipeline (validation, adjacency, reachability).",
+    ],
+    highlights: [
+      "One node abstraction, 5+ node types — adding a node is a config, not a copy-paste.",
+      "Frontend-backend integration with real graph analysis on the pipeline DAG.",
+      "Cohesive React Flow UI with Zustand state and dynamic Text-node behaviour.",
+    ],
+    metrics: [
+      { label: "Frontend", value: "React Flow + Zustand" },
+      { label: "Backend", value: "FastAPI" },
+      { label: "Node types", value: "5+ via abstraction" },
     ],
   },
   {
@@ -795,6 +933,7 @@ export const skills = [
 ];
 
 export const achievements = [
+  "Built and shipped Homaatri (homatri.com) — a live production startup with real users: website, 3 Android apps, GCP infrastructure and agentic AI payments on WhatsApp.",
   "Secured AIR 2903 in JEE Advanced and AIR 4616 in JEE Mains.",
   "Ranked Top 200 out of 18,500+ teams in Amazon ML Challenge.",
   "Participated in Hackfest'23 at IIT Dhanbad.",

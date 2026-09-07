@@ -81,14 +81,26 @@ export default async function ProjectDetailPage({
               ))}
             </div>
 
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary mt-7"
-            >
-              <Github size={16} /> View on GitHub <ArrowUpRight size={15} />
-            </a>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <a
+                href={project.liveUrl ?? project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+              >
+                {project.liveUrl ? <>Visit live site <ArrowUpRight size={15} /></> : <><Github size={16} /> View on GitHub <ArrowUpRight size={15} /></>}
+              </a>
+              {project.liveUrl && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                >
+                  <Github size={16} /> View on GitHub
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </Reveal>
