@@ -1,9 +1,9 @@
 export const profile = {
   name: "Gorre Dinesh Chandan Reddy",
   shortName: "Dinesh",
-  role: "AI Engineer — I build and ship real products",
+  role: "Software Engineer — AI, Data & Full-Stack",
   tagline:
-    "I build AI-powered products end-to-end and ship them to real users — including Homaatri, my live home-food marketplace startup (homatri.com). Agentic AI, LLM systems, full-stack product engineering.",
+    "Software engineer working across AI systems, data engineering and full-stack web. Currently at Reliance Industries; I also run Homaatri (homatri.com), a small home-food marketplace, and keep a growing set of side projects — most of them deployed and linked below.",
   location: "Mumbai, India",
   email: "gorredinesh21@gmail.com",
   phone: "+91 74167 67453",
@@ -41,9 +41,9 @@ export const aboutBio = [
   {
     heading: "How I work",
     content: [
-      "I do not believe in being narrowly specialised this early. I like being an all-rounder: one foot in fundamentals (ML / DL / DSA), one foot in what is current (Gen AI, data platforms), and both hands building the web layer that makes it usable.",
+      "I try to stay broad at this stage: comfortable with fundamentals (ML, DSA, operating systems) and with the current tooling (Gen AI, data platforms), and I enjoy building the web layer that makes things usable.",
       "I learn on demand — when a project needs a skill I do not have yet, I go and get it. Java + Spring Boot, Stripe payments, smart contracts, vector databases: each one started as \"I need this for what I'm building.\"",
-      "I learn by building. Every concept becomes a small project, and I gravitate towards ideas that make everyday life a little easier.",
+      "Most of what I know comes from building things and fixing them when they break. I gravitate towards ideas that make everyday life a little easier.",
     ],
   },
   {
@@ -114,6 +114,39 @@ type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    slug: "support-copilot",
+    name: "Support Copilot",
+    tagline:
+      "Grounded RAG assistant with citations, eval harness and KQL telemetry — deployed on Cloud Run",
+    domain: "GenAI",
+    featured: true,
+    period: "2026",
+    stack: ["React", "FastAPI", "Vertex AI (Gemini)", "RAG", "KQL (Kusto)", "Cloud Run"],
+    github: "https://github.com/gorredinesh21/support-copilot",
+    liveUrl: "https://support-copilot-441384612427.us-central1.run.app",
+    summary:
+      "A customer-support knowledge assistant: a React chat interface over a retrieval-augmented pipeline that answers only from a 30-document support corpus, cites every source, and emits App-Insights-compatible telemetry with a KQL dashboard for success rate, latency and no-answer rate.",
+    problem:
+      "Support engineers re-read the same docs all day. I wanted a small, honest version of a support copilot: grounded answers with citations, an explicit 'I could not find this' fallback instead of hallucination, and operational telemetry so quality is measurable rather than assumed.",
+    approach: [
+      "Header-aware markdown chunking (procedures stay whole), cached vector embeddings, and a provider-agnostic retrieval interface with an Azure AI Search adapter ready for production.",
+      "Grounded generation with a citation-enforcement retry: an answer that forgets its [n] markers gets regenerated once — measured, not hoped for.",
+      "App-Insights-compatible telemetry schema (operation_Id, success, duration, customDimensions) with KQL dashboard queries for success rate, p95 latency and no-answer rate.",
+      "Golden-set evaluation of 18 real questions wired into pytest: retrieval hit@3, citation rate and latency budgets gate every change.",
+    ],
+    highlights: [
+      "Retrieval hit@3 = 1.00 and citation rate = 1.00 on the 18-question golden set; p95 = 3.8s.",
+      "Live on Google Cloud Run — single container serving the React app and API.",
+      "Quota-aware clients (Retry-After backoff) on both the embedding and LLM paths.",
+    ],
+    metrics: [
+      { label: "hit@3", value: "1.00" },
+      { label: "Citation rate", value: "1.00" },
+      { label: "p95 latency", value: "3.8s" },
+    ],
+  },
+
   {
     slug: "homaatri",
     name: "Homaatri — Live AI Startup",
@@ -214,10 +247,11 @@ export const projects: Project[] = [
     period: "2026",
     stack: ["Go", "Worker Pools", "Token-Bucket Rate Limiting", "context", "Benchmarks"],
     github: "https://github.com/gorredinesh21/llmgateway",
+    liveUrl: "https://llmgateway-441384612427.us-central1.run.app",
     summary:
       "A provider-agnostic concurrent LLM / embedding gateway in Go: a bounded worker pool keeps many provider calls in flight, a token-bucket limiter respects rate limits, and context cancels whole batches cleanly. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled (~32x).",
     problem:
-      "Embedding or calling LLM providers at scale is embarrassingly parallel but easy to get wrong — unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. I wanted the concurrency, backpressure and cancellation semantics done properly, with benchmarks to prove it.",
+      "Embedding or calling LLM providers at scale is easy to get wrong — unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. This project was my way of learning to do the concurrency, backpressure and cancellation properly, with benchmarks to check myself.",
     approach: [
       "Bounded worker pool with near-linear scaling (1 -> 32 workers: ~32x speedup, verified with Go benchmarks).",
       "Token-bucket rate limiter so batches respect provider RPS limits without thundering-herd retries.",
@@ -245,6 +279,7 @@ export const projects: Project[] = [
     period: "2026",
     stack: ["Go", "RESP2 Protocol", "TCP Networking", "Sharding", "AOF Persistence", "TTL Sweeper"],
     github: "https://github.com/gorredinesh21/voltkv",
+    liveUrl: "https://voltkv-demo-441384612427.us-central1.run.app",
     summary:
       "A Redis-compatible, in-memory key-value store written from scratch in Go. It speaks the real Redis RESP2 wire protocol — redis-cli, redis-benchmark and standard Redis clients just work — with 16 keyspace shards, TTL expiry sweeps and optional append-only-file persistence.",
     problem:
@@ -276,10 +311,11 @@ export const projects: Project[] = [
     period: "2026",
     stack: ["React 18", "React Flow", "Zustand", "FastAPI", "JavaScript", "Python"],
     github: "https://github.com/gorredinesh21/vector_shift",
+    liveUrl: "https://vector-shift-441384612427.us-central1.run.app",
     summary:
       "A polished, extensible no-code builder for AI pipelines: drag nodes onto a canvas, wire inputs and outputs, and run the resulting graph. Built around a reusable node abstraction (5+ custom node types), a cohesive UI, dynamic Text-node logic and a frontend-backend integration that analyzes the pipeline DAG.",
     problem:
-      "Every AI pipeline builder reinvents its nodes by copy-paste. This assessment was about engineering taste: one clean node abstraction that makes new node types cheap, a UI that feels cohesive, and a backend that actually reasons about the graph (cycles, connectivity, reachability) rather than just storing it.",
+      "A take-home assessment: one node abstraction that keeps new node types cheap, a cohesive UI, and a backend that reasons about the graph (cycles, connectivity, reachability) rather than just storing it.",
     approach: [
       "Built a reusable node abstraction with shared styles and handles, then used it to ship 5+ new node types fast.",
       "Managed canvas state in Zustand with derived edge/node graph structures for analysis.",
@@ -363,6 +399,7 @@ export const projects: Project[] = [
       "Material-UI",
     ],
     github: "https://github.com/gorredinesh21/FinNest",
+    liveUrl: "https://finnest-demo-441384612427.us-central1.run.app",
     summary:
       "A full-stack online-banking application: a layered Spring Boot REST API backend and a React + Redux single-page frontend. It models users, accounts, transactions and payments, runs a full transaction engine (deposits, transfers, withdrawals, bill payments) with balance validation and audit logging, and surfaces everything in a dashboard with live balance charts.",
     problem:
@@ -447,6 +484,7 @@ export const projects: Project[] = [
       "LaTeX",
     ],
     github: "https://github.com/gorredinesh21/career-ops-3.0",
+    liveUrl: "https://career-ops-dashboard-441384612427.us-central1.run.app",
     summary:
       "A code-first evolution of my Career-Ops job-search system — instead of an AI-CLI skill, the whole pipeline is written as a LangChain.js program. It fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, scores each job /5 against every resume with Zod-validated chains, and generates ATS-ready, JD-specific resumes — all tracked in a single dashboard.",
     problem:
@@ -492,7 +530,7 @@ export const projects: Project[] = [
     summary:
       "A heavily customized, India-tuned build of the agentic Career-Ops job-search system — turning any AI coding CLI (Claude Code, Gemini, OpenCode, Codex) into a job-search command center that evaluates offers with a structured A–F rubric, generates ATS-optimized PDF CVs and cover letters per role, and scans portals automatically. I rebuilt the scanner around verified Indian ATS boards and wired in Apify and Telegram sourcing.",
     problem:
-      "Most job-search tooling is spray-and-pray. I wanted a filter, not a firehose — a system that reasons about my CV against each JD (not keyword matching), scores fit honestly, and tailors a resume only for roles worth applying to. The upstream system was tuned for US/EU AI labs, so I re-targeted the whole thing for the Indian GenAI / Data-Engineering market.",
+      "Job-search tooling tends to be spray-and-pray; I wanted a filter that reads my CV against each JD, scores fit honestly, and tailors a resume only for roles worth applying to. The upstream system targeted US/EU AI labs, so I re-targeted it for the Indian market.",
     approach: [
       "Onboarded the open-source Career-Ops agent skill end-to-end: my CV, career story, archetypes, scoring weights and target roles encoded as the system's source-of-truth config.",
       "Rebuilt the portal scanner around verified Indian ATS boards and seeded it with real Indian companies (CRED, Meesho, Razorpay, PhonePe, Groww, Unacademy and more).",
@@ -712,6 +750,7 @@ export const projects: Project[] = [
       "Pickle",
     ],
     github: "https://github.com/gorredinesh21/MOVIE_RECOMENDATION_SYSTEM",
+    liveUrl: "https://movie-recommender-441384612427.us-central1.run.app",
     summary:
       "End-to-end content-based movie recommender that vectorises 5,000 movies on genre, cast, crew, and overview text — and recommends 10 similar titles through a Streamlit web app with TMDb poster lookups.",
     problem:
