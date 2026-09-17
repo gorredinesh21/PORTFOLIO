@@ -213,6 +213,7 @@ export const projects: Project[] = [
       "React Flow",
     ],
     github: "https://github.com/gorredinesh21/Startup-Intelligence-Platform",
+    liveUrl: "https://startup-intel-441384612427.us-central1.run.app",
     summary:
       "An AI-powered market-intelligence system that continuously maps startup ecosystems — competitors, funding histories, partnerships and emerging tech — using a hybrid GraphRAG + RAPTOR engine. A Perplexity-style research agent answers multi-hop questions with inline citations, while an interactive React Flow graph lets you explore the relationships visually.",
     problem:
