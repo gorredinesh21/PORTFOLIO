@@ -19,12 +19,23 @@ const FILTERS: (Domain | "All")[] = [
 export function ProjectGallery() {
   const [active, setActive] = useState<Domain | "All">("All");
 
+  // Sort once: featured first, then live-deployed, then the rest.
+  const sorted = useMemo(
+    () =>
+      [...projects].sort(
+        (a, b) =>
+          Number(b.featured ?? false) - Number(a.featured ?? false) ||
+          Number(!!b.liveUrl) - Number(!!a.liveUrl)
+      ),
+    []
+  );
+
   const filtered = useMemo(
     () =>
       active === "All"
-        ? projects
-        : projects.filter((p) => p.domain === active),
-    [active]
+        ? sorted
+        : sorted.filter((p) => p.domain === active),
+    [active, sorted]
   );
 
   const countFor = (f: Domain | "All") =>

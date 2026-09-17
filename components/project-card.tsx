@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { Tag } from "@/components/tag";
 import { DomainBadge } from "@/components/domain-badge";
+import { Tilt } from "@/components/tilt";
 import type { Domain } from "@/lib/data";
 
 type Project = {
@@ -13,10 +14,12 @@ type Project = {
   stack: string[];
   summary: string;
   liveUrl?: string;
+  featured?: boolean;
 };
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
+    <Tilt>
     <div
       className={`card card-hover group flex flex-col p-6 relative ${
         project.liveUrl
@@ -66,5 +69,6 @@ export function ProjectCard({ project }: { project: Project }) {
         <div className="mt-4 text-xs text-muted-2">{project.period}</div>
       </Link>
     </div>
+    </Tilt>
   );
 }

@@ -3,7 +3,8 @@ import { ArrowRight, Sparkles, Layers, Database, Braces } from "lucide-react";
 import { Github } from "@/components/brand-icons";
 import { TypingRoles } from "@/components/typing-roles";
 import { Reveal } from "@/components/reveal";
-import { ProjectCard } from "@/components/project-card";
+import { Hero3D } from "@/components/hero-3d";
+import { ProjectGallery } from "@/components/project-gallery";
 import { profile, projects } from "@/lib/data";
 
 const heroTags = [
@@ -45,12 +46,11 @@ const stats = [
 ];
 
 export default function Home() {
-  const featured = projects.filter((p) => p.featured).slice(0, 3);
-
   return (
     <div className="space-y-24 sm:space-y-32">
-      {/* Hero */}
-      <section className="pt-6 sm:pt-10">
+      {/* Hero — with CSS-3D scene behind it */}
+      <section className="relative pt-6 sm:pt-10">
+        <Hero3D />
         <Reveal>
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm text-muted shadow-sm">
             <span className="relative flex h-2 w-2">
@@ -147,38 +147,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured projects */}
+      {/* ALL projects — right on the landing page, sorted: featured → live → rest */}
       <section>
         <Reveal>
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <div className="text-sm font-semibold uppercase tracking-wider text-accent">
-                Selected work
-              </div>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                Featured projects
-              </h2>
+          <div className="mb-2">
+            <div className="text-sm font-semibold uppercase tracking-wider text-accent">
+              Everything I&apos;ve shipped
             </div>
-            <Link
-              href="/projects"
-              className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent"
-            >
-              See all
-              <ArrowRight
-                size={15}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </Link>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              All {projects.length} projects — filter, open, try them live
+            </h2>
+            <p className="mt-3 max-w-2xl text-muted">
+              Pinned work first, everything with a{" "}
+              <span className="font-semibold text-green-600 dark:text-green-400">
+                Live — try it
+              </span>{" "}
+              badge is deployed and clickable right now.
+            </p>
           </div>
         </Reveal>
-
-        <div className="grid gap-5 md:grid-cols-3">
-          {featured.map((p, i) => (
-            <Reveal key={p.slug} delay={i * 0.08}>
-              <ProjectCard project={p} />
-            </Reveal>
-          ))}
-        </div>
+        <ProjectGallery />
       </section>
 
       {/* Stats band */}
