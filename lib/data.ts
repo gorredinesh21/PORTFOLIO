@@ -442,6 +442,7 @@ export const projects: Project[] = [
       "Vision (VLM)",
     ],
     github: "https://github.com/gorredinesh21/TINDER_MCP_AI",
+    liveUrl: "https://tinder-ai-coach-441384612427.us-central1.run.app",
     summary:
       "A local web app that scores a user's dating profile, rewrites the bio and prompt answers from their real details, plans their photos with a vision model, and publishes the approved changes live — backed by a pluggable LLM brain (Hugging Face / Gemini / local Ollama) tuned for the Indian market.",
     problem:
@@ -849,6 +850,7 @@ export const projects: Project[] = [
     period: "2022 · First year",
     stack: ["C++", "Windows API", "conio.h", "ASCII Rendering"],
     github: "https://github.com/gorredinesh21/flappy-bird-game",
+    liveUrl: "https://cpp-games-441384612427.us-central1.run.app/flappy.html",
     summary:
       "Single-file flappy bird clone rendered entirely in the Windows console — collision, gravity, scoring and ASCII art in ~150 lines of C++.",
     problem:
