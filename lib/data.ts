@@ -399,7 +399,6 @@ export const projects: Project[] = [
       "Material-UI",
     ],
     github: "https://github.com/gorredinesh21/FinNest",
-    liveUrl: "https://finnest-demo-441384612427.us-central1.run.app",
     summary:
       "A full-stack online-banking application: a layered Spring Boot REST API backend and a React + Redux single-page frontend. It models users, accounts, transactions and payments, runs a full transaction engine (deposits, transfers, withdrawals, bill payments) with balance validation and audit logging, and surfaces everything in a dashboard with live balance charts.",
     problem:
