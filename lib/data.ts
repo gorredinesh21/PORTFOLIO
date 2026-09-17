@@ -115,6 +115,103 @@ type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "ragmill",
+    name: "RAGMill — RAG at Million-Doc Scale",
+    tagline:
+      "Hybrid dense+BM25 retrieval (RRF) with Gemini rerank and citations, sharded Cloud Run ingest for 1M documents — with an eval harness",
+    domain: "GenAI",
+    featured: true,
+    period: "2026",
+    stack: ["FastAPI", "Vertex AI (Gemini)", "fastembed (bge-small)", "Qdrant", "BM25 + RRF", "Cloud Run Jobs", "SSE"],
+    github: "https://github.com/gorredinesh21/ragmill",
+    liveUrl: "https://ragmill-yzzxrxetcq-uc.a.run.app",
+    summary:
+      "A retrieval pipeline designed for a million documents: sharded Cloud Run ingest jobs with idempotent upserts, hybrid search that fuses dense vectors with BM25 via reciprocal rank fusion, a Gemini reranker that answers with [n] citations, and a golden-set eval harness that gates every retrieval change in CI.",
+    problem:
+      "Most RAG demos die at a few thousand documents. I wanted the architecture that survives a million: embedding throughput that needs parallel workers, idempotent re-ingest that doesn't duplicate, retrieval that stays honest when dense vectors alone miss keyword-heavy queries, and numbers that prove which design actually wins.",
+    approach: [
+      "Sharded ingest: a Cloud Run Jobs matrix (CLOUD_RUN_TASK_INDEX/COUNT) streams documents from GCS in parallel — uuid5 chunk IDs make every upsert idempotent, so retries and re-runs never duplicate.",
+      "Hybrid retrieval: fastembed ONNX bge-small-en-v1.5 dense vectors + rank-bm25, fused with reciprocal rank fusion (RRF) — the hybrid-beats-dense invariant is asserted by a CI test, not a claim.",
+      "Grounded answers: Gemini reranks the fused candidates and answers with [n] citations linked to sources, streamed over SSE with per-stage timings.",
+      "Eval harness: a 60-query golden set over a 5K corpus measuring hit@3 / hit@10 / MRR for hybrid vs dense-only, plus GFE-safe health probes and a cost table (<$1/month at demo scale).",
+    ],
+    highlights: [
+      "Measured on the 5K golden corpus: hybrid beats dense-only on every metric — hit@10 0.72 vs 0.67, MRR 0.36 vs 0.31.",
+      "1M-document ingest path shipped as runnable Cloud Run Jobs (10 shards, 150–250 docs/s/shard ⇒ ~7–12 min end-to-end, honest estimate in the README).",
+      "26 tests green including live retrieval goldens and API SSE with citations; cloud profile boots cold on 512Mi.",
+    ],
+    metrics: [
+      { label: "hit@10 (hybrid)", value: "0.72" },
+      { label: "vs dense-only", value: "0.67" },
+      { label: "tests", value: "26 ✓" },
+    ],
+  },
+
+  {
+    slug: "quackquery",
+    name: "QuackQuery — Text-to-SQL Analytics",
+    tagline:
+      "Upload any CSV, ask in plain English: auditable SQL, rows and chart specs over DuckDB with a self-correcting repair loop, streamed via SSE",
+    domain: "GenAI",
+    period: "2026",
+    stack: ["FastAPI", "Vertex AI (Gemini)", "DuckDB", "SSE", "SQLite cache", "Cloud Run"],
+    github: "https://github.com/gorredinesh21/quackquery",
+    liveUrl: "https://quackquery-yzzxrxetcq-uc.a.run.app",
+    summary:
+      "A natural-language analytics API: upload a CSV (or load a demo dataset), ask questions in English, and get the generated SQL, the rows, a chart spec and a plain-English answer — every attempt visible, every query guarded, wrong SQL self-corrected up to three times before giving up honestly.",
+    problem:
+      "Business users don't write SQL, and most text-to-SQL demos hide their failure modes. I wanted one where the SQL is always shown next to the answer, dangerous SQL is structurally impossible, and a bad first draft repairs itself instead of hallucinating a result.",
+    approach: [
+      "Schema-aware prompt over an inferred DuckDB catalog; the model returns SQL, which runs against the uploaded data — the answer cites the exact rows it came from.",
+      "Self-correcting loop: a SQL error feeds the traceback back to Gemini for up to 3 repairs; every attempt (initial + repairs) is returned in the response trail.",
+      "Hard guard layer before execution: stacked queries, PRAGMA writes, read_csv/attach smuggling and CTE-wrapped exfiltration are rejected — 34 dedicated guard tests.",
+      "SSE streaming (/api/query/stream) with per-stage events, a 30-min SQLite result cache with replay, per-IP rate limiting and cross-dataset isolation under concurrency.",
+    ],
+    highlights: [
+      "66 tests green: guards, repair loop, attempt-trails, SSE ordering, cache/replay, 20-way concurrent cross-dataset isolation, 10 golden SQL pairs.",
+      "Live smoke on Cloud Run with real Gemini: 'which team won the most matches?' → correct GROUP BY SQL, 'Delhi Capitals with 30 wins', 1 attempt, 1.3s.",
+      "Zero-dependency demo mode (QUACK_LLM=mock) that answers from a deterministic planner — $0 cost for trying it.",
+    ],
+    metrics: [
+      { label: "tests", value: "66 ✓" },
+      { label: "live query", value: "1.3s" },
+      { label: "SQL repairs", value: "up to 3" },
+    ],
+  },
+
+  {
+    slug: "diffwarden",
+    name: "DiffWarden — AI PR Review Bot",
+    tagline:
+      "Deterministic security gates (secrets / ruff / bandit) + cost-capped Gemini review on any PR diff, SQLite-cached",
+    domain: "GenAI",
+    period: "2026",
+    stack: ["FastAPI", "Vertex AI (Gemini)", "ruff", "bandit", "SQLite", "Cloud Run"],
+    github: "https://github.com/gorredinesh21/diffwarden",
+    liveUrl: "https://diffwarden-yzzxrxetcq-uc.a.run.app",
+    summary:
+      "A PR review API that layers cheap deterministic checks before any LLM call: secret patterns, lint and security findings are computed locally, and Gemini only reviews what survives — with a token budget cap, a SQLite cache so unchanged diffs never re-bill, and an HMAC mode for webhook deployments.",
+    problem:
+      "LLM code review is slow and expensive when it reviews everything, and it's unreliable on exactly the things regexes do well. I wanted the inverse layering: deterministic gates first (free, instant, no hallucination), and the LLM spent only on the judgment-call findings.",
+    approach: [
+      "Unified diff parser walks added/removed lines and scopes every finding to a file+line — gates and LLM agree on the same coordinate system.",
+      "Deterministic gates: built-in secret patterns (with an allowlist), ruff for lint, bandit for security — all running inside the container, no external services.",
+      "Cost-capped Gemini review: findings compressed to a token budget before the call, so a 10k-line diff can't produce a surprise bill; reviews cached in SQLite by diff hash.",
+      "Two deploy modes: public (API + paste-a-diff UI) and webhook (HMAC-signed, for wiring into GitHub Actions).",
+    ],
+    highlights: [
+      "36 tests green: gate coverage (secrets/allowlist, injection patterns), cache behavior, budget caps, API contract.",
+      "Test fixtures are deliberately vulnerable diffs — GitHub's secrets push-protection flagged them and they're unblocked as 'used in tests'.",
+      "Live on Cloud Run with Vertex AI; healthz reports gate availability and cache stats.",
+    ],
+    metrics: [
+      { label: "tests", value: "36 ✓" },
+      { label: "LLM calls", value: "cache-gated" },
+      { label: "gates", value: "3 deterministic" },
+    ],
+  },
+
+  {
     slug: "support-copilot",
     name: "Support Copilot",
     tagline:
