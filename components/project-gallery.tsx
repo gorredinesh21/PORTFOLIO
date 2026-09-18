@@ -19,13 +19,13 @@ const FILTERS: (Domain | "All")[] = [
 export function ProjectGallery() {
   const [active, setActive] = useState<Domain | "All">("All");
 
-  // Sort once: featured first, then live-deployed, then the rest.
+  // Sort once: live-deployed projects first, then the rest (featured as tiebreaker).
   const sorted = useMemo(
     () =>
       [...projects].sort(
         (a, b) =>
-          Number(b.featured ?? false) - Number(a.featured ?? false) ||
-          Number(!!b.liveUrl) - Number(!!a.liveUrl)
+          Number(!!b.liveUrl) - Number(!!a.liveUrl) ||
+          Number(b.featured ?? false) - Number(a.featured ?? false)
       ),
     []
   );

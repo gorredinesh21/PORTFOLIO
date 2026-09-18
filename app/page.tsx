@@ -40,7 +40,7 @@ const pillars = [
 
 const stats = [
   { value: "1", label: "Live startup · real users (homatri.com)" },
-  { value: "25", label: "Projects shipped" },
+  { value: "22", label: "Projects shipped" },
   { value: "3", label: "Production Android apps" },
   { value: "IIT (ISM)", label: "CSE '25" },
 ];
