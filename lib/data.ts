@@ -115,6 +115,39 @@ type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "voicebank",
+    name: "VoiceBank — a bank you operate entirely by voice",
+    tagline:
+      "A voice agent that drives a real banking UI end-to-end: Web Speech STT → Gemini function-calling → typed actions on a React state machine → spoken confirmations",
+    domain: "GenAI",
+    featured: true,
+    period: "2026",
+    stack: ["React 18 (Vite)", "Web Speech API", "Gemini (Vertex AI)", "FastAPI", "Function Calling", "speechSynthesis", "Cloud Run"],
+    github: "https://github.com/gorredinesh21/voicebank",
+    liveUrl: "https://voicebank-441384612427.us-central1.run.app",
+    summary:
+      "Say “send 500 rupees to Mom” and watch the app open transfers, fill the payee and amount, ask you to confirm, take your spoken PIN and read back the receipt — the same four-layer architecture voice-first banking runs on: speech recognition → LLM intent → UI automation → spoken confirmation, with every agent decision visible in a live console.",
+    problem:
+      "Voice assistants can open apps, but they can't complete an in-app transaction end-to-end — and most 'voice app' demos are just a chat window. I wanted the harder thing: an agent that physically operates a real UI (navigate screens, fill fields, press buttons) with a safety model a bank could accept, where money cannot move without explicit spoken confirmation and a PIN.",
+    approach: [
+      "Agent contract: Gemini receives the user's utterance plus a machine-readable description of the current screen and returns typed actions (NAVIGATE / FILL / TAP) executed by the same React reducer a human tap goes through — voice and touch share one code path, and every action is visible as a glow/flash on the UI.",
+      "Safety rails: payments complete only through confirm-screen → spoken PIN; the server sanitises any action that tries to skip the gate, and the LLM can never fabricate a receipt.",
+      "Deterministic fast rails handled locally with zero network: instant cancel mid-flow, help, home, and a spoken-PIN rail that completes the payment in one breath from any screen.",
+      "Voice engineering: continuous en-IN Web Speech recognition with auto-restart, an echo guard that pauses the mic while the agent speaks, and a typed-command fallback that drives the identical agent loop for mic-less browsers and testing.",
+      "FastAPI backend (Vertex AI, structured output, JSON-repair retry, quota backoff) serves the built frontend from one Cloud Run container — no API keys anywhere, metadata-server auth.",
+    ],
+    highlights: [
+      "The agent operates the UI through the same state machine a human uses — you watch each tap glow and each field fill, with a live action log showing every decision.",
+      "Money can't move without spoken confirmation + PIN; cancel works instantly, offline, mid-flow.",
+      "End-to-end verified live on Cloud Run with real Gemini: login → balance → transfer → PIN → receipt, plus bill payments and cancel paths.",
+    ],
+    metrics: [
+      { label: "Architecture", value: "STT → LLM → UI → TTS" },
+      { label: "Agent loop", value: "typed actions + fast rails" },
+      { label: "Status", value: "Live · Chrome/Edge mic" },
+    ],
+  },
+  {
     slug: "ragmill",
     name: "RAGMill — RAG at Million-Doc Scale",
     tagline:
