@@ -115,6 +115,40 @@ type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "career-ops",
+    name: "Career-Ops — a job-search control room with evidence-backed matching",
+    tagline:
+      "A technical job-intelligence platform: 328 live jobs from real ingestion pipelines, deduplicated with provenance, matched against an evidence-backed skill graph parsed from your resume and GitHub — with typed gap analysis and a deterministic career agent",
+    domain: "GenAI",
+    featured: true,
+    period: "2026",
+    stack: ["FastAPI", "SQLite", "Jinja2", "Deterministic NLP", "Skill Ontology", "GitHub API", "Cloud Run"],
+    github: "https://github.com/gorredinesh21/career-ops",
+    liveUrl: "https://career-ops-441384612427.us-central1.run.app",
+    summary:
+      "Upload a resume and link a GitHub account; Career-Ops builds a skill graph where every claim carries the exact resume line or repo that proves it, then compares it requirement-by-requirement against every live posting — market commonality (\u201cVector DBs: 38% of GenAI postings\u201d), indirect evidence via a skill ontology, and gaps typed as presentation vs evidence vs capability, each ending in a concrete next action rather than a keyword to stuff.",
+    problem:
+      "Job portals are noisy and job-seekers can't tell \u201cworth my time\u201d from \u201ctechnically possible\u201d. Existing match scores are black boxes that users correctly distrust — a 78% means nothing if you can't see what matched, what's missing, how much it matters, and what to do next. And resume parsers treat a keyword the same as production experience.",
+    approach: [
+      "Job intelligence layer: ingestion from real daily pipelines (LinkedIn alert detail files, a cross-day ledger, scored spreadsheets), normalized into one canonical listing per real opening — deduplication survives LinkedIn's messy repeated-title cards, and freshness is computed from first-seen/last-seen evidence, never \u201cposted today\u201d claims.",
+      "Explainable classification into 9 role families: every job stores WHY it was classified (\u201ctitle matched 'backend', 'django'\u201d); human-scored spreadsheet categories override the keyword classifier at 0.95 confidence.",
+      "Candidate intelligence without an LLM: resume sections parsed deterministically, skills extracted with the same ontology as job postings, each claim carrying depth (production use → exposure), confidence and its evidence line; GitHub repos fetched via API and linked as repo evidence with originality flags (fork / active-original / stale).",
+      "Matching as decision support, not an oracle: fit bands (Strong/Good/Partial/Major Gap) from required-skill coverage, requirement priority weighting, indirect evidence clearly labeled (PyTorch ⇒ Deep Learning), seniority signals (ownership/design/scale/production) extracted from the JD and checked against resume evidence, experience-band alignment and preference-mismatch flags.",
+      "A deterministic career agent over the structured layer: asks like \u201cwhat are my gaps for GenAI?\u201d get answers computed from the live corpus (\u201cclose Vector DBs first — asked by 38% of postings\u201d), and it refuses to predict hiring outcomes with an explanation of why.",
+      "Trust architecture: versioned job snapshots, provenance per source, user corrections that re-enter matching (confirm/reject skills), a review queue for unclassified jobs, DPDP-style JSON export and deletion.",
+    ],
+    highlights: [
+      "Every AI-ish claim is traceable: each skill on a job page shows its % of family demand, and each of your matching skills shows the resume line or GitHub repo that proves it.",
+      "130 jobs human-categorized from real scored spreadsheets on top of the deterministic classifier; PayPal auto-marked CLOSED from live-status evidence.",
+      "The gap engine distinguishes presentation gaps (rewrite the line), evidence gaps (add truthful proof), and capability gaps (build a small real project) — it never advises keyword stuffing.",
+    ],
+    metrics: [
+      { label: "Jobs indexed", value: "328 live" },
+      { label: "Matching", value: "evidence + market %" },
+      { label: "Status", value: "Live · Cloud Run" },
+    ],
+  },
+  {
     slug: "voicebank",
     name: "VoiceBank — a bank you operate entirely by voice",
     tagline:
