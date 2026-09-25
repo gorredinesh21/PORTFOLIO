@@ -114,6 +114,50 @@ type Project = {
 };
 
 export const projects: Project[] = [
+{
+    slug: "homaatri",
+    name: "Homaatri — Live AI Startup",
+    tagline:
+      "Home-food marketplace in production: website, 3 Android apps, GCP infra, agentic AI payments on WhatsApp",
+    domain: "GenAI",
+    featured: true,
+    period: "2026 · Live at homatri.com",
+    stack: [
+      "Next.js 14",
+      "React Native (Expo)",
+      "FastAPI",
+      "PostgreSQL",
+      "GCP Cloud Run",
+      "WhatsApp Business API",
+      "Agentic AI",
+      "Razorpay",
+      "Google Maps",
+    ],
+    github: "https://github.com/gorredinesh21/homatri",
+    liveUrl: "https://homatri.com",
+    summary:
+      "I built a startup and shipped it: homatri.com is a hyper-local home-food marketplace connecting customers, home-chef kitchens and delivery riders — live in production with real users and real orders. One FastAPI backend, a Next.js 14 website, three Android apps (customer, chef, rider) and an agentic AI payment flow on WhatsApp Business.",
+    problem:
+      "Restaurants can't cook your region's home food — only a home cook from your own district can. But home cooks have no software: no storefront, no payments, no delivery coordination. I wanted to build the entire production system myself — website, apps, backend, infrastructure and an AI payments agent — and run it with real users, not as a demo.",
+    approach: [
+      "Designed and shipped the full platform solo: Next.js 14 website, FastAPI backend on Cloud Run, PostgreSQL on Cloud SQL, GCS media pipeline and Cloud Build CI/CD.",
+      "Built three React Native (Expo) Android apps — customer, chef and rider — deployed as production APKs sharing one API.",
+      "Built an agentic AI payment flow on WhatsApp Business that conversationally guides customers through ordering and payment end-to-end.",
+      "Engineered two-click guest-first ordering: cart without login, GPS-crosshair address capture via Google Maps Geocoding, Razorpay / COD checkout with login only at payment.",
+      "Shipped multi-portal operations — chef onboarding with admin approval gating, rider onboarding with license verification, and an admin portal running the live marketplace.",
+    ],
+    highlights: [
+      "Live in production at homatri.com with real users and real orders — not a portfolio demo.",
+      "Four production codebases (web + backend + 3 apps) against one API on GCP.",
+      "Agentic AI payments on WhatsApp Business — ordering and checkout handled conversationally.",
+      "Two-click guest-first ordering UX with Google Maps geocoding and Razorpay / COD.",
+    ],
+    metrics: [
+      { label: "Status", value: "Live · real users" },
+      { label: "Surfaces", value: "Web + 3 Android apps" },
+      { label: "Infra", value: "GCP Cloud Run + SQL" },
+    ],
+  },
   {
     slug: "career-ops",
     name: "Career-Ops — a job-search control room with evidence-backed matching",
@@ -311,50 +355,7 @@ export const projects: Project[] = [
     ],
   },
 
-  {
-    slug: "homaatri",
-    name: "Homaatri — Live AI Startup",
-    tagline:
-      "Home-food marketplace in production: website, 3 Android apps, GCP infra, agentic AI payments on WhatsApp",
-    domain: "GenAI",
-    featured: true,
-    period: "2026 · Live at homatri.com",
-    stack: [
-      "Next.js 14",
-      "React Native (Expo)",
-      "FastAPI",
-      "PostgreSQL",
-      "GCP Cloud Run",
-      "WhatsApp Business API",
-      "Agentic AI",
-      "Razorpay",
-      "Google Maps",
-    ],
-    github: "https://github.com/gorredinesh21/homatri",
-    liveUrl: "https://homatri.com",
-    summary:
-      "I built a startup and shipped it: homatri.com is a hyper-local home-food marketplace connecting customers, home-chef kitchens and delivery riders — live in production with real users and real orders. One FastAPI backend, a Next.js 14 website, three Android apps (customer, chef, rider) and an agentic AI payment flow on WhatsApp Business.",
-    problem:
-      "Restaurants can't cook your region's home food — only a home cook from your own district can. But home cooks have no software: no storefront, no payments, no delivery coordination. I wanted to build the entire production system myself — website, apps, backend, infrastructure and an AI payments agent — and run it with real users, not as a demo.",
-    approach: [
-      "Designed and shipped the full platform solo: Next.js 14 website, FastAPI backend on Cloud Run, PostgreSQL on Cloud SQL, GCS media pipeline and Cloud Build CI/CD.",
-      "Built three React Native (Expo) Android apps — customer, chef and rider — deployed as production APKs sharing one API.",
-      "Built an agentic AI payment flow on WhatsApp Business that conversationally guides customers through ordering and payment end-to-end.",
-      "Engineered two-click guest-first ordering: cart without login, GPS-crosshair address capture via Google Maps Geocoding, Razorpay / COD checkout with login only at payment.",
-      "Shipped multi-portal operations — chef onboarding with admin approval gating, rider onboarding with license verification, and an admin portal running the live marketplace.",
-    ],
-    highlights: [
-      "Live in production at homatri.com with real users and real orders — not a portfolio demo.",
-      "Four production codebases (web + backend + 3 apps) against one API on GCP.",
-      "Agentic AI payments on WhatsApp Business — ordering and checkout handled conversationally.",
-      "Two-click guest-first ordering UX with Google Maps geocoding and Razorpay / COD.",
-    ],
-    metrics: [
-      { label: "Status", value: "Live · real users" },
-      { label: "Surfaces", value: "Web + 3 Android apps" },
-      { label: "Infra", value: "GCP Cloud Run + SQL" },
-    ],
-  },
+  
   {
     slug: "startup-intelligence-platform",
     name: "Startup Intelligence Platform",
