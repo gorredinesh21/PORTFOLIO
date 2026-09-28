@@ -50,7 +50,7 @@ export const aboutBio = [
     heading: "Right now",
     content: [
       "At work: designing a Unified Genie architecture on Databricks that beats the native 30-table limit, and a Talk-to-Genie web app that lets non-Databricks users converse with internal data over OAuth.",
-      "On the side: running Homaatri — my live home-food marketplace startup (homatri.com) with real users: website, three Android apps, GCP infra and an agentic AI payment flow on WhatsApp. Plus LLM infrastructure projects in Go (a concurrent embedding gateway and a Redis-compatible KV store).",
+      "On the side: running Homaatri — my live home-food marketplace startup (homatri.com) with real users: website, three Android apps, GCP infra and an agentic AI payment flow on WhatsApp. Plus Go AI systems in production: OrderPilot (agentic food ordering, framework-free tool calling) and MenuMind (hybrid BM25 + vector retrieval with grounded RAG), alongside LLM infrastructure (concurrent embedding gateway, Redis-compatible KV store).",
       "Always: writing PySpark that turns Silver data into Gold KPI tables, and looking for the next thing worth building.",
     ],
   },
@@ -114,6 +114,92 @@ type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    slug: "orderpilot",
+    name: "OrderPilot — Agentic AI Food Ordering in Go",
+    tagline:
+      "A framework-free LLM agent built in pure Go: strict-JSON tool calling, deterministic fallback planner, budget-enforced carts and live order tracking with per-order goroutines",
+    domain: "GenAI",
+    featured: true,
+    period: "2026 · Live",
+    stack: [
+      "Golang",
+      "LLM Agents",
+      "Tool Calling",
+      "SSE Streaming",
+      "Goroutines / errgroup",
+      "Hugging Face Llama 3.1",
+      "GCP Cloud Run",
+    ],
+    github: "https://github.com/gorredinesh21/orderpilot",
+    liveUrl: "https://orderpilot-yzzxrxetcq-uc.a.run.app",
+    summary:
+      "An AI food-ordering agent written in Go with no agent framework — the tool-calling loop, JSON protocol, repair retries and fallback planner are all built from scratch. Talk to it in plain language ('veg biryani under ₹250 in Koramangala, then place the order'), watch it call tools in parallel, enforce your budget at the cart layer and place multi-restaurant orders that track live on a simulated Bangalore delivery map.",
+    problem:
+      "Every agentic-AI demo reaches for LangChain or the OpenAI SDK, so the engineering under the loop stays hidden — and none of it degrades gracefully when the model breaks protocol or the API is down. I wanted to build the agent loop the way a backend engineer would: typed tools, a strict wire protocol, hard guardrails enforced in code rather than prompts, and a deterministic fallback so the product never dies with the LLM.",
+    approach: [
+      "Built the agent loop from scratch in Go: a strict JSON turn protocol (say / tool calls / reply), protocol-repair retries, and parallel tool execution through an errgroup with bounded concurrency.",
+      "Designed 9 typed tools (search, menu, cart, budget, place, track) with lenient arg coercion — the model emits '200' for an int, the tool layer forgives it without a failed turn.",
+      "Enforced the budget as a hard guardrail inside the cart layer, not the prompt: the agent physically cannot overspend even if the LLM tries.",
+      "Wrote a deterministic regex-based fallback planner that drives the same tool layer when the model is unavailable — full functionality, zero LLM dependency.",
+      "Simulated live order fulfilment with per-order goroutines and context cancellation: state machine PLACED → DELIVERED, time-compressed ETA engine with haversine distance and traffic delays.",
+      "Streamed the whole experience over SSE with mutex-serialized writes, deployed as a distroless single binary on Cloud Run.",
+    ],
+    highlights: [
+      "Agent framework-free: the tool-calling loop, JSON protocol and repair logic are ~all hand-written Go.",
+      "Budget guardrail enforced in the cart layer — overspending is impossible by construction.",
+      "Deterministic fallback planner keeps ordering fully working with the LLM completely down.",
+      "Live multi-restaurant orders with per-order goroutines, ETAs and a delivery-tracking UI.",
+    ],
+    metrics: [
+      { label: "Status", value: "Live on Cloud Run" },
+      { label: "Language", value: "Pure Go, no framework" },
+      { label: "Agent", value: "9 tools · 16-step loop" },
+    ],
+  },
+  {
+    slug: "menumind",
+    name: "MenuMind — Hybrid Semantic Search + RAG over Menus in Go",
+    tagline:
+      "Go-native hybrid retrieval (hand-written BM25 + embeddings + Reciprocal Rank Fusion) with a grounded, cited RAG chat that only answers from retrieved dishes",
+    domain: "GenAI",
+    featured: true,
+    period: "2026 · Live",
+    stack: [
+      "Golang",
+      "BM25",
+      "Vector Search",
+      "Reciprocal Rank Fusion",
+      "bge-small embeddings",
+      "RAG",
+      "SSE Streaming",
+      "GCP Cloud Run",
+    ],
+    github: "https://github.com/gorredinesh21/menumind",
+    liveUrl: "https://menumind-yzzxrxetcq-uc.a.run.app",
+    summary:
+      "A menu-discovery engine over 797 dishes from 36 Bangalore restaurants: BM25 written by hand in Go, fused with cosine similarity over bge-small-en-v1.5 embeddings via Reciprocal Rank Fusion, showing per-channel rank transparency ('warm comforting dessert' → brownies at cosine 0.62 while BM25 alone finds nothing). Ask follow-up questions and get streamed, citation-backed answers grounded strictly in retrieved dishes.",
+    problem:
+      "Food search is keyword-only: 'something warm and comforting' finds nothing on Swiggy-scale menus. And most RAG demos glue together Python libraries, so the retrieval math stays a black box. I wanted the whole retrieval stack — tokenization, IDF scoring, embedding cosine, rank fusion, and the grounded generation prompt — implemented in Go, with visible per-channel evidence so every result can be explained.",
+    approach: [
+      "Implemented BM25 (k1=1.5, b=0.75) from scratch in Go with a unicode-aware tokenizer, plus cosine similarity over 384-dim bge-small-en-v1.5 dish embeddings.",
+      "Fused both channels with Reciprocal Rank Fusion (k=60) so lexical and semantic signals correct each other — and surfaced both ranks per result as UI chips.",
+      "Embedded 797 dishes at build time, baked the vectors into the binary via embed.FS with a warm-cache loader — no vector database, cold start still serves lexical search.",
+      "Built the RAG layer with a strict grounding contract: the model answers only from numbered retrieved dishes and cites them ([D3]); the prompt forbids dishes outside the context.",
+      "Streamed both search and answers over SSE; query embeddings hit a bounded LRU cache to keep p95 latency low.",
+    ],
+    highlights: [
+      "Hybrid retrieval in pure Go — BM25, embedding cosine and RRF all hand-written, no search library.",
+      "Per-result rank transparency: you see exactly what BM25 vs semantics contributed.",
+      "Grounded RAG answers with dish-level citations — hallucinated dishes are contractually excluded.",
+      "797-dish corpus + embeddings baked into a single distroless binary on Cloud Run.",
+    ],
+    metrics: [
+      { label: "Status", value: "Live on Cloud Run" },
+      { label: "Corpus", value: "797 dishes · 36 restaurants" },
+      { label: "Retrieval", value: "BM25 + vectors + RRF" },
+    ],
+  },
 {
     slug: "homaatri",
     name: "Homaatri — Live AI Startup",
@@ -983,7 +1069,7 @@ export const skills = [
   {
     category: "languages",
     label: "Languages & Databases",
-    items: ["Python", "JavaScript", "TypeScript", "Java", "SQL", "PostgreSQL", "MySQL", "MongoDB", "C++", "C"],
+    items: ["Golang", "Python", "JavaScript", "TypeScript", "Java", "SQL", "PostgreSQL", "MySQL", "MongoDB", "C++", "C"],
   },
   {
     category: "full_stack_web",
