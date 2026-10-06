@@ -1,57 +1,1157 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Content model for the single-page portfolio.
+// Sections: hero → work (featured case studies) → workbench → mini projects
+//           → approach → about → experience → awards → open source → contact
+// Every project carries real code excerpts from its repository — the
+// explanations are written next to the code that proves them.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const profile = {
   name: "Gorre Dinesh Chandan Reddy",
   shortName: "Dinesh",
-  role: "Software Engineer — AI, Data & Full-Stack",
-  tagline:
-    "Software engineer working across AI systems, data engineering and full-stack web. Currently at Reliance Industries; I also run Homaatri (homatri.com), a small home-food marketplace, and keep a growing set of side projects — most of them deployed and linked below.",
+  monogram: "gd",
+  roleLine: "Software Engineer — AI, Data & Full-Stack",
+  orbitLine: "Mumbai, India · building in low-Earth ambition",
   location: "Mumbai, India",
   email: "gorredinesh21@gmail.com",
-  phone: "+91 74167 67453",
   github: "https://github.com/gorredinesh21",
   linkedin: "https://www.linkedin.com/in/gorredinesh21",
   resumeUrl: "/Gorre_Dinesh_Chandan_Reddy_Resume.pdf",
+  taglines: [
+    "Ship it till it's real.",
+    "A demo is not a product.",
+    "Every claim carries its evidence.",
+  ],
+  intro:
+    "I build AI systems end-to-end and put them in front of real users. By day I move data into Gold KPI tables and RAG platforms at Reliance; the rest of the time I run a live home-food marketplace and a growing constellation of deployed side projects — agents, retrieval engines and systems written from scratch.",
 };
 
 export const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/experience", label: "Experience" },
-  { href: "/projects", label: "Projects" },
-  { href: "/skills", label: "Skills" },
-  { href: "/contact", label: "Contact" },
+  { href: "#work", label: "Work" },
+  { href: "#workbench", label: "Workbench" },
+  { href: "#mini", label: "Mini Projects" },
+  { href: "#approach", label: "Approach" },
+  { href: "#about", label: "About" },
+  { href: "#experience", label: "Experience" },
+  { href: "#awards", label: "Awards" },
+  { href: "#contact", label: "Contact" },
 ];
 
-// Domains used to colour-code and filter projects, and to signal range.
-export type Domain =
-  | "GenAI"
-  | "Full-Stack"
-  | "ML / DL"
-  | "Web3"
-  | "Systems";
+// A real code excerpt from the project's repository.
+export type CodeSample = {
+  file: string; // repo-relative path in the real project
+  lang: "go" | "python" | "ts" | "js" | "jsx" | "java" | "cpp" | "html" | "ipynb";
+  note?: string; // one line on what to look at
+  code: string;
+};
+
+// ── Featured case studies ────────────────────────────────────────────────────
+
+export type Featured = {
+  slug: string;
+  eyebrow: string; // "Personal startup / GenAI + full-stack"
+  headline: [string, string]; // two-line poetic headline
+  story: string; // narrative paragraph
+  question: string; // the thought-line: has anyone done this before?
+  reply: string; // why I did it the way I did
+  fromTo: {
+    fromLabel: string;
+    fromValue: string;
+    toLabel: string;
+    toValue: string;
+    caption: string; // honest caption under the orbit visual
+    ratio: number; // dot-size ratio for the orbit visual (>1)
+  };
+  stack: string[];
+  liveUrl: string;
+  liveLabel: string;
+  github: string;
+  code: CodeSample[];
+};
+
+export const featured: Featured[] = [
+  {
+    slug: "homaatri",
+    eyebrow: "Personal startup · homatri.com",
+    headline: ["Restaurants can't cook", "your mother's food."],
+    story:
+      "Homaatri is a hyper-local marketplace for home food — real kitchens, real riders, real payments. I built the whole production system myself: a Next.js storefront, a FastAPI backend on Cloud Run, PostgreSQL, three Android apps, and an AI agent on WhatsApp Business that takes a customer from \"what's near me?\" to a paid order in one conversation. It runs with real users and real orders every day.",
+    question: "Has anyone actually brought regional home food online?",
+    reply:
+      "Aggregators list restaurants. A home kitchen needs storefront, payments, delivery coordination and trust — so I built all of it, shipped it, and kept it running. Building the startup taught me more about systems than any course could.",
+    fromTo: {
+      fromLabel: "Day 0",
+      fromValue: "an idea on WhatsApp",
+      toLabel: "Today",
+      toValue: "40–50 orders/day, live",
+      caption:
+        "One FastAPI backend, four production codebases, agentic payments — run by a team of one engineer.",
+      ratio: 6,
+    },
+    stack: [
+      "Next.js 14",
+      "FastAPI",
+      "PostgreSQL",
+      "React Native (Expo)",
+      "WhatsApp Business API",
+      "Razorpay",
+      "GCP Cloud Run",
+    ],
+    liveUrl: "https://homatri.com",
+    liveLabel: "homatri.com — live with real users",
+    github: "https://github.com/gorredinesh21/homatri",
+    code: [
+      {
+        file: "backend/app/agents/agents.py",
+        lang: "python",
+        note: "The single customer agent that owns the whole WhatsApp conversation — ordering, payment, tracking, cancellation.",
+        code: `# The one agent's complete toolset — it owns the whole customer conversation.
+CUSTOMER_TOOLS: tuple[BaseTool, ...] = (
+    get_customer_profile,
+    find_nearby_kitchens,
+    register_customer,
+    view_chef_menu,
+    create_order,
+    add_item_to_order,
+    add_special_instructions,
+    view_cart,
+    request_payment,      # mints the Razorpay link deterministically
+    check_my_payment,
+    get_order_status,
+    cancel_order,
+    submit_order_review,
+    escalate_to_admin,
+)
+
+customer_agent = Agent("CUSTOMER", CUSTOMER_AGENT_PROMPT, CUSTOMER_TOOLS)`,
+      },
+      {
+        file: "backend/app/agents/agents.py",
+        lang: "python",
+        note: "Payments are minted by code, not by the model — the agent asks, the tool executes, the webhook confirms.",
+        code: `async def ainvoke(self, messages: list[BaseMessage]):
+    """Invoke the agent's LLM (persona prepended, its tools bound)."""
+    llm = shared_llm()
+    if self.tools:
+        llm = llm.bind_tools(list(self.tools))
+    return await llm.ainvoke(
+        [SystemMessage(content=self.system_prompt), *messages]
+    )`,
+      },
+    ],
+  },
+  {
+    slug: "orderpilot",
+    eyebrow: "Agentic AI in pure Go",
+    headline: ["An agent that survives", "its own model dying."],
+    story:
+      "OrderPilot is an AI food-ordering agent with no agent framework — the tool-calling loop, the strict-JSON turn protocol, the repair retries and the fallback planner are all hand-written Go. Talk to it in plain language, watch it call nine typed tools in parallel, and notice that your budget is enforced inside the cart layer, so the model physically cannot overspend. When the LLM breaks protocol or the API is down, a deterministic planner takes over and ordering keeps working.",
+    question: "Did anyone build the agent loop without a framework?",
+    reply:
+      "Demos hide inside LangChain — the interesting engineering stays invisible. I wrote the loop the way a backend engineer would: typed tools, a wire protocol, guardrails enforced in code instead of prompts, and a fallback so the product never dies with the LLM.",
+    fromTo: {
+      fromLabel: "LLM-only agent",
+      fromValue: "dies with the API",
+      toLabel: "With fallback planner",
+      toValue: "0 LLM calls, still ordering",
+      caption:
+        "Budget guardrail lives in the cart layer — overspending is impossible by construction, not by prompt.",
+      ratio: 4,
+    },
+    stack: [
+      "Golang",
+      "Tool calling",
+      "errgroup",
+      "SSE streaming",
+      "Per-order goroutines",
+      "Llama 3.1 (HF)",
+      "Cloud Run",
+    ],
+    liveUrl: "https://orderpilot-yzzxrxetcq-uc.a.run.app",
+    liveLabel: "Try it live — order on a simulated Bangalore map",
+    github: "https://github.com/gorredinesh21/orderpilot",
+    code: [
+      {
+        file: "internal/agent/agent.go",
+        lang: "go",
+        note: "The hand-written loop: strict JSON turns, one corrective retry, then graceful degradation to the deterministic planner.",
+        code: `mode := "llm"
+for step := 0; step < a.MaxSteps; step++ {
+    raw, err := a.LLM.Chat(ctx, a.systemPrompt(s), toAgentMsgs(s))
+    if err != nil {
+        // LLM unavailable / misbehaving: degrade to the deterministic
+        // planner so the product keeps working.
+        mode = "fallback"
+        emit(Event{Type: EvMode, Mode: mode,
+            Text: "LLM unavailable — switching to deterministic planner"})
+        RunFallback(s, userMsg, emit)
+        emit(Event{Type: EvDone, Mode: mode})
+        return
+    }
+    turn, ok := parseTurn(raw)
+    if !ok {
+        if step == 0 {
+            // one corrective retry before giving up on the model
+            s.appendRetryHint()
+            continue
+        }
+        mode = "fallback"
+        RunFallback(s, userMsg, emit)
+        return
+    }
+    results := a.execTools(ctx, s, turn.Tools, emit)`,
+      },
+      {
+        file: "internal/cart/cart.go",
+        lang: "go",
+        note: "The budget is a hard guardrail inside the cart — the LLM cannot talk its way past this function.",
+        code: `// Add inserts or increments an item, enforcing the budget guardrail.
+func (c *Cart) Add(it data.MenuItem, qty int) error {
+    cur := c.Total()
+    if cur+it.Price*qty > c.Budget {
+        return fmt.Errorf(
+            "%w: adding %d x %s would make the cart ₹%d, budget is ₹%d — "+
+                "remove something or raise the budget with set_budget",
+            ErrOverBudget, qty, it.Name, cur+it.Price*qty, c.Budget)
+    }
+    // ... add the line
+    return nil
+}`,
+      },
+    ],
+  },
+  {
+    slug: "menumind",
+    eyebrow: "Hybrid retrieval, written from scratch",
+    headline: ["\"Something warm\"", "should find brownies."],
+    story:
+      "MenuMind is a menu-discovery engine over 797 dishes from 36 Bangalore restaurants. BM25 is implemented by hand in Go, fused with cosine similarity over bge-small embeddings using Reciprocal Rank Fusion — and every result shows what each channel contributed. Ask follow-ups and the RAG layer answers only from retrieved dishes, citing them ([D3] brownie) so a hallucinated dish is contractually excluded.",
+    question: "Why hand-write BM25 and RRF instead of using a search library?",
+    reply:
+      "Retrieval you can't explain is a black box with good marketing. Writing the math myself means every ranking decision is visible — you see exactly what lexical and semantic search each contributed, chip by chip, on every result.",
+    fromTo: {
+      fromLabel: "Keyword search",
+      fromValue: "0 results for \"warm comforting dessert\"",
+      toLabel: "Hybrid + RRF",
+      toValue: "top hit, cosine 0.62, ranks shown",
+      caption:
+        "797 dish embeddings baked into a single distroless binary via embed.FS — no vector database, cold start still serves lexical search.",
+      ratio: 5,
+    },
+    stack: [
+      "Golang",
+      "BM25 (k1=1.5, b=0.75)",
+      "bge-small-en-v1.5",
+      "Reciprocal Rank Fusion",
+      "Grounded RAG",
+      "embed.FS",
+      "Cloud Run",
+    ],
+    liveUrl: "https://menumind-yzzxrxetcq-uc.a.run.app",
+    liveLabel: "Try it live — search + cited RAG chat",
+    github: "https://github.com/gorredinesh21/menumind",
+    code: [
+      {
+        file: "internal/search/search.go",
+        lang: "go",
+        note: "The whole hybrid stack in one function: two ranked channels, fused by RRF, per-channel ranks kept for transparency.",
+        code: `// Query runs hybrid retrieval: BM25 list + vector list fused by RRF.
+// queryVec may be nil (lexical-only mode, e.g. embeddings unavailable).
+func (idx *Index) Query(query string, queryVec []float32, f Filters, topK int) []Hit {
+    const rrfK = 60.0
+    const channelTop = 50
+
+    bmRanked := idx.rankBM25(query, channelTop)   // item pos → rank
+    vecRanked := idx.rankVectors(queryVec, channelTop)
+
+    // --- fuse + filter ---
+    fuse := map[int]float64{}
+    for pos, r := range bmRanked {
+        fuse[pos] += 1 / (rrfK + float64(r))
+    }
+    for pos, r := range vecRanked {
+        fuse[pos] += 1 / (rrfK + float64(r))
+    }
+    var hits []Hit
+    for pos, s := range fuse {
+        it := idx.items[pos]
+        if !passes(it, f) {
+            continue
+        }
+        hits = append(hits, Hit{
+            Item: it, RRF: s,
+            BM25Rank: bmRanked[pos], VecRank: vecRanked[pos],
+        })
+    }
+    sort.Slice(hits, func(a, b int) bool { return hits[a].RRF > hits[b].RRF })
+    return hits
+}`,
+      },
+    ],
+  },
+  {
+    slug: "career-ops",
+    eyebrow: "Job intelligence, evidence-first",
+    headline: ["A match score you", "can actually audit."],
+    story:
+      "Career-Ops ingests real job postings from daily pipelines, deduplicates them into one canonical listing per opening, and matches them against a skill graph parsed from your resume and GitHub — where every skill claim carries the exact resume line or repo that proves it. Gaps are typed (presentation vs evidence vs capability), market commonality is computed from the live corpus, and a deterministic agent answers questions like \"what are my gaps for GenAI?\" with numbers instead of vibes.",
+    question: "Why not just let an LLM rate my fit for each job?",
+    reply:
+      "A 78% you can't inspect is a number you can't trust. I wanted matching as decision support: what matched, what's missing, how much it matters, what to do next — each answer computed from evidence, with the provenance attached.",
+    fromTo: {
+      fromLabel: "Job portals",
+      fromValue: "a black-box % score",
+      toLabel: "Career-Ops",
+      toValue: "every skill backed by a line of evidence",
+      caption:
+        "1,606 postings ingested from real pipelines; fit bands from required-skill coverage; corrections re-enter matching.",
+      ratio: 3,
+    },
+    stack: [
+      "FastAPI",
+      "SQLite",
+      "Deterministic NLP",
+      "Skill ontology",
+      "GitHub API",
+      "Provenance snapshots",
+      "Cloud Run",
+    ],
+    liveUrl: "https://career-ops-yzzxrxetcq-uc.a.run.app",
+    liveLabel: "Try it live — jobs, evidence, gaps",
+    github: "https://github.com/gorredinesh21/career-ops",
+    code: [
+      {
+        file: "app/fit.py",
+        lang: "python",
+        note: "The evidence-based evaluator: each required skill resolves to match / indirect / weak / missing — with its proof attached.",
+        code: `def evaluate(conn, job, profile_skills_rows, reviews=None, user_band=None,
+             user_prefs=None) -> dict:
+    """Full evidence-based fit evaluation for one job vs one profile."""
+    job_skills = conn.execute(
+        "SELECT skill, requirement FROM job_skill WHERE job_id = ? "
+        "ORDER BY requirement, skill", (job["id"],)).fetchall()
+    best, listed, strong, rejected, confirmed = _profile_index(
+        profile_skills_rows, reviews)
+
+    rows = []
+    for r in job_skills:
+        skill, req = r["skill"], r["requirement"]
+        entry = {"skill": skill, "requirement": req, "status": "missing",
+                 "depth": "", "evidence": "", "market": ...}
+        hit = best.get(skill)
+        if hit is not None and skill not in rejected:
+            entry.update(status="match" if skill in strong else "weak",
+                         depth=hit["depth"],
+                         evidence=(hit["evidence"] or "")[:200])
+        else:
+            child = indirect_evidence_for(skill, set(best) - rejected)
+            if child:
+                entry.update(status="indirect", depth=f"via {child}")
+        rows.append(entry)
+
+    required = [r for r in rows if r["requirement"] == "required"] or rows
+    matched = sum(1 for r in required if r["status"] == "match")
+    ratio = matched / len(required) if required else 0
+    if ratio >= 0.75:   band = "Strong Evidence"
+    elif ratio >= 0.5:  band = "Good Evidence"
+    ...
+    return {"band": band, "rows": rows}`,
+      },
+    ],
+  },
+];
+
+// ── Workbench: live projects with real UIs, filterable grid ──────────────────
+
+export type WorkbenchCategory = "GenAI" | "ML / Data" | "Full-Stack" | "Systems";
+
+export const workbenchCategories: WorkbenchCategory[] = [
+  "GenAI",
+  "ML / Data",
+  "Full-Stack",
+];
+
+export type WorkbenchItem = {
+  slug: string;
+  eyebrow: string; // uppercase, arrow glyph
+  title: string;
+  blurb: string;
+  category: WorkbenchCategory;
+  stack: string[]; // dot-separated line
+  liveUrl: string;
+  github: string;
+  code: CodeSample;
+};
+
+export const workbench: WorkbenchItem[] = [
+  {
+    slug: "voicebank",
+    eyebrow: "VOICE → TYPED ACTIONS",
+    title: "VoiceBank",
+    blurb:
+      "Say “send 500 rupees to Mom” and watch a real banking UI get operated end-to-end — speech recognition → Gemini function-calling → the same React state machine a finger-tap uses, with spoken confirmations and a PIN gate before money moves.",
+    category: "GenAI",
+    stack: ["React", "Web Speech API", "Gemini", "FastAPI", "Cloud Run"],
+    liveUrl: "https://voicebank-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/voicebank",
+    code: {
+      file: "server/app.py",
+      lang: "python",
+      note: "The server sanitises every model action down to a typed whitelist — the LLM can propose, but only valid NAVIGATE/FILL/TAP actions reach the UI.",
+      code: `def _sanitize_actions(raw: list) -> list:
+    out = []
+    for a in raw or []:
+        if not isinstance(a, dict):
+            continue
+        t = str(a.get("type", "")).upper()
+        if t not in VALID_ACTIONS:
+            continue
+        act = {"type": t}
+        if t == "NAVIGATE":
+            screen = str(a.get("screen", "")).lower()
+            if screen not in VALID_SCREENS:
+                continue
+            act["screen"] = screen
+        elif t == "FILL":
+            field, value = str(a.get("field", "")), a.get("value")
+            if not field or value is None:
+                continue
+            act["field"], act["value"] = field, value
+        elif t == "TAP":
+            target = str(a.get("target", ""))
+            if not target:
+                continue
+            act["target"] = target
+        out.append(act)
+        if len(out) >= 6:      # one intent per turn; cap runaway replies
+            break
+    return out`,
+    },
+  },
+  {
+    slug: "ragmill",
+    eyebrow: "5K CORPUS → 1M-DOC DESIGN",
+    title: "RAGMill",
+    blurb:
+      "RAG designed to survive a million documents: sharded Cloud Run ingest with idempotent uuid5 upserts, hybrid dense+BM25 retrieval fused by RRF, Gemini answers with [n] citations, and a golden-set eval harness that gates every retrieval change.",
+    category: "GenAI",
+    stack: ["FastAPI", "Vertex AI", "Qdrant", "fastembed", "Cloud Run Jobs"],
+    liveUrl: "https://ragmill-yzzxrxetcq-uc.a.run.app",
+    github: "https://github.com/gorredinesh21/ragmill",
+    code: {
+      file: "app/retrieval.py",
+      lang: "python",
+      note: "Reciprocal Rank Fusion as a pure function — unit-testable with known math (tests/test_rrf.py).",
+      code: `def rrf_fuse(ranked_lists: list[list[str]], k: int = None,
+               weights: list[float] = None) -> list[tuple[str, float]]:
+    """Fuse ranked ID lists into [(id, rrf_score)] sorted desc."""
+    k = config.RRF_K if k is None else k
+    weights = weights or [1.0] * len(ranked_lists)
+    scores: dict[str, float] = {}
+    for lst, w in zip(ranked_lists, weights):
+        for rank, item in enumerate(lst, start=1):
+            scores[item] = scores.get(item, 0.0) + w / (k + rank)
+    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))`,
+    },
+  },
+  {
+    slug: "quackquery",
+    eyebrow: "ENGLISH → AUDITED SQL",
+    title: "QuackQuery",
+    blurb:
+      "Upload a CSV, ask in plain English: the generated SQL always sits next to the answer, dangerous SQL is structurally impossible, and a bad first draft feeds its own error back and self-repairs up to three times before giving up honestly.",
+    category: "GenAI",
+    stack: ["FastAPI", "Gemini", "DuckDB", "SSE", "SQLite cache"],
+    liveUrl: "https://quackquery-yzzxrxetcq-uc.a.run.app",
+    github: "https://github.com/gorredinesh21/quackquery",
+    code: {
+      file: "app/guard.py",
+      lang: "python",
+      note: "The guard runs before execution: comments and string literals are stripped so smuggled keywords can't dodge the scan.",
+      code: `def _strip(sql: str) -> str:
+    """Remove comments and literals so hides inside them can't dodge the scan."""
+    sql = _COMMENT_RE.sub(" ", sql)
+    sql = _LITERAL_RE.sub(" '' ", sql)
+    return sql
+
+def validate(sql: str) -> str:
+    """Return the SQL if it is a single read-only SELECT; raise GuardError."""
+    cleaned = sql.strip().rstrip(";")
+    if ";" in cleaned:
+        raise GuardError("multiple statements are not allowed (stacked query)")
+
+    stripped = _strip(cleaned)
+    head = stripped.lstrip("( \\n\\t").split(None, 1)
+    if head[0].upper() not in _ALLOWED_STARTS:
+        raise GuardError(f"only SELECT statements are allowed")
+
+    tokens = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", stripped.upper()))
+    if hit := tokens & _DENIED_KEYWORDS:
+        raise GuardError(f"forbidden keyword(s): {', '.join(sorted(hit))}")
+    return cleaned`,
+    },
+  },
+  {
+    slug: "diffwarden",
+    eyebrow: "DIFFS → JUDGMENT",
+    title: "DiffWarden",
+    blurb:
+      "A PR review bot that layers cheap deterministic gates (secrets, ruff, bandit) before any LLM call — the model only reviews what survives, inside a hard character budget, with SQLite caching so unchanged diffs never re-bill.",
+    category: "GenAI",
+    stack: ["FastAPI", "Gemini", "ruff", "bandit", "SQLite"],
+    liveUrl: "https://diffwarden-yzzxrxetcq-uc.a.run.app",
+    github: "https://github.com/gorredinesh21/diffwarden",
+    code: {
+      file: "app/reviewer.py",
+      lang: "python",
+      note: "Cost control as code: findings are packed into a fixed character budget before the model ever sees them.",
+      code: `parts, budget = [], config.MAX_LLM_DIFF_CHARS
+for score, f, hunk in gate.score_hunks(files)[:config.MAX_HUNKS_TO_LLM]:
+    header = (f"\\n### {f.path} (hunk at line ~{hunk.new_start}, "
+              f"risk score {score:.0f})\\n\u0060\u0060\u0060diff\\n")
+    body_lines = [f"+{t}" for t in hunk.added_text[:80]]
+    chunk = header + "\\n".join(body_lines) + "\\n\u0060\u0060\u0060"
+    if len(chunk) > budget:
+        break
+    parts.append(chunk)
+    budget -= len(chunk)
+diff_payload = "\\n".join(parts)`,
+    },
+  },
+  {
+    slug: "support-copilot",
+    eyebrow: "DOCS → CITED ANSWERS",
+    title: "Support Copilot",
+    blurb:
+      "A support assistant that answers only from a 30-document corpus, cites every source, and regenerates answers that forget their [n] markers — with App-Insights telemetry and a KQL dashboard for success rate, p95 latency and no-answer rate.",
+    category: "GenAI",
+    stack: ["React", "FastAPI", "Gemini", "RAG", "KQL"],
+    liveUrl: "https://support-copilot-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/support-copilot",
+    code: {
+      file: "backend/app/llm.py",
+      lang: "python",
+      note: "Citation enforcement as a measurable retry — measured, not hoped for.",
+      code: `answer, wait_ms = _call(base_prompt)
+cited = bool(re.search(r"\\[\\d+\\]", answer))
+if contexts and not cited and "could not find" not in answer.lower():
+    retry_prompt = (base_prompt
+                    + "\\n\\nREMINDER: your previous answer forgot the [n] "
+                      "citation markers. Rewrite it, citing every claim with [n].")
+    answer2, wait2 = _call(retry_prompt)
+    if re.search(r"\\[\\d+\\]", answer2):
+        answer, cited = answer2, True
+    wait_ms += wait2
+return {"answer": answer, "cited": cited, "wait_ms": wait_ms}`,
+    },
+  },
+  {
+    slug: "startup-intel",
+    eyebrow: "SIGNALS → ECOSYSTEM GRAPH",
+    title: "Startup Intelligence Platform",
+    blurb:
+      "GraphRAG + RAPTOR market intelligence: entities and relationships (COMPETES_WITH, FUNDED_BY, PARTNERED_WITH) land in a graph while summaries tree into Qdrant; a LangGraph agent answers multi-hop questions with citations over an interactive React Flow map of 175 incubator-backed startups.",
+    category: "GenAI",
+    stack: [
+      "LangGraph",
+      "Qdrant",
+      "Neo4j / NetworkX",
+      "BGE embeddings",
+      "React Flow",
+    ],
+    liveUrl: "https://startup-intel-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/Startup-Intelligence-Platform",
+    code: {
+      file: "backend/agents/workflow.py",
+      lang: "python",
+      note: "The reasoning agent as an explicit graph — every step is a node you can watch execute in the UI's stepper.",
+      code: `def build_agent_graph():
+    workflow = StateGraph(AgentState)
+    workflow.add_node("intent_detection", detect_intent)
+    workflow.add_node("planner", plan_subqueries)
+    workflow.add_node("graph_retrieval", retrieve_graph)
+    workflow.add_node("raptor_retrieval", retrieve_raptor)
+    workflow.add_node("reranker", rerank_nodes)
+    workflow.add_node("generator", generate_answer)
+    # intent → plan → (graph ∥ raptor) → rerank → generate → END
+    return workflow.compile()`,
+    },
+  },
+  {
+    slug: "vectorshift",
+    eyebrow: "NODES → PIPELINES",
+    title: "VectorShift Pipeline Builder",
+    blurb:
+      "A no-code AI pipeline canvas built around one reusable node abstraction: every node type is a config object — handles, fields, icon — rendered by a single BaseNode. Adding a node is data, not copy-paste, and the FastAPI backend reasons about the resulting DAG.",
+    category: "Full-Stack",
+    stack: ["React Flow", "Zustand", "FastAPI"],
+    liveUrl: "https://vector-shift-yzzxrxetcq-uc.a.run.app",
+    github: "https://github.com/gorredinesh21/vector_shift",
+    code: {
+      file: "frontend/src/nodes/index.js",
+      lang: "js",
+      note: "The whole node catalog as data — this is why 5+ node types shipped without duplicating a component.",
+      code: `// Every config becomes a component:
+// (props) => <BaseNode {...props} config={cfg} />
+const makeNode = (config) => (props) => <BaseNode {...props} config={config} />;
+
+// definitions.js — adding a node here (and nothing else) makes it
+// fully functional: toolbar, canvas, rendering, connections.
+{
+  type: 'customInput',
+  title: 'Input',
+  category: 'io',
+  handles: [{ id: 'value', type: 'source', side: 'right' }],
+  fields: [
+    { name: 'inputName', label: 'Name', kind: 'text',
+      default: (id) => id.replace('customInput-', 'input_') },
+    { name: 'inputType', label: 'Type', kind: 'select',
+      options: ['Text', 'File'], default: 'Text' },
+  ],
+}`,
+    },
+  },
+  {
+    slug: "wingman-ai",
+    eyebrow: "PROFILE → BETTER PROFILE",
+    title: "Wingman AI",
+    blurb:
+      "A human-in-the-loop dating-profile coach: scores and rewrites bios from your real details, plans photos with a vision model, and publishes only what you approve — backed by a swappable LLM brain (local Ollama, Gemini or Hugging Face) tuned for the Indian market.",
+    category: "GenAI",
+    stack: ["LangChain", "Gemini", "Ollama", "FastAPI", "Vision"],
+    liveUrl: "https://tinder-ai-coach-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/TINDER_MCP_AI",
+    code: {
+      file: "src/llm.py",
+      lang: "python",
+      note: "The provider-agnostic brain: one env flag switches between local Ollama, Hugging Face and Vertex — the rest of the app never knows.",
+      code: `def make_llm() -> LLM:
+    backend = os.getenv("LLM_BACKEND", "ollama").lower()
+
+    if backend == "hf":
+        from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+        endpoint = HuggingFaceEndpoint(
+            repo_id=os.getenv("HF_MODEL", "Qwen/Qwen2.5-72B-Instruct"),
+            task="conversational",
+            temperature=temperature, max_new_tokens=max_tokens)
+        return LLM(_impl=ChatHuggingFace(llm=endpoint), name=f"hf:{model}")
+
+    if backend == "ollama":
+        from langchain_ollama import ChatOllama
+        impl = ChatOllama(model=os.getenv("OLLAMA_MODEL", "llama3.1"))
+        return LLM(_impl=impl, name=f"ollama:{model}")`,
+    },
+  },
+  {
+    slug: "career-ops-3",
+    eyebrow: "POSTINGS → TAILORED PDFS",
+    title: "Career-Ops 3.0",
+    blurb:
+      "The code-owned evolution of my job pipeline: fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, scores every job /5 with Zod-validated LangChain.js chains, and renders ATS-ready JD-specific resumes from an LLM-distilled catalog of 23 repos.",
+    category: "GenAI",
+    stack: ["Node.js", "LangChain.js", "Zod", "LaTeX"],
+    liveUrl: "https://career-ops-dashboard-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/career-ops-3.0",
+    code: {
+      file: "lc/schemas.mjs",
+      lang: "js",
+      note: "Zod schemas that both validate model output and document the data contract — the LLM speaks JSON, the pipeline speaks types.",
+      code: `/**
+ * lc/schemas.mjs — zod schemas shared across the LangChain stages.
+ * These both validate model output and document the data contract.
+ */
+export const ProjectSchema = z.object({
+  title: z.string(),
+  tech_stack: z.string().default(''),
+  repo_link: z.string().optional().default(''),
+  points: z.array(z.string()).default([]),
+});
+
+export const ResumeSchema = z.object({
+  name: z.string(),
+  education: z.array(EducationSchema).default([]),
+  experience: z.array(ExperienceSchema).default([]),
+  projects: z.array(ProjectSchema).default([]),
+  skills: z.array(SkillSchema).default([]),
+});`,
+    },
+  },
+  {
+    slug: "movie-recommender",
+    eyebrow: "ONE MOVIE → TEN SIMILAR",
+    title: "Movie Recommendation System",
+    blurb:
+      "A cold-start, content-based recommender over 5,000 movies: genre, cast, crew and overview text vectorised bag-of-words, pairwise cosine similarity precomputed and pickled for instant lookup, posters via TMDb in a Streamlit UI.",
+    category: "ML / Data",
+    stack: ["Python", "scikit-learn", "Cosine similarity", "Streamlit", "TMDb API"],
+    liveUrl: "https://movie-recommender-441384612427.us-central1.run.app",
+    github: "https://github.com/gorredinesh21/MOVIE_RECOMENDATION_SYSTEM",
+    code: {
+      file: "app.py",
+      lang: "python",
+      note: "The entire inference path — a precomputed similarity matrix and one sorted enumerate.",
+      code: `def recommend(movie):
+    index = movies[movies['title'] == movie].index[0]
+    distances = sorted(
+        list(enumerate(similarity[index])),
+        reverse=True, key=lambda x: x[1])
+    for i in distances[1:11]:
+        print(movies.iloc[i[0]].title)
+
+similarity = pickle.load(open('similarity.pkl', 'rb'))`,
+    },
+  },
+];
+
+// ── Mini projects: no live link, or live-but-plain UIs ───────────────────────
+// Each carries a short explanation and a real excerpt from its repo.
+
+export type MiniProject = {
+  slug: string;
+  name: string;
+  blurb: string;
+  stack: string[];
+  github: string;
+  liveUrl?: string;
+  explanation: string[]; // 2–4 sentences, why + how
+  code: CodeSample;
+};
+
+export const miniProjects: MiniProject[] = [
+  {
+    slug: "voltkv",
+    name: "voltkv",
+    blurb: "Redis-compatible in-memory KV store written from scratch in Go",
+    stack: ["Go", "RESP2", "TCP", "Sharding", "AOF"],
+    github: "https://github.com/gorredinesh21/voltkv",
+    liveUrl: "https://voltkv-demo-441384612427.us-central1.run.app",
+    explanation: [
+      "I wanted to understand what Redis actually is under the hood — protocol parsing, safe concurrency, expiry, durability — by building one instead of reading about one.",
+      "It speaks the real RESP2 wire protocol, so redis-cli and redis-benchmark connect without knowing the difference. 16 keyspace shards with per-shard locks keep it correct under thousands of connections; a background sweeper handles TTL and an optional AOF survives restarts.",
+      "It lives here rather than up top because the web demo is a plain command page — the product is the protocol, not the pixels.",
+    ],
+    code: {
+      file: "internal/resp/resp.go",
+      lang: "go",
+      note: "The RESP2 parser: real Redis arrays, plus a fallback for inline commands.",
+      code: `func (r *Reader) ReadCommand() ([]string, error) {
+    prefix, err := r.r.ReadByte()
+    if err != nil {
+        return nil, err
+    }
+    switch prefix {
+    case '*':
+        return r.readArray()
+    default:
+        // Inline command: put the byte back, read a whitespace-split line.
+        _ = r.r.UnreadByte()
+        line, err := r.readLine()
+        if err != nil {
+            return nil, err
+        }
+        return splitInline(line), nil
+    }
+}`,
+    },
+  },
+  {
+    slug: "llmgateway",
+    name: "LLM Gateway",
+    blurb: "Concurrent LLM / embedding gateway in Go — 32× faster batch embedding",
+    stack: ["Go", "Worker pools", "Token-bucket", "context", "Benchmarks"],
+    github: "https://github.com/gorredinesh21/llmgateway",
+    liveUrl: "https://llmgateway-441384612427.us-central1.run.app",
+    explanation: [
+      "Calling LLM and embedding providers at scale is easy to get wrong: unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. This was my way of learning to do the concurrency, backpressure and cancellation properly — with Go benchmarks to check myself.",
+      "A bounded worker pool keeps many provider calls in flight (1 → 32 workers ≈ 32× speedup, verified), a token-bucket limiter respects provider RPS, and context threads through every call. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled.",
+      "The live page is a plain API reference — so it's filed as a mini project while the benchmarks do the talking.",
+    ],
+    code: {
+      file: "internal/pool/pool.go",
+      lang: "go",
+      note: "Fan-out / fan-in with bounded concurrency — results keep input order; cancellation bails out fast.",
+      code: `// Map runs fn over inputs using at most 'workers' goroutines.
+// Results are returned in the same order as inputs.
+func Map[I, O any](ctx context.Context, workers int, inputs []I,
+                   fn WorkFn[I, O]) []Result[O] {
+    results := make([]Result[O], len(inputs))
+    jobs := make(chan job)
+
+    var wg sync.WaitGroup
+    wg.Add(workers)
+    for w := 0; w < workers; w++ {
+        go func() {
+            defer wg.Done()
+            for j := range jobs {
+                if err := ctx.Err(); err != nil {
+                    results[j.idx] = Result[O]{Index: j.idx, Err: err}
+                    continue
+                }
+                val, err := fn(ctx, j.in)
+                results[j.idx] = Result[O]{Index: j.idx, Value: val, Err: err}
+            }
+        }()
+    }
+    // ... dispatch, close(jobs), wg.Wait()
+    return results
+}`,
+    },
+  },
+  {
+    slug: "job-application-organizer",
+    name: "Job Application Organizer",
+    blurb: "End-to-end pipeline that turns raw job leads into tailored, scored, PDF'd applications",
+    stack: ["Python", "LangChain", "SQLite", "LaTeX", "Flask"],
+    github: "https://github.com/gorredinesh21/JOB_APPLICATION_HANDLER",
+    explanation: [
+      "Job hunting is a pipeline problem: leads arrive from Telegram posts and Gmail alerts as messy JSON, and the repetitive work — enriching descriptions, scoring fit, tracking status — shouldn't be manual.",
+      "Each posting gets its apply_url scraped and cleaned by an LLM, scored 1–100 against my resume, stored in SQLite as the single source of truth, and strong matches get a tailored resume rendered through LaTeX to PDF — all browsable in a Flask dashboard where every score, source and apply link stays visible.",
+      "It later evolved into Career-Ops 3.0, but this was the organizer that started the lineage.",
+    ],
+    code: {
+      file: "02_job_filtering/job_scorer.py",
+      lang: "python",
+      note: "The scoring step — structured output, clamped to a safe range before it touches the database.",
+      code: `def score_job(chain, resume_text, job):
+    result = chain.invoke({
+        "resume": resume_text,
+        "job_title": job.get("job_title") or "N/A",
+        "company_name": job.get("company_name") or "N/A",
+        "experience_required": job.get("experience_required") or "N/A",
+        "job_description": job.get("job_description") or "N/A"
+    })
+    if isinstance(result, dict):
+        score = result.get("score", 50)
+    else:
+        score = 50
+    return max(1, min(100, score))`,
+    },
+  },
+  {
+    slug: "crickkart",
+    name: "CrickKart",
+    blurb: "Full MERN cricket-equipment store with Stripe checkout and an admin panel",
+    stack: ["React", "Redux", "Node.js", "MongoDB", "Stripe", "Cloudinary"],
+    github: "https://github.com/gorredinesh21/CricKart",
+    explanation: [
+      "I wanted a real, production-shaped web app end-to-end — not a toy CRUD demo: auth, payments, image hosting, transactional email, an admin control plane and a deployable build.",
+      "An 18+ endpoint Express/Mongo API backs a Redux storefront with search, filters and reviews; Stripe PaymentIntents handle money; JWT rides HTTP-only cookies with role-based access to the admin dashboard, which manages products, orders, users and revenue analytics.",
+    ],
+    code: {
+      file: "backend/controller/paymentController.js",
+      lang: "js",
+      note: "Real payments: a Stripe PaymentIntent minted server-side, only the client_secret crosses the wire.",
+      code: `const myPayment = await stripe.paymentIntents.create({
+  amount: req.body.amount,
+  currency: "inr",
+  metadata: {
+    company: "Ecommerce",
+    userId: req.user?.id || 'unknown',
+    timestamp: new Date().toISOString()
+  },
+});
+
+res.status(200).json({
+  success: true,
+  client_secret: myPayment.client_secret
+});`,
+    },
+  },
+  {
+    slug: "finnest",
+    name: "FinNest",
+    blurb: "Full-stack online banking — Spring Boot REST API + React/Redux SPA",
+    stack: ["Java", "Spring Boot 2.7", "JPA / Hibernate", "MySQL", "React", "Redux"],
+    github: "https://github.com/gorredinesh21/FinNest",
+    explanation: [
+      "My bridge into the strongly-typed, enterprise-style JVM world: a layered Spring Boot backend modelling users, accounts, transactions and payments, paired with a React + Redux dashboard.",
+      "The transaction engine does deposits, inter-account transfers, withdrawals and bill payments with balance validation on every path — and every attempt, failed or not, lands in the audit log.",
+    ],
+    code: {
+      file: "finnest-api/.../controllers/TransactController.java",
+      lang: "java",
+      note: "The transfer path: validate, check funds, log the failure before it happens.",
+      code: `@PostMapping("/transfer")
+ResponseEntity transfer(@RequestBody TransferRequest request, HttpSession session) {
+    // ... parse + validate: empty fields, same-account, zero amount
+
+    double currentBalanceOfAccountTransferringFrom =
+            accountRepository.getAccountBalance(user_id, transferFromId);
+
+    if (currentBalanceOfAccountTransferringFrom < transferAmount) {
+        // Log failed transaction
+        transactRepository.logTransaction(transferFromId, "transfer",
+                transferAmount, "online", "failed",
+                "Insufficient funds.", currentDateTime);
+        return ResponseEntity.badRequest()
+                .body("You have insufficient Funds to perform this transfer.");
+    }
+    // ... debit, credit, log success
+}`,
+    },
+  },
+  {
+    slug: "ethereum-payments-dapp",
+    name: "Ethereum Payments DApp",
+    blurb: "Multi-chain ETH & ERC-20 transfer DApp with MetaMask",
+    stack: ["React", "ethers.js", "Solidity", "Sepolia", "Polygon"],
+    github: "https://github.com/gorredinesh21/BLOCKCHAIN",
+    explanation: [
+      "Hands-on Web3: wallet auth, multi-chain detection, ERC-20 UX and on-chain value movement — shipping something that actually moved real testnet funds end-to-end.",
+      "A custom PayPal-like Solidity contract stores payment history on-chain; the React client auto-detects network switches and re-fetches balances, and pasting any token contract address makes it transactable.",
+    ],
+    code: {
+      file: "src/App.js",
+      lang: "js",
+      note: "Two transfer paths share one UX: ERC-20 via contract call, plain ETH via contract value.",
+      code: `const transferAmount = async () => {
+  if (tokenChanged) {
+    const tx = await ERCContract.transfer(
+      recipientAddress,
+      ethers.utils.parseEther(amount)
+    );
+    await tx.wait();
+  } else {
+    const tx = await paypalContract._transfer(recipientAddress, symbol, {
+      value: ethers.utils.parseEther(amount),
+    });
+    await tx.wait();
+  }
+};`,
+    },
+  },
+  {
+    slug: "gan-augmentation",
+    name: "GAN-Based Data Augmentation",
+    blurb: "B.Tech thesis: tabular GAN + SMOTE against severe class imbalance",
+    stack: ["Python", "PyTorch", "GANs", "SMOTE", "XGBoost", "McNemar's test"],
+    github: "https://github.com/gorredinesh21/FINAL_YEAR_PROJECT",
+    explanation: [
+      "Fraud and rare-event tabular datasets are pathologically imbalanced, and naïve oversampling distorts decision boundaries. My thesis asked how far a custom tabular GAN could push recall without sacrificing precision — and whether the lift was statistically real.",
+      "GAN-synthesised positives combined with SMOTE feed four classifier families (RF, XGBoost, LightGBM, GBM) under 5-fold CV; McNemar's test compares them head-to-head. On a 10M+ row credit-card dataset: false negatives down to 9, recall 0.91 → 0.99.",
+    ],
+    code: {
+      file: "custom_gan.py",
+      lang: "python",
+      note: "The Generator — noise in, synthetic minority-class rows out, Tanh-scaled.",
+      code: `class Generator(nn.Module):
+    def __init__(self, input_dim=128, output_dim=512):
+        super(Generator, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.LeakyReLU(0.2),
+            nn.BatchNorm1d(256),
+
+            nn.Linear(256, 512),
+            nn.ReLU(),
+            nn.BatchNorm1d(512),
+
+            nn.Linear(512, output_dim),
+            nn.Tanh()
+        )
+        self.model.apply(init_weights)
+
+    def forward(self, x):
+        return self.model(x)`,
+    },
+  },
+  {
+    slug: "mars-landmark-detection",
+    name: "Mars Landmark Detection",
+    blurb: "VGG16 transfer learning for 8-class Martian terrain classification",
+    stack: ["Python", "TensorFlow", "Keras", "VGG16", "Transfer learning"],
+    github: "https://github.com/gorredinesh21/MARS_LANDMARK_DETECTION",
+    explanation: [
+      "Rovers and orbiters generate huge image streams, but identifying craters, valleys and plateaus still leans on manual inspection. I tested how far a frozen ImageNet backbone could automate that on a real planetary-science dataset.",
+      "VGG16's convolutional base stays frozen over 8,200 training images; a small dense head learns the 8 landmark classes — reaching 88% training accuracy, with weights exported so inference rehydrates in a few lines.",
+    ],
+    code: {
+      file: "model.ipynb",
+      lang: "ipynb",
+      note: "Classic transfer learning: frozen conv base, trainable compact head.",
+      code: `conv_base = VGG16(
+    weights='imagenet',
+    include_top = False,
+    input_shape=(227,227,3)
+)
+model.add(Flatten())
+model.add(Dense(256,activation='relu'))
+model.add(Dense(128,activation='relu'))
+model.add(Dense(8,activation='softmax'))`,
+    },
+  },
+  {
+    slug: "ocr-entity-extraction",
+    name: "Image-Based Entity Extraction",
+    blurb: "OCR pipeline for product attribute extraction at scale — Amazon ML Challenge",
+    stack: ["Python", "PyTesseract", "OCR", "Regex", "Pandas"],
+    github: "https://github.com/gorredinesh21/ImageEntityExtraction",
+    explanation: [
+      "Product catalogues often hide critical attributes — weight, voltage, dimensions — inside images. The Amazon ML Challenge handed us 260K training images of wildly variable quality and no GPU budget.",
+      "I ran PyTesseract on raw images (no preprocessing, to stay inside CPU limits) and built regex post-processors per entity type with unit-normalisation maps. 130K+ images processed, top 200 of 18,500+ teams.",
+    ],
+    code: {
+      file: "app.py",
+      lang: "python",
+      note: "Per-entity regex extraction over OCR text, unit suffixes escaped and matched case-insensitively.",
+      code: `def extract_values_and_units(text, unit_suffix_map):
+    extracted = {}
+    for entity_key, suffixes in unit_suffix_map.items():
+        for suffix in suffixes:
+            # number followed by the unit (with optional space)
+            pattern = r'(\\d+\\.?\\d*)\\s*(' + re.escape(suffix) + r')'
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                extracted[entity_key] = matches[0]
+                break
+    return extracted`,
+    },
+  },
+  {
+    slug: "facial-attendance",
+    name: "Facial Recognition Attendance",
+    blurb: "Hackfest'23 — face-recognition attendance + student/teacher portal",
+    stack: ["Python", "Flask", "OpenCV", "face_recognition", "Excel/CSV"],
+    github: "https://github.com/gorredinesh21/The-Bit-Lords---IIT-ISM-Dhanbhad",
+    explanation: [
+      "Roll calls eat class time and the records are hard to audit. For Hackfest'23 our team shipped the full loop: enrol faces once, then a live camera marks attendance and writes the roster.",
+      "Encoded faces are compared per frame with distance-based best-match; recognised students are removed from the pending list and logged with a timestamp to CSV — a teacher dashboard handles resources and announcements.",
+    ],
+    code: {
+      file: "face-recognition/facerecognition3.py",
+      lang: "python",
+      note: "The marking loop: compare encodings, take the best match, write the roster row.",
+      code: `face_locations = face_recognition.face_locations(rgb_small__frame)
+face_encodings = face_recognition.face_encodings(
+    rgb_small__frame, face_locations)
+
+for face_encoding in face_encodings:
+    matches = face_recognition.compare_faces(
+        known_face_encodings, face_encoding)
+    face_distance = face_recognition.face_distance(
+        known_face_encodings, face_encoding)
+    best_match_index = np.argmin(face_distance)
+
+    if matches[best_match_index]:
+        name = known_face_names[best_match_index]
+        if name in students:
+            students.remove(name)
+            current_time = now.strftime("%H:%M:%S")
+            lnwriter.writerow([name, current_time])  # name + time to CSV`,
+    },
+  },
+  {
+    slug: "tcp-proxy-server",
+    name: "Multi-Threaded TCP Client–Proxy Server",
+    blurb: "C++ networking course project — sockets, threads, file persistence",
+    stack: ["C++", "TCP sockets", "POSIX threads", "File I/O"],
+    github: "https://github.com/gorredinesh21/OS-PROJECRT",
+    explanation: [
+      "The OS course wanted systems-level work that demonstrated socket programming and protocol design — not a library being run.",
+      "The server binds, listens and accepts; each connection hands a URL from the client, persists it to GET.txt, acknowledges, and the accept loop keeps listening. Raw sockets in C++, no wrappers.",
+    ],
+    code: {
+      file: "server.c++",
+      lang: "cpp",
+      note: "The accept-loop pattern every networked server grows out of.",
+      code: `n = bind(server_sock,
+        (struct sockaddr *)&server_addr, sizeof(server_addr));
+listen(server_sock, 5);
+
+while (1) {
+    client_sock = accept(server_sock,
+        (struct sockaddr *)&client_addr, &addr_size);
+    recv(client_sock, buffer, sizeof(buffer), 0);
+    // persist the URL, acknowledge, keep listening
+}`,
+    },
+  },
+  {
+    slug: "snake-game",
+    name: "Snake + Flappy Bird",
+    blurb: "First-year C++ console games — now playable in the browser",
+    stack: ["C++", "Win32 console", "HTML5 Canvas"],
+    github: "https://github.com/gorredinesh21/snake-game-",
+    liveUrl: "https://cpp-games-441384612427.us-central1.run.app/snake.html",
+    explanation: [
+      "Early in college I wanted C++ beyond textbook exercises, so I reproduced real games inside the Windows terminal — loops, non-blocking input, screen refresh and state, with no graphics library.",
+      "Snake runs a grid loop with kbhit steering; Flappy adds gravity, rolling pipes and collision on the same console primitives. Both later got HTML5 canvas ports so they're playable in a browser.",
+    ],
+    code: {
+      file: "snake__game (C++) + snake.html (web port)",
+      lang: "cpp",
+      note: "The whole architecture of a first-year game: draw → input → logic → sleep.",
+      code: `// C++ console original
+while(!gameover)
+{
+    draw();
+    input();     // _kbhit() steering
+    logic();
+    Sleep(40);
+}
+
+// web port keeps the same shape on a canvas
+function init(){snake=[{x:10,y:10}];dir={x:1,y:0};food={x:15,y:15};
+  score=0;gameOver=false;loop=setInterval(tick,120)}`,
+    },
+  },
+];
+
+// ── Approach ─────────────────────────────────────────────────────────────────
+
+export const approach = [
+  {
+    step: "01",
+    title: "Build it like a product",
+    body: "Every project gets a landing surface, a working example and visible errors. If it can't survive a stranger clicking it, it isn't finished — a demo is not a product.",
+    pairs: [
+      ["A vague idea", "smallest real version"],
+      ["A clever model", "a page you can use"],
+    ],
+  },
+  {
+    step: "02",
+    title: "Prove it with numbers",
+    body: "Tests, benchmarks and golden sets gate every change. Hit-rate, latency, throughput — claims carry receipts, and retrieval invariants are asserted in CI, not asserted in a README.",
+    pairs: [
+      ["A claim", "a measurement"],
+      ["“it feels better”", "hit@10: 0.72 vs 0.67"],
+    ],
+  },
+  {
+    step: "03",
+    title: "Ship it and keep it running",
+    body: "Deployed on GCP, watched, and fixed when it breaks — 40–50 orders a day doesn't tolerate downtime. Fallback planners and cold-start paths are designed before launch day, not after.",
+    pairs: [
+      ["Works on my machine", "works at 2 am"],
+      ["The LLM dies", "the product doesn't"],
+    ],
+  },
+];
+
+// ── About / Experience / Awards / OSS ────────────────────────────────────────
 
 export const aboutBio = [
   {
     heading: "Background",
     content: [
-      "Computer Science graduate from IIT (ISM) Dhanbad (2025), now a Graduate Engineer Trainee at Reliance Industries in Mumbai — working across data engineering, RAG systems and Gen AI platforms on Databricks and Azure.",
-      "My journey started with Machine Learning in my third year and grew across Deep Learning, Computer Vision, NLP and Transformers. For the last year I have gone deep on Generative AI — LangChain, LangGraph, agents, MCP and RAG.",
-      "Alongside all of that I build full-stack web apps — MERN storefronts, Spring Boot APIs, React frontends and Web3 DApps — because shipping the whole product, not just the model, is what I enjoy most.",
+      "Computer Science graduate from IIT (ISM) Dhanbad (2025), now a Graduate Engineer Trainee at Reliance Industries in Mumbai — working across data engineering, RAG systems and Gen-AI platforms on Databricks and Azure.",
+      "My journey started with Machine Learning in my third year and grew across Deep Learning, Computer Vision, NLP and Transformers. For the last year I have gone deep on Generative AI — LangChain, LangGraph, agents, MCP and RAG — and on Go for the systems underneath.",
+      "Alongside all of that I build full-stack web apps and run a live startup, because shipping the whole product — not just the model — is what I enjoy most.",
     ],
   },
   {
     heading: "How I work",
     content: [
-      "I try to stay broad at this stage: comfortable with fundamentals (ML, DSA, operating systems) and with the current tooling (Gen AI, data platforms), and I enjoy building the web layer that makes things usable.",
-      "I learn on demand — when a project needs a skill I do not have yet, I go and get it. Java + Spring Boot, Stripe payments, smart contracts, vector databases: each one started as \"I need this for what I'm building.\"",
-      "Most of what I know comes from building things and fixing them when they break. I gravitate towards ideas that make everyday life a little easier.",
+      "I learn on demand: when a project needs a skill I don't have yet, I go and get it. Java + Spring Boot, Stripe payments, smart contracts, vector databases — each one started as “I need this for what I'm building.”",
+      "Most of what I know comes from building things and fixing them when they break. I gravitate towards ideas that make everyday life a little easier, and I keep them running after the launch commit.",
     ],
   },
   {
     heading: "Right now",
     content: [
       "At work: designing a Unified Genie architecture on Databricks that beats the native 30-table limit, and a Talk-to-Genie web app that lets non-Databricks users converse with internal data over OAuth.",
-      "On the side: running Homaatri — my live home-food marketplace startup (homatri.com) with real users: website, three Android apps, GCP infra and an agentic AI payment flow on WhatsApp. Plus Go AI systems in production: OrderPilot (agentic food ordering, framework-free tool calling) and MenuMind (hybrid BM25 + vector retrieval with grounded RAG), alongside LLM infrastructure (concurrent embedding gateway, Redis-compatible KV store).",
-      "Always: writing PySpark that turns Silver data into Gold KPI tables, and looking for the next thing worth building.",
+      "On the side: running Homaatri and its WhatsApp ordering agent, plus Go AI systems in production — OrderPilot and MenuMind — and LLM infrastructure (concurrent embedding gateway, Redis-compatible KV store).",
     ],
   },
 ];
@@ -62,1113 +1162,26 @@ export const experience = [
     role: "Graduate Engineer Trainee — Data / AI Engineer",
     location: "Mumbai, India",
     period: "Aug 2025 – Present",
-    stack: [
-      "Databricks",
-      "PySpark",
-      "Azure Data Factory",
-      "ADLS Gen2",
-      "OAuth",
-      "RAG",
-      "FastAPI",
-    ],
+    stack: ["Databricks", "PySpark", "Azure Data Factory", "ADLS Gen2", "RAG", "FastAPI"],
     highlights: [
       {
         title: "Talk-to-Genie Platform",
-        body: "Built an external web application integrating Databricks Genie via OAuth, enabling secure conversational access to internal data for users who do not have Databricks workspace seats.",
+        body: "External web app integrating Databricks Genie via OAuth — secure conversational access to internal data for users without Databricks seats.",
       },
       {
         title: "Unified Genie Architecture",
-        body: "Designed a scalable RAG framework that overcomes Databricks Genie's hard 30-table limit by organising 120+ tables across 9 Genie spaces, with a routing layer in front.",
+        body: "RAG framework that overcomes Genie's hard 30-table limit: 120+ tables organised across 9 spaces with a semantic routing layer in front.",
       },
       {
         title: "Intelligent Query Routing Engine",
-        body: "Built a semantic retrieval pipeline over table and column metadata to dynamically route user prompts to the most relevant Genie space — improving answer accuracy and reducing wasted retrieval.",
+        body: "Semantic retrieval over table and column metadata routes prompts to the most relevant Genie space — better answers, less wasted retrieval.",
       },
       {
         title: "KPI Analytics Platform",
-        body: "Developed Databricks workflows and PySpark notebooks that transform Silver datasets into Gold KPI tables powering operational dashboards.",
-      },
-      {
-        title: "Near Real-Time Data Pipeline",
-        body: "Built ADF ingestion pipelines with 15-minute refresh cycles across Landing → Bronze → Silver layers.",
+        body: "Databricks workflows and PySpark notebooks transforming Silver datasets into the Gold KPI tables behind operational dashboards.",
       },
     ],
   },
-];
-
-type Project = {
-  slug: string;
-  name: string;
-  tagline: string;
-  domain: Domain;
-  featured?: boolean;
-  period: string;
-  stack: string[];
-  github: string;
-  liveUrl?: string;
-  summary: string;
-  problem: string;
-  approach: string[];
-  highlights: string[];
-  metrics: { label: string; value: string }[];
-};
-
-export const projects: Project[] = [
-  {
-    slug: "orderpilot",
-    name: "OrderPilot — Agentic AI Food Ordering in Go",
-    tagline:
-      "A framework-free LLM agent built in pure Go: strict-JSON tool calling, deterministic fallback planner, budget-enforced carts and live order tracking with per-order goroutines",
-    domain: "GenAI",
-    featured: true,
-    period: "2026 · Live",
-    stack: [
-      "Golang",
-      "LLM Agents",
-      "Tool Calling",
-      "SSE Streaming",
-      "Goroutines / errgroup",
-      "Hugging Face Llama 3.1",
-      "GCP Cloud Run",
-    ],
-    github: "https://github.com/gorredinesh21/orderpilot",
-    liveUrl: "https://orderpilot-yzzxrxetcq-uc.a.run.app",
-    summary:
-      "An AI food-ordering agent written in Go with no agent framework — the tool-calling loop, JSON protocol, repair retries and fallback planner are all built from scratch. Talk to it in plain language ('veg biryani under ₹250 in Koramangala, then place the order'), watch it call tools in parallel, enforce your budget at the cart layer and place multi-restaurant orders that track live on a simulated Bangalore delivery map.",
-    problem:
-      "Every agentic-AI demo reaches for LangChain or the OpenAI SDK, so the engineering under the loop stays hidden — and none of it degrades gracefully when the model breaks protocol or the API is down. I wanted to build the agent loop the way a backend engineer would: typed tools, a strict wire protocol, hard guardrails enforced in code rather than prompts, and a deterministic fallback so the product never dies with the LLM.",
-    approach: [
-      "Built the agent loop from scratch in Go: a strict JSON turn protocol (say / tool calls / reply), protocol-repair retries, and parallel tool execution through an errgroup with bounded concurrency.",
-      "Designed 9 typed tools (search, menu, cart, budget, place, track) with lenient arg coercion — the model emits '200' for an int, the tool layer forgives it without a failed turn.",
-      "Enforced the budget as a hard guardrail inside the cart layer, not the prompt: the agent physically cannot overspend even if the LLM tries.",
-      "Wrote a deterministic regex-based fallback planner that drives the same tool layer when the model is unavailable — full functionality, zero LLM dependency.",
-      "Simulated live order fulfilment with per-order goroutines and context cancellation: state machine PLACED → DELIVERED, time-compressed ETA engine with haversine distance and traffic delays.",
-      "Streamed the whole experience over SSE with mutex-serialized writes, deployed as a distroless single binary on Cloud Run.",
-    ],
-    highlights: [
-      "Agent framework-free: the tool-calling loop, JSON protocol and repair logic are ~all hand-written Go.",
-      "Budget guardrail enforced in the cart layer — overspending is impossible by construction.",
-      "Deterministic fallback planner keeps ordering fully working with the LLM completely down.",
-      "Live multi-restaurant orders with per-order goroutines, ETAs and a delivery-tracking UI.",
-    ],
-    metrics: [
-      { label: "Status", value: "Live on Cloud Run" },
-      { label: "Language", value: "Pure Go, no framework" },
-      { label: "Agent", value: "9 tools · 16-step loop" },
-    ],
-  },
-  {
-    slug: "menumind",
-    name: "MenuMind — Hybrid Semantic Search + RAG over Menus in Go",
-    tagline:
-      "Go-native hybrid retrieval (hand-written BM25 + embeddings + Reciprocal Rank Fusion) with a grounded, cited RAG chat that only answers from retrieved dishes",
-    domain: "GenAI",
-    featured: true,
-    period: "2026 · Live",
-    stack: [
-      "Golang",
-      "BM25",
-      "Vector Search",
-      "Reciprocal Rank Fusion",
-      "bge-small embeddings",
-      "RAG",
-      "SSE Streaming",
-      "GCP Cloud Run",
-    ],
-    github: "https://github.com/gorredinesh21/menumind",
-    liveUrl: "https://menumind-yzzxrxetcq-uc.a.run.app",
-    summary:
-      "A menu-discovery engine over 797 dishes from 36 Bangalore restaurants: BM25 written by hand in Go, fused with cosine similarity over bge-small-en-v1.5 embeddings via Reciprocal Rank Fusion, showing per-channel rank transparency ('warm comforting dessert' → brownies at cosine 0.62 while BM25 alone finds nothing). Ask follow-up questions and get streamed, citation-backed answers grounded strictly in retrieved dishes.",
-    problem:
-      "Food search is keyword-only: 'something warm and comforting' finds nothing on Swiggy-scale menus. And most RAG demos glue together Python libraries, so the retrieval math stays a black box. I wanted the whole retrieval stack — tokenization, IDF scoring, embedding cosine, rank fusion, and the grounded generation prompt — implemented in Go, with visible per-channel evidence so every result can be explained.",
-    approach: [
-      "Implemented BM25 (k1=1.5, b=0.75) from scratch in Go with a unicode-aware tokenizer, plus cosine similarity over 384-dim bge-small-en-v1.5 dish embeddings.",
-      "Fused both channels with Reciprocal Rank Fusion (k=60) so lexical and semantic signals correct each other — and surfaced both ranks per result as UI chips.",
-      "Embedded 797 dishes at build time, baked the vectors into the binary via embed.FS with a warm-cache loader — no vector database, cold start still serves lexical search.",
-      "Built the RAG layer with a strict grounding contract: the model answers only from numbered retrieved dishes and cites them ([D3]); the prompt forbids dishes outside the context.",
-      "Streamed both search and answers over SSE; query embeddings hit a bounded LRU cache to keep p95 latency low.",
-    ],
-    highlights: [
-      "Hybrid retrieval in pure Go — BM25, embedding cosine and RRF all hand-written, no search library.",
-      "Per-result rank transparency: you see exactly what BM25 vs semantics contributed.",
-      "Grounded RAG answers with dish-level citations — hallucinated dishes are contractually excluded.",
-      "797-dish corpus + embeddings baked into a single distroless binary on Cloud Run.",
-    ],
-    metrics: [
-      { label: "Status", value: "Live on Cloud Run" },
-      { label: "Corpus", value: "797 dishes · 36 restaurants" },
-      { label: "Retrieval", value: "BM25 + vectors + RRF" },
-    ],
-  },
-{
-    slug: "homaatri",
-    name: "Homaatri — Live AI Startup",
-    tagline:
-      "Home-food marketplace in production: website, 3 Android apps, GCP infra, agentic AI payments on WhatsApp",
-    domain: "GenAI",
-    featured: true,
-    period: "2026 · Live at homatri.com",
-    stack: [
-      "Next.js 14",
-      "React Native (Expo)",
-      "FastAPI",
-      "PostgreSQL",
-      "GCP Cloud Run",
-      "WhatsApp Business API",
-      "Agentic AI",
-      "Razorpay",
-      "Google Maps",
-    ],
-    github: "https://github.com/gorredinesh21/homatri",
-    liveUrl: "https://homatri.com",
-    summary:
-      "I built a startup and shipped it: homatri.com is a hyper-local home-food marketplace connecting customers, home-chef kitchens and delivery riders — live in production with real users and real orders. One FastAPI backend, a Next.js 14 website, three Android apps (customer, chef, rider) and an agentic AI payment flow on WhatsApp Business.",
-    problem:
-      "Restaurants can't cook your region's home food — only a home cook from your own district can. But home cooks have no software: no storefront, no payments, no delivery coordination. I wanted to build the entire production system myself — website, apps, backend, infrastructure and an AI payments agent — and run it with real users, not as a demo.",
-    approach: [
-      "Designed and shipped the full platform solo: Next.js 14 website, FastAPI backend on Cloud Run, PostgreSQL on Cloud SQL, GCS media pipeline and Cloud Build CI/CD.",
-      "Built three React Native (Expo) Android apps — customer, chef and rider — deployed as production APKs sharing one API.",
-      "Built an agentic AI payment flow on WhatsApp Business that conversationally guides customers through ordering and payment end-to-end.",
-      "Engineered two-click guest-first ordering: cart without login, GPS-crosshair address capture via Google Maps Geocoding, Razorpay / COD checkout with login only at payment.",
-      "Shipped multi-portal operations — chef onboarding with admin approval gating, rider onboarding with license verification, and an admin portal running the live marketplace.",
-    ],
-    highlights: [
-      "Live in production at homatri.com with real users and real orders — not a portfolio demo.",
-      "Four production codebases (web + backend + 3 apps) against one API on GCP.",
-      "Agentic AI payments on WhatsApp Business — ordering and checkout handled conversationally.",
-      "Two-click guest-first ordering UX with Google Maps geocoding and Razorpay / COD.",
-    ],
-    metrics: [
-      { label: "Status", value: "Live · real users" },
-      { label: "Surfaces", value: "Web + 3 Android apps" },
-      { label: "Infra", value: "GCP Cloud Run + SQL" },
-    ],
-  },
-  {
-    slug: "career-ops",
-    name: "Career-Ops — a job-search control room with evidence-backed matching",
-    tagline:
-      "A technical job-intelligence platform: 328 live jobs from real ingestion pipelines, deduplicated with provenance, matched against an evidence-backed skill graph parsed from your resume and GitHub — with typed gap analysis and a deterministic career agent",
-    domain: "GenAI",
-    featured: true,
-    period: "2026",
-    stack: ["FastAPI", "SQLite", "Jinja2", "Deterministic NLP", "Skill Ontology", "GitHub API", "Cloud Run"],
-    github: "https://github.com/gorredinesh21/career-ops",
-    liveUrl: "https://career-ops-441384612427.us-central1.run.app",
-    summary:
-      "Upload a resume and link a GitHub account; Career-Ops builds a skill graph where every claim carries the exact resume line or repo that proves it, then compares it requirement-by-requirement against every live posting — market commonality (\u201cVector DBs: 38% of GenAI postings\u201d), indirect evidence via a skill ontology, and gaps typed as presentation vs evidence vs capability, each ending in a concrete next action rather than a keyword to stuff.",
-    problem:
-      "Job portals are noisy and job-seekers can't tell \u201cworth my time\u201d from \u201ctechnically possible\u201d. Existing match scores are black boxes that users correctly distrust — a 78% means nothing if you can't see what matched, what's missing, how much it matters, and what to do next. And resume parsers treat a keyword the same as production experience.",
-    approach: [
-      "Job intelligence layer: ingestion from real daily pipelines (LinkedIn alert detail files, a cross-day ledger, scored spreadsheets), normalized into one canonical listing per real opening — deduplication survives LinkedIn's messy repeated-title cards, and freshness is computed from first-seen/last-seen evidence, never \u201cposted today\u201d claims.",
-      "Explainable classification into 9 role families: every job stores WHY it was classified (\u201ctitle matched 'backend', 'django'\u201d); human-scored spreadsheet categories override the keyword classifier at 0.95 confidence.",
-      "Candidate intelligence without an LLM: resume sections parsed deterministically, skills extracted with the same ontology as job postings, each claim carrying depth (production use → exposure), confidence and its evidence line; GitHub repos fetched via API and linked as repo evidence with originality flags (fork / active-original / stale).",
-      "Matching as decision support, not an oracle: fit bands (Strong/Good/Partial/Major Gap) from required-skill coverage, requirement priority weighting, indirect evidence clearly labeled (PyTorch ⇒ Deep Learning), seniority signals (ownership/design/scale/production) extracted from the JD and checked against resume evidence, experience-band alignment and preference-mismatch flags.",
-      "A deterministic career agent over the structured layer: asks like \u201cwhat are my gaps for GenAI?\u201d get answers computed from the live corpus (\u201cclose Vector DBs first — asked by 38% of postings\u201d), and it refuses to predict hiring outcomes with an explanation of why.",
-      "Trust architecture: versioned job snapshots, provenance per source, user corrections that re-enter matching (confirm/reject skills), a review queue for unclassified jobs, DPDP-style JSON export and deletion.",
-    ],
-    highlights: [
-      "Every AI-ish claim is traceable: each skill on a job page shows its % of family demand, and each of your matching skills shows the resume line or GitHub repo that proves it.",
-      "130 jobs human-categorized from real scored spreadsheets on top of the deterministic classifier; PayPal auto-marked CLOSED from live-status evidence.",
-      "The gap engine distinguishes presentation gaps (rewrite the line), evidence gaps (add truthful proof), and capability gaps (build a small real project) — it never advises keyword stuffing.",
-    ],
-    metrics: [
-      { label: "Jobs indexed", value: "328 live" },
-      { label: "Matching", value: "evidence + market %" },
-      { label: "Status", value: "Live · Cloud Run" },
-    ],
-  },
-  {
-    slug: "voicebank",
-    name: "VoiceBank — a bank you operate entirely by voice",
-    tagline:
-      "A voice agent that drives a real banking UI end-to-end: Web Speech STT → Gemini function-calling → typed actions on a React state machine → spoken confirmations",
-    domain: "GenAI",
-    featured: true,
-    period: "2026",
-    stack: ["React 18 (Vite)", "Web Speech API", "Gemini (Vertex AI)", "FastAPI", "Function Calling", "speechSynthesis", "Cloud Run"],
-    github: "https://github.com/gorredinesh21/voicebank",
-    liveUrl: "https://voicebank-441384612427.us-central1.run.app",
-    summary:
-      "Say “send 500 rupees to Mom” and watch the app open transfers, fill the payee and amount, ask you to confirm, take your spoken PIN and read back the receipt — the same four-layer architecture voice-first banking runs on: speech recognition → LLM intent → UI automation → spoken confirmation, with every agent decision visible in a live console.",
-    problem:
-      "Voice assistants can open apps, but they can't complete an in-app transaction end-to-end — and most 'voice app' demos are just a chat window. I wanted the harder thing: an agent that physically operates a real UI (navigate screens, fill fields, press buttons) with a safety model a bank could accept, where money cannot move without explicit spoken confirmation and a PIN.",
-    approach: [
-      "Agent contract: Gemini receives the user's utterance plus a machine-readable description of the current screen and returns typed actions (NAVIGATE / FILL / TAP) executed by the same React reducer a human tap goes through — voice and touch share one code path, and every action is visible as a glow/flash on the UI.",
-      "Safety rails: payments complete only through confirm-screen → spoken PIN; the server sanitises any action that tries to skip the gate, and the LLM can never fabricate a receipt.",
-      "Deterministic fast rails handled locally with zero network: instant cancel mid-flow, help, home, and a spoken-PIN rail that completes the payment in one breath from any screen.",
-      "Voice engineering: continuous en-IN Web Speech recognition with auto-restart, an echo guard that pauses the mic while the agent speaks, and a typed-command fallback that drives the identical agent loop for mic-less browsers and testing.",
-      "FastAPI backend (Vertex AI, structured output, JSON-repair retry, quota backoff) serves the built frontend from one Cloud Run container — no API keys anywhere, metadata-server auth.",
-    ],
-    highlights: [
-      "The agent operates the UI through the same state machine a human uses — you watch each tap glow and each field fill, with a live action log showing every decision.",
-      "Money can't move without spoken confirmation + PIN; cancel works instantly, offline, mid-flow.",
-      "End-to-end verified live on Cloud Run with real Gemini: login → balance → transfer → PIN → receipt, plus bill payments and cancel paths.",
-    ],
-    metrics: [
-      { label: "Architecture", value: "STT → LLM → UI → TTS" },
-      { label: "Agent loop", value: "typed actions + fast rails" },
-      { label: "Status", value: "Live · Chrome/Edge mic" },
-    ],
-  },
-  {
-    slug: "ragmill",
-    name: "RAGMill — RAG at Million-Doc Scale",
-    tagline:
-      "Hybrid dense+BM25 retrieval (RRF) with Gemini rerank and citations, sharded Cloud Run ingest for 1M documents — with an eval harness",
-    domain: "GenAI",
-    featured: true,
-    period: "2026",
-    stack: ["FastAPI", "Vertex AI (Gemini)", "fastembed (bge-small)", "Qdrant", "BM25 + RRF", "Cloud Run Jobs", "SSE"],
-    github: "https://github.com/gorredinesh21/ragmill",
-    liveUrl: "https://ragmill-yzzxrxetcq-uc.a.run.app",
-    summary:
-      "A retrieval pipeline designed for a million documents: sharded Cloud Run ingest jobs with idempotent upserts, hybrid search that fuses dense vectors with BM25 via reciprocal rank fusion, a Gemini reranker that answers with [n] citations, and a golden-set eval harness that gates every retrieval change in CI.",
-    problem:
-      "Most RAG demos die at a few thousand documents. I wanted the architecture that survives a million: embedding throughput that needs parallel workers, idempotent re-ingest that doesn't duplicate, retrieval that stays honest when dense vectors alone miss keyword-heavy queries, and numbers that prove which design actually wins.",
-    approach: [
-      "Sharded ingest: a Cloud Run Jobs matrix (CLOUD_RUN_TASK_INDEX/COUNT) streams documents from GCS in parallel — uuid5 chunk IDs make every upsert idempotent, so retries and re-runs never duplicate.",
-      "Hybrid retrieval: fastembed ONNX bge-small-en-v1.5 dense vectors + rank-bm25, fused with reciprocal rank fusion (RRF) — the hybrid-beats-dense invariant is asserted by a CI test, not a claim.",
-      "Grounded answers: Gemini reranks the fused candidates and answers with [n] citations linked to sources, streamed over SSE with per-stage timings.",
-      "Eval harness: a 60-query golden set over a 5K corpus measuring hit@3 / hit@10 / MRR for hybrid vs dense-only, plus GFE-safe health probes and a cost table (<$1/month at demo scale).",
-    ],
-    highlights: [
-      "Measured on the 5K golden corpus: hybrid beats dense-only on every metric — hit@10 0.72 vs 0.67, MRR 0.36 vs 0.31.",
-      "1M-document ingest path shipped as runnable Cloud Run Jobs (10 shards, 150–250 docs/s/shard ⇒ ~7–12 min end-to-end, honest estimate in the README).",
-      "26 tests green including live retrieval goldens and API SSE with citations; cloud profile boots cold on 512Mi.",
-    ],
-    metrics: [
-      { label: "hit@10 (hybrid)", value: "0.72" },
-      { label: "vs dense-only", value: "0.67" },
-      { label: "tests", value: "26 ✓" },
-    ],
-  },
-
-  {
-    slug: "quackquery",
-    name: "QuackQuery — Text-to-SQL Analytics",
-    tagline:
-      "Upload any CSV, ask in plain English: auditable SQL, rows and chart specs over DuckDB with a self-correcting repair loop, streamed via SSE",
-    domain: "GenAI",
-    period: "2026",
-    stack: ["FastAPI", "Vertex AI (Gemini)", "DuckDB", "SSE", "SQLite cache", "Cloud Run"],
-    github: "https://github.com/gorredinesh21/quackquery",
-    liveUrl: "https://quackquery-yzzxrxetcq-uc.a.run.app",
-    summary:
-      "A natural-language analytics API: upload a CSV (or load a demo dataset), ask questions in English, and get the generated SQL, the rows, a chart spec and a plain-English answer — every attempt visible, every query guarded, wrong SQL self-corrected up to three times before giving up honestly.",
-    problem:
-      "Business users don't write SQL, and most text-to-SQL demos hide their failure modes. I wanted one where the SQL is always shown next to the answer, dangerous SQL is structurally impossible, and a bad first draft repairs itself instead of hallucinating a result.",
-    approach: [
-      "Schema-aware prompt over an inferred DuckDB catalog; the model returns SQL, which runs against the uploaded data — the answer cites the exact rows it came from.",
-      "Self-correcting loop: a SQL error feeds the traceback back to Gemini for up to 3 repairs; every attempt (initial + repairs) is returned in the response trail.",
-      "Hard guard layer before execution: stacked queries, PRAGMA writes, read_csv/attach smuggling and CTE-wrapped exfiltration are rejected — 34 dedicated guard tests.",
-      "SSE streaming (/api/query/stream) with per-stage events, a 30-min SQLite result cache with replay, per-IP rate limiting and cross-dataset isolation under concurrency.",
-    ],
-    highlights: [
-      "66 tests green: guards, repair loop, attempt-trails, SSE ordering, cache/replay, 20-way concurrent cross-dataset isolation, 10 golden SQL pairs.",
-      "Live smoke on Cloud Run with real Gemini: 'which team won the most matches?' → correct GROUP BY SQL, 'Delhi Capitals with 30 wins', 1 attempt, 1.3s.",
-      "Zero-dependency demo mode (QUACK_LLM=mock) that answers from a deterministic planner — $0 cost for trying it.",
-    ],
-    metrics: [
-      { label: "tests", value: "66 ✓" },
-      { label: "live query", value: "1.3s" },
-      { label: "SQL repairs", value: "up to 3" },
-    ],
-  },
-
-  {
-    slug: "diffwarden",
-    name: "DiffWarden — AI PR Review Bot",
-    tagline:
-      "Deterministic security gates (secrets / ruff / bandit) + cost-capped Gemini review on any PR diff, SQLite-cached",
-    domain: "GenAI",
-    period: "2026",
-    stack: ["FastAPI", "Vertex AI (Gemini)", "ruff", "bandit", "SQLite", "Cloud Run"],
-    github: "https://github.com/gorredinesh21/diffwarden",
-    liveUrl: "https://diffwarden-yzzxrxetcq-uc.a.run.app",
-    summary:
-      "A PR review API that layers cheap deterministic checks before any LLM call: secret patterns, lint and security findings are computed locally, and Gemini only reviews what survives — with a token budget cap, a SQLite cache so unchanged diffs never re-bill, and an HMAC mode for webhook deployments.",
-    problem:
-      "LLM code review is slow and expensive when it reviews everything, and it's unreliable on exactly the things regexes do well. I wanted the inverse layering: deterministic gates first (free, instant, no hallucination), and the LLM spent only on the judgment-call findings.",
-    approach: [
-      "Unified diff parser walks added/removed lines and scopes every finding to a file+line — gates and LLM agree on the same coordinate system.",
-      "Deterministic gates: built-in secret patterns (with an allowlist), ruff for lint, bandit for security — all running inside the container, no external services.",
-      "Cost-capped Gemini review: findings compressed to a token budget before the call, so a 10k-line diff can't produce a surprise bill; reviews cached in SQLite by diff hash.",
-      "Two deploy modes: public (API + paste-a-diff UI) and webhook (HMAC-signed, for wiring into GitHub Actions).",
-    ],
-    highlights: [
-      "36 tests green: gate coverage (secrets/allowlist, injection patterns), cache behavior, budget caps, API contract.",
-      "Test fixtures are deliberately vulnerable diffs — GitHub's secrets push-protection flagged them and they're unblocked as 'used in tests'.",
-      "Live on Cloud Run with Vertex AI; healthz reports gate availability and cache stats.",
-    ],
-    metrics: [
-      { label: "tests", value: "36 ✓" },
-      { label: "LLM calls", value: "cache-gated" },
-      { label: "gates", value: "3 deterministic" },
-    ],
-  },
-
-  {
-    slug: "support-copilot",
-    name: "Support Copilot",
-    tagline:
-      "Grounded RAG assistant with citations, eval harness and KQL telemetry — deployed on Cloud Run",
-    domain: "GenAI",
-    featured: true,
-    period: "2026",
-    stack: ["React", "FastAPI", "Vertex AI (Gemini)", "RAG", "KQL (Kusto)", "Cloud Run"],
-    github: "https://github.com/gorredinesh21/support-copilot",
-    liveUrl: "https://support-copilot-441384612427.us-central1.run.app",
-    summary:
-      "A customer-support knowledge assistant: a React chat interface over a retrieval-augmented pipeline that answers only from a 30-document support corpus, cites every source, and emits App-Insights-compatible telemetry with a KQL dashboard for success rate, latency and no-answer rate.",
-    problem:
-      "Support engineers re-read the same docs all day. I wanted a small, honest version of a support copilot: grounded answers with citations, an explicit 'I could not find this' fallback instead of hallucination, and operational telemetry so quality is measurable rather than assumed.",
-    approach: [
-      "Header-aware markdown chunking (procedures stay whole), cached vector embeddings, and a provider-agnostic retrieval interface with an Azure AI Search adapter ready for production.",
-      "Grounded generation with a citation-enforcement retry: an answer that forgets its [n] markers gets regenerated once — measured, not hoped for.",
-      "App-Insights-compatible telemetry schema (operation_Id, success, duration, customDimensions) with KQL dashboard queries for success rate, p95 latency and no-answer rate.",
-      "Golden-set evaluation of 18 real questions wired into pytest: retrieval hit@3, citation rate and latency budgets gate every change.",
-    ],
-    highlights: [
-      "Retrieval hit@3 = 1.00 and citation rate = 1.00 on the 18-question golden set; p95 = 3.8s.",
-      "Live on Google Cloud Run — single container serving the React app and API.",
-      "Quota-aware clients (Retry-After backoff) on both the embedding and LLM paths.",
-    ],
-    metrics: [
-      { label: "hit@3", value: "1.00" },
-      { label: "Citation rate", value: "1.00" },
-      { label: "p95 latency", value: "3.8s" },
-    ],
-  },
-
-  
-  {
-    slug: "startup-intelligence-platform",
-    name: "Startup Intelligence Platform",
-    tagline:
-      "GraphRAG + RAPTOR market-intelligence engine with an agentic research chat",
-    domain: "GenAI",
-    featured: true,
-    period: "2026",
-    stack: [
-      "Python",
-      "FastAPI",
-      "LangGraph",
-      "GraphRAG",
-      "RAPTOR",
-      "Qdrant",
-      "Neo4j / NetworkX",
-      "BGE Embeddings",
-      "Mistral (HF)",
-      "Next.js 16",
-      "React Flow",
-    ],
-    github: "https://github.com/gorredinesh21/Startup-Intelligence-Platform",
-    liveUrl: "https://startup-intel-441384612427.us-central1.run.app",
-    summary:
-      "An AI-powered market-intelligence system that continuously maps startup ecosystems — competitors, funding histories, partnerships and emerging tech — using a hybrid GraphRAG + RAPTOR engine. A Perplexity-style research agent answers multi-hop questions with inline citations, while an interactive React Flow graph lets you explore the relationships visually.",
-    problem:
-      "Understanding a startup ecosystem means stitching together scattered, unstructured signals — who competes with whom, who funded whom, which partnerships matter. Pure vector RAG flattens those relationships and pure keyword search misses semantics. I wanted a system that reasons over both a semantic knowledge hierarchy and an explicit relationship graph, and shows its work with traceable citations.",
-    approach: [
-      "Built a RAPTOR ingestion pipeline: chunk → embed → K-Means cluster → recursive LLM summarization into a multi-level tree (raw chunks up to global summaries) stored in Qdrant.",
-      "Extracted structured entities and relationships (COMPETES_WITH, FUNDED_BY, PARTNERED_WITH) into a Neo4j / NetworkX graph during ingestion, with a rule-based parser fallback.",
-      "Implemented the reasoning agent as a LangGraph loop: intent detection → query planning → parallel graph + RAPTOR retrieval → BGE cross-encoder reranking → cited answer synthesis.",
-      "Used BAAI/bge-large-en-v1.5 (1024-d) embeddings, bge-reranker-large for relevance, and Mistral-Small-3.1-24B via the Hugging Face Inference API for generation.",
-      "Designed a full LOCAL_FALLBACK mode — SQLite, in-memory NetworkX, file-based Qdrant and mocked inference — so the whole stack runs offline with zero external keys.",
-      "Shipped a Next.js 16 frontend: a LangGraph node-stepper that visualizes agent execution live, citation popups to source chunks, and an interactive React Flow ecosystem graph with 2-hop neighborhood expansion and an acquisition predictor.",
-    ],
-    highlights: [
-      "Hybrid retrieval: semantic RAPTOR summaries fused with explicit relationship-graph traversal, reranked by a cross-encoder.",
-      "Agentic LangGraph pipeline with a live node-stepper UI and click-through citations to the exact source chunks.",
-      "Interactive React Flow graph — color-coded entities, multi-hop path highlights, and double-click neighborhood expansion.",
-      "Full offline LOCAL_FALLBACK mode (SQLite + NetworkX + local Qdrant + mocked LLM) for keyless local development.",
-    ],
-    metrics: [
-      { label: "Retrieval", value: "GraphRAG + RAPTOR" },
-      { label: "Embeddings", value: "BGE-large (1024-d)" },
-      { label: "Storage", value: "Qdrant + Neo4j + SQL" },
-    ],
-  },
-  {
-    slug: "llmgateway",
-    name: "LLM Gateway",
-    tagline:
-      "Concurrent LLM / embedding gateway in Go — 32x faster batch embedding",
-    domain: "Systems",
-    featured: false,
-    period: "2026",
-    stack: ["Go", "Worker Pools", "Token-Bucket Rate Limiting", "context", "Benchmarks"],
-    github: "https://github.com/gorredinesh21/llmgateway",
-    liveUrl: "https://llmgateway-441384612427.us-central1.run.app",
-    summary:
-      "A provider-agnostic concurrent LLM / embedding gateway in Go: a bounded worker pool keeps many provider calls in flight, a token-bucket limiter respects rate limits, and context cancels whole batches cleanly. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled (~32x).",
-    problem:
-      "Embedding or calling LLM providers at scale is easy to get wrong — unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. This project was my way of learning to do the concurrency, backpressure and cancellation properly, with benchmarks to check myself.",
-    approach: [
-      "Bounded worker pool with near-linear scaling (1 -> 32 workers: ~32x speedup, verified with Go benchmarks).",
-      "Token-bucket rate limiter so batches respect provider RPS limits without thundering-herd retries.",
-      "context.Context threaded through every call — one cancellation kills the whole batch cleanly.",
-      "Provider-agnostic backend interface with a zero-cost mock, so the gateway runs and benchmarks with no API keys.",
-    ],
-    highlights: [
-      "2,000 chunks: 10.69s serial -> 0.33s pooled (187/sec -> 6,023/sec).",
-      "Near-linear pool scaling proven by BenchmarkPoolSpeedup (4/16/32 workers).",
-      "Rate limiting + clean batch cancellation built in; zero-key mock backend for instant local runs.",
-    ],
-    metrics: [
-      { label: "Speedup", value: "~32x" },
-      { label: "Throughput", value: "6,023 embeds/sec" },
-      { label: "Language", value: "Go" },
-    ],
-  },
-  {
-    slug: "voltkv",
-    name: "voltkv",
-    tagline:
-      "Redis-compatible in-memory KV store written from scratch in Go (RESP2)",
-    domain: "Systems",
-    featured: false,
-    period: "2026",
-    stack: ["Go", "RESP2 Protocol", "TCP Networking", "Sharding", "AOF Persistence", "TTL Sweeper"],
-    github: "https://github.com/gorredinesh21/voltkv",
-    liveUrl: "https://voltkv-demo-441384612427.us-central1.run.app",
-    summary:
-      "A Redis-compatible, in-memory key-value store written from scratch in Go. It speaks the real Redis RESP2 wire protocol — redis-cli, redis-benchmark and standard Redis clients just work — with 16 keyspace shards, TTL expiry sweeps and optional append-only-file persistence.",
-    problem:
-      "I wanted to understand what Redis actually is under the hood — protocol parsing, safe concurrency under thousands of connections, memory eviction and durability — by building one rather than reading about one.",
-    approach: [
-      "Implemented the RESP2 wire protocol parser/serializer so real Redis clients connect without knowing the difference.",
-      "Sharded keyspace (power-of-two shards, default 16) with per-shard locking for safe concurrency under many clients.",
-      "Background TTL sweeper for key expiry plus optional append-only-file persistence for durability across restarts.",
-      "Validated with redis-cli and redis-benchmark against live workloads.",
-    ],
-    highlights: [
-      "Speaks real RESP2 — redis-cli and redis-benchmark work out of the box.",
-      "Sharded, concurrency-safe keyspace built for thousands of simultaneous connections.",
-      "AOF persistence + background TTL sweeping, configurable via flags.",
-    ],
-    metrics: [
-      { label: "Protocol", value: "RESP2 (Redis)" },
-      { label: "Shards", value: "16 (default)" },
-      { label: "Persistence", value: "AOF" },
-    ],
-  },
-  {
-    slug: "vectorshift-pipeline-builder",
-    name: "VectorShift Pipeline Builder",
-    tagline:
-      "Drag-and-drop AI pipeline builder — React Flow frontend + FastAPI graph analysis",
-    domain: "GenAI",
-    featured: false,
-    period: "2026",
-    stack: ["React 18", "React Flow", "Zustand", "FastAPI", "JavaScript", "Python"],
-    github: "https://github.com/gorredinesh21/vector_shift",
-    liveUrl: "https://vector-shift-441384612427.us-central1.run.app",
-    summary:
-      "A polished, extensible no-code builder for AI pipelines: drag nodes onto a canvas, wire inputs and outputs, and run the resulting graph. Built around a reusable node abstraction (5+ custom node types), a cohesive UI, dynamic Text-node logic and a frontend-backend integration that analyzes the pipeline DAG.",
-    problem:
-      "A take-home assessment: one node abstraction that keeps new node types cheap, a cohesive UI, and a backend that reasons about the graph (cycles, connectivity, reachability) rather than just storing it.",
-    approach: [
-      "Built a reusable node abstraction with shared styles and handles, then used it to ship 5+ new node types fast.",
-      "Managed canvas state in Zustand with derived edge/node graph structures for analysis.",
-      "Dynamic Text-node logic: output schema adapts to input wiring at runtime.",
-      "FastAPI backend runs graph analysis over the submitted pipeline (validation, adjacency, reachability).",
-    ],
-    highlights: [
-      "One node abstraction, 5+ node types — adding a node is a config, not a copy-paste.",
-      "Frontend-backend integration with real graph analysis on the pipeline DAG.",
-      "Cohesive React Flow UI with Zustand state and dynamic Text-node behaviour.",
-    ],
-    metrics: [
-      { label: "Frontend", value: "React Flow + Zustand" },
-      { label: "Backend", value: "FastAPI" },
-      { label: "Node types", value: "5+ via abstraction" },
-    ],
-  },
-  {
-    slug: "crickkart-ecommerce",
-    name: "CrickKart",
-    tagline:
-      "Full MERN cricket-equipment store with cart, Stripe checkout and an admin panel",
-    domain: "Full-Stack",
-    featured: true,
-    period: "2026",
-    stack: [
-      "React",
-      "Redux",
-      "Material-UI",
-      "Node.js",
-      "Express",
-      "MongoDB",
-      "Mongoose",
-      "Stripe",
-      "Cloudinary",
-      "JWT",
-      "Nodemailer",
-    ],
-    github: "https://github.com/gorredinesh21/CricKart",
-    summary:
-      "A complete MERN-stack e-commerce platform for cricket equipment — a customer storefront with product browsing, cart, wishlist, reviews and secure Stripe checkout, plus a full admin dashboard for managing products, orders and users with role-based access.",
-    problem:
-      "I wanted to build a real, production-shaped web application end to end — not a toy CRUD demo. That meant auth, payments, image hosting, transactional email, global state, an admin control plane and a deployable build, all wired together the way an actual shop would need.",
-    approach: [
-      "Built an Express + MongoDB REST API exposing 18+ endpoints over a Mongoose data layer with User, Product and Order models.",
-      "Implemented JWT auth with HTTP-only cookies, BCrypt password hashing, role-based access control (admin/user), and an email-driven password-reset flow via Nodemailer.",
-      "Integrated Stripe (PaymentIntent) checkout for secure payments and Cloudinary for product-image upload and hosting.",
-      "Built the React 18 + Redux frontend with global cart / wishlist / auth state, a Material-UI component system, and advanced search, filtering and pagination by price, category and rating.",
-      "Added a full admin dashboard — CRUD for products and stock, order management, user promotion/deletion and review moderation — with revenue analytics via react-chartjs-2.",
-      "Configured a single Vercel deployment that builds the Express API and serves the production React build.",
-    ],
-    highlights: [
-      "End-to-end MERN app: React 18 + Redux SPA, an 18+ endpoint Express/Mongo REST API, one deployable build.",
-      "Real payments (Stripe PaymentIntent), image hosting (Cloudinary) and transactional email (Nodemailer).",
-      "JWT auth with HTTP-only cookies, BCrypt hashing, password reset and role-based admin access control.",
-      "Admin dashboard with product/order/inventory management and revenue analytics.",
-    ],
-    metrics: [
-      { label: "Stack", value: "MERN + Redux" },
-      { label: "Payments", value: "Stripe" },
-      { label: "Surfaces", value: "Store + Admin" },
-    ],
-  },
-  {
-    slug: "finnest-banking",
-    name: "FinNest",
-    tagline:
-      "Full-stack online banking — Spring Boot REST API + React/Redux SPA",
-    domain: "Full-Stack",
-    featured: false,
-    period: "2026",
-    stack: [
-      "Java",
-      "Spring Boot 2.7",
-      "Spring Data JPA",
-      "Hibernate",
-      "MySQL",
-      "JWT",
-      "React",
-      "Redux",
-      "Material-UI",
-    ],
-    github: "https://github.com/gorredinesh21/FinNest",
-    summary:
-      "A full-stack online-banking application: a layered Spring Boot REST API backend and a React + Redux single-page frontend. It models users, accounts, transactions and payments, runs a full transaction engine (deposits, transfers, withdrawals, bill payments) with balance validation and audit logging, and surfaces everything in a dashboard with live balance charts.",
-    problem:
-      "I wanted to add a strongly-typed, enterprise-style backend to my toolkit — Java and Spring Boot — and pair it with a React frontend, so I could work comfortably across the JVM and JavaScript ecosystems, not just Node.",
-    approach: [
-      "Architected a Spring Boot 2.7 backend with a clean controller–repository structure, Spring Data JPA / Hibernate over MySQL, and custom native queries — modelling users, accounts, transactions and payments.",
-      "Implemented JWT authentication with request-level interceptor middleware, BCrypt password hashing, and an email-verification workflow (Spring Mail) to gate protected endpoints.",
-      "Built the transaction engine — deposits, inter-account transfers, withdrawals and bill payments — with balance validation, failure handling and full audit logging.",
-      "Built the frontend in React with Redux + Redux Thunk for async state and Material UI for the interface.",
-      "Surfaced accounts and transactions in a dashboard with live-updating balance charts driven by Redux-connected components.",
-    ],
-    highlights: [
-      "Layered Spring Boot 2.7 REST API: controller–repository structure, Spring Data JPA / Hibernate and custom native queries.",
-      "JWT auth with interceptor middleware, BCrypt hashing and Spring Mail email verification.",
-      "Full transaction engine — transfers, deposits, withdrawals, payments — with balance validation and audit logging.",
-      "React + Redux dashboard with live balance charts; works across the Java and JavaScript ecosystems.",
-    ],
-    metrics: [
-      { label: "Backend", value: "Spring Boot + MySQL" },
-      { label: "Frontend", value: "React + Redux" },
-      { label: "Auth", value: "JWT + email verify" },
-    ],
-  },
-  {
-    slug: "dating-profile-optimizer",
-    name: "AI Dating Profile Optimizer",
-    tagline:
-      "Human-in-the-loop LLM agent that analyzes, rewrites and one-click-publishes a dating profile",
-    domain: "GenAI",
-    featured: false,
-    period: "2026",
-    stack: [
-      "Python",
-      "FastAPI",
-      "LangChain",
-      "Hugging Face",
-      "Google Gemini",
-      "Ollama",
-      "Pydantic",
-      "Vision (VLM)",
-    ],
-    github: "https://github.com/gorredinesh21/TINDER_MCP_AI",
-    liveUrl: "https://tinder-ai-coach-441384612427.us-central1.run.app",
-    summary:
-      "A local web app that scores a user's dating profile, rewrites the bio and prompt answers from their real details, plans their photos with a vision model, and publishes the approved changes live — backed by a pluggable LLM brain (Hugging Face / Gemini / local Ollama) tuned for the Indian market.",
-    problem:
-      "Dating-profile advice is generic and people rarely know what is actually holding their profile back. I wanted an AI that reasons over a real profile against a research-backed rubric, proposes specific and original improvements (never invented facts), and can push them live — while staying strictly human-in-the-loop: it drafts, the user decides and publishes. It deliberately never auto-messages matches, which would deceive people and risk bans.",
-    approach: [
-      "Defined a clean Pydantic data contract (Profile / Match) that the AI works against, decoupled from any single provider via a connector layer.",
-      "Built a pluggable LLM brain in LangChain with three swappable backends — Hugging Face Inference (Qwen2.5-72B), Google Gemini, and local Ollama — selectable by an env flag, with no proprietary keys required.",
-      "Used prompt-and-parse structured output (ask for JSON matching the schema, then validate) so it works on any instruct model without native tool-calling.",
-      "Encoded a research-backed knowledge pack (bio, prompts, photos, India context) as the system rubric the model must follow when scoring and rewriting.",
-      "Added a vision step (Gemini or a local VLM via Ollama) that actually looks at each photo to drive keep/drop and ordering advice.",
-      "Wrapped everything in a FastAPI dashboard (bound to localhost) where the user reviews scores, edits suggestions inline, and clicks to publish the bio and prompts back to the live profile.",
-    ],
-    highlights: [
-      "Provider-agnostic LLM brain: Hugging Face, Gemini, or fully-local Ollama — switchable at runtime.",
-      "Multimodal photo analysis via a vision model — keep/drop, ordering, and gap detection on real images.",
-      "One-click live publishing of AI-drafted bios and prompts, with a strict human-in-the-loop guarantee.",
-      "Offline test suite (26/26) and CI; tokens used in-memory per request and never stored.",
-    ],
-    metrics: [
-      { label: "LLM backends", value: "HF / Gemini / Ollama" },
-      { label: "Modalities", value: "Text + Vision" },
-      { label: "Control", value: "100% human-in-the-loop" },
-    ],
-  },
-  {
-    slug: "career-ops-3",
-    name: "Career-Ops 3.0",
-    tagline:
-      "Coded LangChain.js pipeline: JD fetch → fit rating → tailored resume generation",
-    domain: "GenAI",
-    featured: false,
-    period: "2026",
-    stack: [
-      "Node.js",
-      "LangChain.js",
-      "Google Gemini",
-      "Ollama",
-      "Zod",
-      "Playwright",
-      "LaTeX",
-    ],
-    github: "https://github.com/gorredinesh21/career-ops-3.0",
-    liveUrl: "https://career-ops-dashboard-441384612427.us-central1.run.app",
-    summary:
-      "A code-first evolution of my Career-Ops job-search system — instead of an AI-CLI skill, the whole pipeline is written as a LangChain.js program. It fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, scores each job /5 against every resume with Zod-validated chains, and generates ATS-ready, JD-specific resumes — all tracked in a single dashboard.",
-    problem:
-      "The skill-based version depended on an AI coding CLI to orchestrate everything. I wanted a deterministic, portable, code-owned pipeline I could run anywhere, version, and reason about — without a CLI in the loop — while keeping the same India-tuned, honest fit-scoring philosophy.",
-    approach: [
-      "Built an all-in-one job hub that fetches postings from Greenhouse, Ashby, Lever and LinkedIn at zero LLM cost, auto-filters noise, and tracks every application's status in one dashboard.",
-      "Scored each job /5 against every resume via Zod-validated LangChain.js chains — surfacing best-fit roles, matched skills and gaps.",
-      "Made the LLM backend switchable between local Ollama and Google Gemini, so it runs fully offline or on a hosted model.",
-      "Generated a JD-specific resume per role from an LLM-distilled catalog of 23 GitHub repos, rendered to ATS-ready PDFs with no fabrication.",
-      "Encoded my CV, story and scoring weights as config so the system stays honest about fit rather than keyword-matching.",
-    ],
-    highlights: [
-      "All-in-one hub: fetches Greenhouse / Ashby / Lever / LinkedIn postings at zero LLM cost, with status tracking.",
-      "Zod-validated LangChain.js chains score every job /5 against every resume, surfacing matched skills and gaps.",
-      "Automated resume tailoring from an LLM-distilled catalog of 23 repos → ATS-ready PDFs, no fabrication.",
-      "Provider-switchable backend (local Ollama or Google Gemini); fully code-owned, no AI-CLI in the loop.",
-    ],
-    metrics: [
-      { label: "Sources", value: "Greenhouse · Ashby · Lever · LinkedIn" },
-      { label: "Scoring", value: "Zod-validated /5" },
-      { label: "LLM cost", value: "$0 to fetch" },
-    ],
-  },
-  {
-    slug: "ethereum-payments-dapp",
-    name: "Ethereum Payments DApp",
-    tagline: "Multi-chain ETH & ERC-20 transfer DApp with MetaMask",
-    domain: "Web3",
-    featured: false,
-    period: "2024",
-    stack: [
-      "React",
-      "ethers.js",
-      "Tailwind CSS",
-      "Solidity",
-      "Sepolia",
-      "Polygon Mumbai",
-      "MetaMask",
-    ],
-    github: "https://github.com/gorredinesh21/BLOCKCHAIN",
-    summary:
-      "Decentralised payments app for ETH and ERC-20 token transfers, with multi-chain support (Sepolia, Polygon Mumbai), MetaMask integration, and a custom PayPal-like smart contract.",
-    problem:
-      "I wanted to learn Web3 development hands-on — wallet auth, multi-chain detection, ERC-20 token UX, and on-chain transactions — by shipping something that actually moved real testnet value end-to-end.",
-    approach: [
-      "Built a React + Tailwind front-end with React Context for wallet, chain, and token state.",
-      "Integrated MetaMask for wallet connection and signing; auto-detects network changes and re-fetches balances.",
-      "Used ethers.js to read ERC-20 balances by contract address and execute ETH and token transfers.",
-      "Deployed a custom PayPal-like smart contract to handle ETH payments and store transaction history.",
-    ],
-    highlights: [
-      "Multi-chain (Sepolia + Polygon Mumbai) auto-detection and switching.",
-      "Generic ERC-20 support — paste any token contract address and transact.",
-      "Custom Solidity contract for ETH payments with on-chain transaction logging.",
-    ],
-    metrics: [
-      { label: "Chains supported", value: "Sepolia + Mumbai" },
-      { label: "Token standards", value: "ETH + ERC-20" },
-      { label: "Wallet", value: "MetaMask" },
-    ],
-  },
-  {
-    slug: "gan-augmentation",
-    name: "GAN-Based Data Augmentation",
-    tagline: "B.Tech thesis: tabular GAN + SMOTE for severe class imbalance",
-    domain: "ML / DL",
-    featured: true,
-    period: "2024 · IIT (ISM) B.Tech Final-Year Project",
-    stack: [
-      "Python",
-      "PyTorch",
-      "GANs",
-      "SMOTE",
-      "XGBoost",
-      "LightGBM",
-      "scikit-learn",
-      "SciPy",
-    ],
-    github: "https://github.com/gorredinesh21/FINAL_YEAR_PROJECT",
-    summary:
-      "End-to-end augmentation framework for highly imbalanced tabular datasets — Custom GAN + SMOTE feed four classifier families, evaluated with 5-fold CV, PR curves and McNemar's test.",
-    problem:
-      "Fraud and rare-event tabular datasets are pathologically imbalanced — positive examples are scarce and naïve oversampling distorts decision boundaries. I wanted to see how far a custom tabular GAN could push recall without sacrificing precision, and prove the lift was statistically real, not noise.",
-    approach: [
-      "Custom Generator (128 → 256 → 512, Tanh) and Discriminator (512 → 256 → 128 → 1) with Xavier init, LeakyReLU, and BatchNorm for stable tabular training.",
-      "Combined GAN-synthesised positives with SMOTE for additional diversity in the minority class.",
-      "Trained four classifier families — Random Forest, XGBoost, LightGBM, Gradient Boosting — on real-only vs real+augmented data with 5-fold cross-validation.",
-      "Evaluation module: confusion matrices, precision-recall curves, and McNemar's test to statistically compare classifiers head-to-head.",
-    ],
-    highlights: [
-      "Reduced False Negatives to 9 across a 10M+ row credit-card dataset.",
-      "Recall lifted from 0.91 → 0.99 on the hold-out set.",
-      "Statistical comparison (McNemar's test) across 4 model families on real vs augmented data.",
-    ],
-    metrics: [
-      { label: "Rows processed", value: "10M+" },
-      { label: "Recall lift", value: "0.91 → 0.99" },
-      { label: "False Negatives", value: "9" },
-    ],
-  },
-  {
-    slug: "mars-landmark-detection",
-    name: "Mars Landmark Detection",
-    tagline: "VGG16 transfer learning for 8-class Martian terrain classification",
-    domain: "ML / DL",
-    featured: false,
-    period: "2024",
-    stack: [
-      "Python",
-      "TensorFlow",
-      "Keras",
-      "VGG16",
-      "Transfer Learning",
-      "CNN",
-    ],
-    github: "https://github.com/gorredinesh21/MARS_LANDMARK_DETECTION",
-    summary:
-      "Deep learning classifier that labels Mars surface images into 8 landmark categories — craters, valleys, mountains, plateaus and others — using VGG16 transfer learning.",
-    problem:
-      "Mars rovers and orbiters generate huge image streams, but identifying terrain features (craters, valleys, plateaus) still leans heavily on manual inspection. I wanted to see how far an off-the-shelf CNN backbone could automate that classification on a real planetary-science dataset.",
-    approach: [
-      "Loaded a dataset of 8,200 training and 2,000 test Martian images across 8 landmark classes.",
-      "Used VGG16 with ImageNet pre-trained weights as a frozen convolutional base.",
-      "Stacked Flatten → Dense(256, ReLU) → Dense(128, ReLU) → Dense(8, Softmax) classification head on top.",
-      "Trained, evaluated, and exported architecture + weights for reproducible inference on new images.",
-    ],
-    highlights: [
-      "88% training accuracy on 8-class Martian terrain classification.",
-      "Reusable inference pipeline: `architecture.json` + `my_model.weights.h5` rehydrate the model in a few lines.",
-      "Test images shipped in `/test` for instant qualitative inspection.",
-    ],
-    metrics: [
-      { label: "Classes", value: "8" },
-      { label: "Training accuracy", value: "88%" },
-      { label: "Images", value: "10,200" },
-    ],
-  },
-  {
-    slug: "ocr-extraction",
-    name: "Image-Based Entity Extraction",
-    tagline: "OCR pipeline for product attribute extraction at scale",
-    domain: "ML / DL",
-    featured: false,
-    period: "2024 · Amazon ML Challenge",
-    stack: ["Python", "PyTesseract", "OCR", "Regex", "Pandas"],
-    github: "https://github.com/gorredinesh21/ImageEntityExtraction",
-    summary:
-      "OCR pipeline for the Amazon ML Challenge that extracts dimensions, weight, volume, voltage and wattage from product images — built without preprocessing or GPU.",
-    problem:
-      "Many product catalogues only carry critical attributes (size, weight, voltage) inside the image, not as structured fields. The Amazon ML Challenge dataset of 260K training and 131K test images had highly variable quality — low resolution, light text, unclear fonts — and I had to extract structured entity values without a GPU.",
-    approach: [
-      "Ran PyTesseract directly on raw images, skipping preprocessing to stay within CPU compute budgets.",
-      "Built custom regex + string-logic post-processors to extract specific entity types (weight, volume, voltage, wattage, dimensions).",
-      "Mapped a curated list of unit abbreviations to canonical forms during extraction.",
-      "Batched inference across 130K+ images and produced a structured output table.",
-    ],
-    highlights: [
-      "56% accuracy on the test set across diverse entity types.",
-      "F1-score of 0.319 in the final competition evaluation.",
-      "Top 200 out of 18,500+ teams in the Amazon ML Challenge.",
-    ],
-    metrics: [
-      { label: "Images processed", value: "130K+" },
-      { label: "Test accuracy", value: "56%" },
-      { label: "Leaderboard", value: "Top 200 / 18,500+" },
-    ],
-  },
-  {
-    slug: "snake-game",
-    name: "Snake Game",
-    tagline: "Classic snake built with C++ — now playable in the browser",
-    domain: "Systems",
-    period: "2022",
-    stack: ["C++", "HTML5 Canvas", "Game Logic"],
-    github: "https://github.com/gorredinesh21/snake-game-",
-    liveUrl: "https://cpp-games-441384612427.us-central1.run.app/snake.html",
-    summary: "The classic snake game — original C++ console version, reimagined as a browser-playable HTML5 canvas game. Arrow keys to steer, food to grow, walls to avoid.",
-    problem: "A first-year C++ project to learn game loops, input handling and state management.",
-    approach: [
-      "Original C++ version uses a grid-based game loop with keyboard input via conio.h.",
-      "Web version recreates the same logic on HTML5 canvas with requestAnimationFrame.",
-    ],
-    highlights: [
-      "Playable in the browser with keyboard controls.",
-      "Score tracking and restart-on-death.",
-    ],
-    metrics: [],
-  },
-  {
-    slug: "movie-recommendation",
-    name: "Movie Recommendation System",
-    tagline: "Content-based recommender on 5K movies with Streamlit UI",
-    domain: "ML / DL",
-    featured: false,
-    period: "2024",
-    stack: [
-      "Python",
-      "scikit-learn",
-      "Bag-of-Words",
-      "Cosine Similarity",
-      "Streamlit",
-      "TMDb API",
-      "Pickle",
-    ],
-    github: "https://github.com/gorredinesh21/MOVIE_RECOMENDATION_SYSTEM",
-    liveUrl: "https://movie-recommender-441384612427.us-central1.run.app",
-    summary:
-      "End-to-end content-based movie recommender that vectorises 5,000 movies on genre, cast, crew, and overview text — and recommends 10 similar titles through a Streamlit web app with TMDb poster lookups.",
-    problem:
-      "Most recommenders need user-interaction data to bootstrap. I wanted a cold-start, content-driven engine that could recommend movies purely from metadata — and ship it as an interactive app rather than a notebook.",
-    approach: [
-      "Cleaned a 5,000-movie metadata dataset down to genre, id, keywords, title, overview, cast, crew.",
-      "Vectorised the combined text features with a Bag-of-Words representation.",
-      "Computed pairwise cosine similarity and persisted the model with Pickle for fast lookup at request time.",
-      "Built a Streamlit front-end that accepts a movie title, returns the 10 most similar titles, and pulls posters from the TMDb API.",
-    ],
-    highlights: [
-      "Recommends 10 similar movies on the fly from a 5K-movie corpus.",
-      "Streamlit UI with poster lookups via the TMDb API.",
-      "Pre-computed similarity matrix for near-instant inference.",
-    ],
-    metrics: [
-      { label: "Catalogue size", value: "5,000 movies" },
-      { label: "Recommendations", value: "Top 10 / query" },
-      { label: "Stack", value: "BoW + cosine + Streamlit" },
-    ],
-  },
-  {
-    slug: "facial-attendance-system",
-    name: "Facial Recognition Attendance System",
-    tagline: "Hackfest'23 — face-recognition attendance + student/teacher portal",
-    domain: "ML / DL",
-    featured: false,
-    period: "2023 · Hackfest, IIT (ISM) Dhanbad",
-    stack: [
-      "Python",
-      "Flask",
-      "OpenCV",
-      "Face Recognition",
-      "HTML/CSS",
-      "Excel/CSV",
-    ],
-    github:
-      "https://github.com/gorredinesh21/The-Bit-Lords---IIT-ISM-Dhanbhad",
-    summary:
-      "Hackathon project that automates classroom attendance via face recognition, with a student dashboard for attendance tracking and a teacher dashboard for resources and announcements.",
-    problem:
-      "Classroom attendance is still mostly manual — roll calls eat class time and the records are hard to audit. For Hackfest'23 our team wanted to ship a working end-to-end system that handled enrolment, recognition, and reporting in one place.",
-    approach: [
-      "Captured enrolled faces and encoded them via a face-recognition pipeline, stored alongside a `students.xlsx` roster.",
-      "Built a Flask web app: students view their attendance dashboard, teachers post resources and announcements.",
-      "Face recognition module (`facerecognition.py`) marks attendance from a live capture and writes back to the CSV/Excel store.",
-      "Templated UI (HTML + static assets) for the student/teacher views.",
-    ],
-    highlights: [
-      "Automated, contactless classroom attendance via face recognition.",
-      "Student dashboard for attendance tracking + teacher dashboard for resources.",
-      "Persistent roster + attendance log in Excel/CSV for easy export.",
-    ],
-    metrics: [
-      { label: "Event", value: "Hackfest'23" },
-      { label: "Stack", value: "Flask + face-recognition" },
-      { label: "Team", value: "The Bit Lords, IIT (ISM)" },
-    ],
-  },
-  {
-    slug: "tcp-proxy-server",
-    name: "Multi-Threaded TCP Client-Proxy Server",
-    tagline: "C++ networking course project — TCP socket server with file handling",
-    domain: "Systems",
-    featured: false,
-    period: "2023 · Operating Systems coursework, IIT (ISM)",
-    stack: ["C++", "TCP Sockets", "POSIX Threads", "File I/O"],
-    github: "https://github.com/gorredinesh21/OS-PROJECRT",
-    summary:
-      "Course project building a minimal TCP client-server in C++ — the server binds a port, accepts connections, receives a URL from the client, and persists it to a file before acknowledging.",
-    problem:
-      "The OS course needed a working systems-level project that demonstrated socket programming, multi-threading, and basic protocol design between a client and server — not just running a library.",
-    approach: [
-      "Server creates a TCP socket, binds an IP:port, listens for incoming connections, and accepts them.",
-      "On accept, reads a URL string from the client and writes it to `GET.txt` on disk.",
-      "Sends a confirmation message back to the client and continues listening for the next connection.",
-      "Client opens a TCP socket, connects to the server, prompts the user for a URL, sends it, and waits for confirmation before closing.",
-    ],
-    highlights: [
-      "Raw TCP socket implementation in C++ — no networking library wrappers.",
-      "Demonstrates accept-loop pattern and client/server protocol design.",
-      "Team project with three classmates as part of the OS curriculum.",
-    ],
-    metrics: [
-      { label: "Language", value: "C++" },
-      { label: "Protocol", value: "TCP sockets" },
-      { label: "Team size", value: "4" },
-    ],
-  },
-  {
-    slug: "flappy-bird-cpp",
-    name: "Flappy Bird (C++ Console)",
-    tagline: "Windows console flappy bird written in C++ from scratch",
-    domain: "Systems",
-    featured: false,
-    period: "2022 · First year",
-    stack: ["C++", "Windows API", "conio.h", "ASCII Rendering"],
-    github: "https://github.com/gorredinesh21/flappy-bird-game",
-    liveUrl: "https://cpp-games-441384612427.us-central1.run.app/flappy.html",
-    summary:
-      "Single-file flappy bird clone rendered entirely in the Windows console — collision, gravity, scoring and ASCII art in ~150 lines of C++.",
-    problem:
-      "Early in college I wanted to learn C++ beyond textbook exercises. Reproducing a real game inside the terminal forced me to think about loops, input handling, screen refresh and game state — all without a graphics library.",
-    approach: [
-      "Used `windows.h` and `conio.h` for cursor positioning, console handles, and non-blocking key input.",
-      "Rendered the playfield, bird and three independently-positioned pipes as ASCII characters with manual `gotoxy`.",
-      "Tracked bird position, gravity, pipe gaps, and collision in a single game loop.",
-      "Maintained score and on-screen menu inside the same console window.",
-    ],
-    highlights: [
-      "From-scratch console game loop — input, physics, rendering, scoring.",
-      "Three rolling pipes with randomised gap positions.",
-      "Pure C++ with Win32 console APIs — no third-party libraries.",
-    ],
-    metrics: [
-      { label: "Language", value: "C++" },
-      { label: "Lines", value: "~150" },
-      { label: "Dependencies", value: "0 (Win32 only)" },
-    ],
-  },
-];
-
-export const skills = [
-  {
-    category: "languages",
-    label: "Languages & Databases",
-    items: ["Golang", "Python", "JavaScript", "TypeScript", "Java", "SQL", "PostgreSQL", "MySQL", "MongoDB", "C++", "C"],
-  },
-  {
-    category: "full_stack_web",
-    label: "Full-Stack Web",
-    items: [
-      "React",
-      "Next.js",
-      "Redux",
-      "Node.js",
-      "Express",
-      "Spring Boot",
-      "Spring Data JPA",
-      "Hibernate",
-      "Tailwind CSS",
-      "Material-UI",
-      "REST APIs",
-      "JWT / OAuth 2.0",
-      "Stripe",
-      "Solidity",
-      "ethers.js",
-    ],
-  },
-  {
-    category: "gen_ai",
-    label: "Generative AI",
-    items: [
-      "LangChain",
-      "LangGraph",
-      "LangChain.js",
-      "Hugging Face",
-      "Ollama",
-      "Agentic AI",
-      "MCP",
-      "RAG",
-      "GraphRAG",
-      "Fine-tuning",
-      "FAISS",
-      "ChromaDB",
-      "Qdrant",
-      "FastAPI",
-    ],
-  },
-  {
-    category: "data_engineering",
-    label: "Data Engineering",
-    items: [
-      "Databricks",
-      "PySpark",
-      "Azure Data Factory",
-      "ADLS Gen2",
-      "Apache Spark",
-      "ETL",
-      "Data Warehousing",
-      "AWS",
-    ],
-  },
-  {
-    category: "ml_and_dl",
-    label: "ML & Deep Learning",
-    items: [
-      "Machine Learning",
-      "Deep Learning",
-      "NLP",
-      "Computer Vision",
-      "CNN",
-      "LSTMs",
-      "BERT",
-      "Transformers",
-      "Transfer Learning",
-      "GANs",
-      "OCR",
-      "TensorFlow",
-      "PyTorch",
-      "Keras",
-      "MLOps",
-    ],
-  },
-  {
-    category: "tools",
-    label: "Tools & Foundations",
-    items: [
-      "Git",
-      "Docker",
-      "Maven",
-      "System Design",
-      "DSA",
-      "OOP",
-      "DBMS",
-      "Operating Systems",
-      "Cloudinary",
-    ],
-  },
-];
-
-export const achievements = [
-  "Built and shipped Homaatri (homatri.com) — a live production startup with real users: website, 3 Android apps, GCP infrastructure and agentic AI payments on WhatsApp.",
-  "Secured AIR 2903 in JEE Advanced and AIR 4616 in JEE Mains.",
-  "Ranked Top 200 out of 18,500+ teams in Amazon ML Challenge.",
-  "Participated in Hackfest'23 at IIT Dhanbad.",
 ];
 
 export const education = {
@@ -1179,8 +1192,73 @@ export const education = {
     "Data Structures & Algorithms",
     "Object-Oriented Programming",
     "DBMS",
-    "Software Engineering",
     "Computer Networks",
     "Deep Learning",
   ],
 };
+
+export const awards = [
+  {
+    title: "Amazon ML Challenge — Top 200 of 18,500+",
+    detail: "OCR-based entity extraction over 130K+ product images, CPU-only.",
+    year: "2024",
+  },
+  {
+    title: "Paytm Build for India — Finale",
+    detail: "SAHAYAK (team Maverick): UPI literacy and scam-defense for first-time users.",
+    year: "2026",
+  },
+  {
+    title: "Hackfest'23 — IIT (ISM) Dhanbad",
+    detail: "Facial-recognition attendance system with student/teacher portals (The Bit Lords).",
+    year: "2023",
+  },
+  {
+    title: "JEE Advanced — AIR 2903 · JEE Mains — AIR 4616",
+    detail: "Among ~1.1M candidates; led to IIT (ISM) Dhanbad.",
+    year: "2021",
+  },
+];
+
+export const oss = [
+  {
+    title: "eino-ext — data race fix",
+    body: "Found and fixed a concurrent-map data race in ByteDance's Go LLM framework extensions; PR merged with a reproduction test.",
+    url: "https://github.com/cloudwego/eino-ext",
+    tag: "cloudwego/eino-ext · PR #1023",
+  },
+  {
+    title: "opencode — terminal AI agent",
+    body: "Bug fix accepted upstream in opencode, the open-source terminal coding agent.",
+    url: "https://github.com/sst/opencode",
+    tag: "sst/opencode · PR #52315",
+  },
+];
+
+// ── Skills (compact, for the About area) ─────────────────────────────────────
+
+export const skills = [
+  {
+    label: "Languages",
+    items: ["Go", "Python", "TypeScript", "Java", "SQL", "C++"],
+  },
+  {
+    label: "AI",
+    items: [
+      "LangChain / LangGraph",
+      "RAG / GraphRAG",
+      "Agents & tool calling",
+      "MCP",
+      "Gemini / Llama",
+      "Ollama",
+    ],
+  },
+  {
+    label: "Data",
+    items: ["Databricks", "PySpark", "Azure Data Factory", "PostgreSQL", "Qdrant", "DuckDB"],
+  },
+  {
+    label: "Web & Cloud",
+    items: ["React / Next.js", "FastAPI", "Node.js", "Spring Boot", "GCP Cloud Run", "Docker"],
+  },
+];

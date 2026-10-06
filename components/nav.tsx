@@ -1,108 +1,84 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
 import { navLinks, profile } from "@/lib/data";
-import { cn } from "@/lib/utils";
 
 export function Nav() {
-  const pathname = usePathname();
+  const [paused, setPaused] = useState(false);
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    document.body.classList.toggle("motion-paused", paused);
+  }, [paused]);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-30 transition-all duration-300",
-        scrolled
-          ? "border-b border-border bg-background/80 backdrop-blur-xl"
-          : "border-b border-transparent bg-background/0"
-      )}
-    >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
-        <Link href="/" className="group flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent to-violet text-sm font-bold text-white shadow-[0_8px_20px_-8px_var(--accent-ring)] transition-transform group-hover:scale-105">
-            DR
+    <header className="fixed top-0 inset-x-0 z-50 border-b border-border bg-[rgba(8,8,15,0.72)] backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <a href="#top" className="group flex items-baseline gap-2">
+          <span className="font-display text-lg font-bold tracking-tight text-accent">
+            {profile.monogram}.
           </span>
-          <span className="hidden text-[15px] font-semibold tracking-tight sm:block">
+          <span className="font-display text-lg font-semibold tracking-tight">
             {profile.shortName}
-            <span className="text-muted-2">.dev</span>
+            <span className="text-muted-2"> — ships things</span>
           </span>
-        </Link>
+        </a>
 
-        <nav className="hidden items-center gap-0.5 rounded-full border border-border bg-surface/70 p-1 backdrop-blur md:flex">
-          {navLinks.map((link) => {
-            const active = isActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                data-active={active}
-                className={cn(
-                  "nav-link rounded-full px-4 py-1.5 text-sm font-medium",
-                  active
-                    ? "bg-accent-soft text-accent"
-                    : "text-muted hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        <nav className="hidden lg:flex items-center gap-5">
+          {navLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-[0.83rem] text-muted transition-colors hover:text-foreground"
+            >
+              {l.label}
+            </a>
+          ))}
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            className="ftab !py-1.5 !px-3.5"
+            aria-pressed={paused}
+            title="Toggle all ambient animation"
+          >
+            {paused ? "▶ motion" : "❚❚ pause motion"}
+          </button>
         </nav>
 
-        <div className="hidden md:block">
-          <Link href="/contact" className="btn btn-primary !py-2 !px-4 text-sm">
-            Get in touch
-          </Link>
+        <div className="flex lg:hidden items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            className="ftab !py-1.5 !px-3"
+            aria-pressed={paused}
+          >
+            {paused ? "▶" : "❚❚"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            className="ftab !py-1.5 !px-3.5"
+            aria-expanded={open}
+          >
+            {open ? "close" : "menu"}
+          </button>
         </div>
-
-        <button
-          aria-label="Toggle menu"
-          className="rounded-xl border border-border-strong bg-surface p-2 text-foreground md:hidden"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
       </div>
 
       {open && (
-        <nav className="border-t border-border bg-background/95 backdrop-blur-xl md:hidden">
-          {navLinks.map((link) => {
-            const active = isActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
+        <nav className="lg:hidden border-t border-border bg-[rgba(8,8,15,0.96)] px-4 py-3">
+          <div className="grid grid-cols-2 gap-1">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
                 onClick={() => setOpen(false)}
-                className={cn(
-                  "block border-b border-border px-5 py-3.5 text-sm font-medium",
-                  active ? "text-accent" : "text-foreground"
-                )}
+                className="rounded-md px-3 py-2 text-sm text-muted hover:bg-surface-strong hover:text-foreground"
               >
-                {link.label}
-              </Link>
-            );
-          })}
-          <Link
-            href="/contact"
-            onClick={() => setOpen(false)}
-            className="block px-5 py-3.5 text-sm font-semibold text-accent"
-          >
-            Get in touch →
-          </Link>
+                {l.label}
+              </a>
+            ))}
+          </div>
         </nav>
       )}
     </header>
