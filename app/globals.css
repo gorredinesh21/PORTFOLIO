@@ -296,50 +296,127 @@ body.motion-paused .drift {
   }
 }
 
-/* ── Code blocks ──────────────────────────────────────────────────────────── */
-.codebox {
-  background: #0a0a13;
+/* ── How-it-works diagrams ────────────────────────────────────────────────── */
+.dg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: rgba(255, 255, 255, 0.018);
   border: 1px solid var(--border);
   border-radius: 0.9rem;
-  overflow: hidden;
+  padding: 1.1rem 1.2rem;
+  overflow-x: auto;
 }
-.codebox header {
+.dg-row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.55rem 0.95rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.025);
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  min-width: min-content;
 }
-.codebox .fname {
+.dg-center {
+  justify-content: center;
+}
+.dg-seg {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+}
+.dg-node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border: 1px solid var(--border-strong);
+  background: rgba(179, 173, 255, 0.07);
+  color: var(--foreground);
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.8rem;
   font-family: var(--font-mono-code), monospace;
-  font-size: 0.72rem;
-  color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.74rem;
+  line-height: 1.25;
   white-space: nowrap;
 }
-.codebox pre {
-  margin: 0;
-  padding: 1rem 1.1rem;
-  overflow-x: auto;
-  font-family: var(--font-mono-code), monospace;
+.dg-node em {
+  font-style: normal;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.dg-node.hot {
+  border-color: rgba(255, 176, 84, 0.55);
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+.dg-node.hot em {
+  color: rgba(255, 209, 172, 0.75);
+}
+.dg-node.muted {
+  border-style: dashed;
+  color: var(--muted);
+  background: transparent;
+}
+.dg-head {
+  padding: 0.6rem 1.05rem;
   font-size: 0.78rem;
-  line-height: 1.65;
-  color: #cfd0dd;
 }
-.tok-cmt {
-  color: #6f7287;
-  font-style: italic;
+.dg-arrow {
+  color: var(--accent);
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.85rem;
+  flex: none;
 }
-.tok-str {
-  color: #a8d5a2;
+.dg-fan {
+  text-align: center;
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-2);
 }
-.tok-kw {
-  color: #b3adff;
+.dg-channels {
+  display: grid;
+  gap: 0.6rem;
 }
-.tok-fn {
-  color: #ffb054;
+.dg-channels.ch-2 {
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 640px) {
+  .dg-channels.ch-2 {
+    grid-template-columns: 1fr;
+  }
+}
+.dg-channel {
+  border: 1px dashed var(--border);
+  border-radius: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-start;
+  overflow-x: auto;
+}
+.dg-chan {
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.dg-note {
+  border-top: 1px dashed var(--border);
+  padding-top: 0.65rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--amber);
+  background: transparent;
+}
+.dg-dense .dg-node {
+  padding: 0.4rem 0.62rem;
+  font-size: 0.68rem;
+}
+.dg-dense .dg-node em {
+  font-size: 0.58rem;
 }
 
 /* ── Workbench cards ──────────────────────────────────────────────────────── */

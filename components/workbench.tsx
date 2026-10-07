@@ -4,7 +4,7 @@ import { useState } from "react";
 import { workbench, workbenchCategories, type WorkbenchCategory } from "@/lib/data";
 import { Reveal } from "@/components/reveal";
 import { SectionHead } from "@/components/work";
-import { CodeBlock } from "@/components/code-block";
+import { HowItWorks } from "@/components/how-it-works";
 
 type Filter = "All" | WorkbenchCategory;
 
@@ -19,7 +19,7 @@ export function Workbench() {
         <SectionHead
           eyebrow="WORKBENCH"
           title="Live, clickable, maintained."
-          lede="Everything here is deployed with a real interface — click a card to use it. Each expands to show the piece of code that does the interesting part."
+          lede="Everything here is deployed with a real interface — click a card to use it. Each expands into a diagram of how it works."
         />
 
         <Reveal>
@@ -72,10 +72,10 @@ export function Workbench() {
                     {w.stack.join(" · ")}
                   </div>
                   <span className="text-[0.72rem] font-mono text-muted-2 group-open:hidden">
-                    + show the code
+                    + how it works
                   </span>
                   <span className="hidden text-[0.72rem] font-mono text-accent group-open:inline">
-                    − hide the code
+                    − hide diagram
                   </span>
                 </summary>
 
@@ -100,7 +100,7 @@ export function Workbench() {
                       </a>
                     )}
                   </div>
-                  <CodeBlock sample={w.code} />
+                  <HowItWorks d={w.diagram} dense />
                 </div>
               </details>
             </Reveal>

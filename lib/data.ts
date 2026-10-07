@@ -2,8 +2,8 @@
 // Content model for the single-page portfolio.
 // Sections: hero → work (featured case studies) → workbench → mini projects
 //           → approach → about → experience → awards → open source → contact
-// Every project carries real code excerpts from its repository — the
-// explanations are written next to the code that proves them.
+// Every project carries a "how it works" diagram instead of code — the
+// graphics show the working; the words explain it.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const profile = {
@@ -37,13 +37,28 @@ export const navLinks = [
   { href: "#contact", label: "Contact" },
 ];
 
-// A real code excerpt from the project's repository.
-export type CodeSample = {
-  file: string; // repo-relative path in the real project
-  lang: "go" | "python" | "ts" | "js" | "jsx" | "java" | "cpp" | "html" | "ipynb";
-  note?: string; // one line on what to look at
-  code: string;
+// ── How-it-works diagrams ────────────────────────────────────────────────────
+
+export type DiagNode = {
+  label: string;
+  sub?: string;
+  tone?: "hot" | "muted";
 };
+
+export type Diagram =
+  | {
+      kind: "flow";
+      nodes: DiagNode[];
+      loop?: string; // repeat-back edge label
+      note?: string; // amber annotation strip
+    }
+  | {
+      kind: "split";
+      head: DiagNode;
+      channels: { label: string; nodes: DiagNode[] }[];
+      tail: DiagNode;
+      note?: string;
+    };
 
 // ── Featured case studies ────────────────────────────────────────────────────
 
@@ -66,7 +81,8 @@ export type Featured = {
   liveUrl: string;
   liveLabel: string;
   github: string;
-  code: CodeSample[];
+  diagram: Diagram;
+  diagramCaption: string;
 };
 
 export const featured: Featured[] = [
@@ -100,45 +116,24 @@ export const featured: Featured[] = [
     liveUrl: "https://homatri.com",
     liveLabel: "homatri.com — live with real users",
     github: "https://github.com/gorredinesh21/homatri",
-    code: [
-      {
-        file: "backend/app/agents/agents.py",
-        lang: "python",
-        note: "The single customer agent that owns the whole WhatsApp conversation — ordering, payment, tracking, cancellation.",
-        code: `# The one agent's complete toolset — it owns the whole customer conversation.
-CUSTOMER_TOOLS: tuple[BaseTool, ...] = (
-    get_customer_profile,
-    find_nearby_kitchens,
-    register_customer,
-    view_chef_menu,
-    create_order,
-    add_item_to_order,
-    add_special_instructions,
-    view_cart,
-    request_payment,      # mints the Razorpay link deterministically
-    check_my_payment,
-    get_order_status,
-    cancel_order,
-    submit_order_review,
-    escalate_to_admin,
-)
-
-customer_agent = Agent("CUSTOMER", CUSTOMER_AGENT_PROMPT, CUSTOMER_TOOLS)`,
-      },
-      {
-        file: "backend/app/agents/agents.py",
-        lang: "python",
-        note: "Payments are minted by code, not by the model — the agent asks, the tool executes, the webhook confirms.",
-        code: `async def ainvoke(self, messages: list[BaseMessage]):
-    """Invoke the agent's LLM (persona prepended, its tools bound)."""
-    llm = shared_llm()
-    if self.tools:
-        llm = llm.bind_tools(list(self.tools))
-    return await llm.ainvoke(
-        [SystemMessage(content=self.system_prompt), *messages]
-    )`,
-      },
-    ],
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Customer", sub: "WhatsApp · web · app" },
+        { label: "AI agent", sub: "finds kitchens, builds the cart" },
+        {
+          label: "Payment link",
+          sub: "minted by code, not by the model",
+          tone: "hot",
+        },
+        { label: "Razorpay webhook", sub: "confirms for real" },
+        { label: "Chef portal", sub: "accepts & cooks" },
+        { label: "Rider app", sub: "picks up & delivers" },
+      ],
+      note:
+        "One agent owns the whole conversation — ordering, payment, tracking, cancellation. Escalations go to a human admin.",
+    },
+    diagramCaption: "One order's journey, end to end.",
   },
   {
     slug: "orderpilot",
@@ -170,55 +165,24 @@ customer_agent = Agent("CUSTOMER", CUSTOMER_AGENT_PROMPT, CUSTOMER_TOOLS)`,
     liveUrl: "https://orderpilot-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — order on a simulated Bangalore map",
     github: "https://github.com/gorredinesh21/orderpilot",
-    code: [
-      {
-        file: "internal/agent/agent.go",
-        lang: "go",
-        note: "The hand-written loop: strict JSON turns, one corrective retry, then graceful degradation to the deterministic planner.",
-        code: `mode := "llm"
-for step := 0; step < a.MaxSteps; step++ {
-    raw, err := a.LLM.Chat(ctx, a.systemPrompt(s), toAgentMsgs(s))
-    if err != nil {
-        // LLM unavailable / misbehaving: degrade to the deterministic
-        // planner so the product keeps working.
-        mode = "fallback"
-        emit(Event{Type: EvMode, Mode: mode,
-            Text: "LLM unavailable — switching to deterministic planner"})
-        RunFallback(s, userMsg, emit)
-        emit(Event{Type: EvDone, Mode: mode})
-        return
-    }
-    turn, ok := parseTurn(raw)
-    if !ok {
-        if step == 0 {
-            // one corrective retry before giving up on the model
-            s.appendRetryHint()
-            continue
-        }
-        mode = "fallback"
-        RunFallback(s, userMsg, emit)
-        return
-    }
-    results := a.execTools(ctx, s, turn.Tools, emit)`,
-      },
-      {
-        file: "internal/cart/cart.go",
-        lang: "go",
-        note: "The budget is a hard guardrail inside the cart — the LLM cannot talk its way past this function.",
-        code: `// Add inserts or increments an item, enforcing the budget guardrail.
-func (c *Cart) Add(it data.MenuItem, qty int) error {
-    cur := c.Total()
-    if cur+it.Price*qty > c.Budget {
-        return fmt.Errorf(
-            "%w: adding %d x %s would make the cart ₹%d, budget is ₹%d — "+
-                "remove something or raise the budget with set_budget",
-            ErrOverBudget, qty, it.Name, cur+it.Price*qty, c.Budget)
-    }
-    // ... add the line
-    return nil
-}`,
-      },
-    ],
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Your message", sub: "plain language" },
+        { label: "LLM turn", sub: "strict JSON: say / tools / reply" },
+        { label: "9 typed tools", sub: "run in parallel" },
+        {
+          label: "Cart guard",
+          sub: "budget enforced in code",
+          tone: "hot",
+        },
+        { label: "Live order", sub: "per-order goroutine + map" },
+      ],
+      loop: "agent loop, ≤16 steps",
+      note:
+        "LLM unavailable or breaks protocol → a deterministic planner takes over the same tools: full ordering with 0 LLM calls.",
+    },
+    diagramCaption: "The loop, the guardrail, and the way out when the model dies.",
   },
   {
     slug: "menumind",
@@ -250,44 +214,36 @@ func (c *Cart) Add(it data.MenuItem, qty int) error {
     liveUrl: "https://menumind-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — search + cited RAG chat",
     github: "https://github.com/gorredinesh21/menumind",
-    code: [
-      {
-        file: "internal/search/search.go",
-        lang: "go",
-        note: "The whole hybrid stack in one function: two ranked channels, fused by RRF, per-channel ranks kept for transparency.",
-        code: `// Query runs hybrid retrieval: BM25 list + vector list fused by RRF.
-// queryVec may be nil (lexical-only mode, e.g. embeddings unavailable).
-func (idx *Index) Query(query string, queryVec []float32, f Filters, topK int) []Hit {
-    const rrfK = 60.0
-    const channelTop = 50
-
-    bmRanked := idx.rankBM25(query, channelTop)   // item pos → rank
-    vecRanked := idx.rankVectors(queryVec, channelTop)
-
-    // --- fuse + filter ---
-    fuse := map[int]float64{}
-    for pos, r := range bmRanked {
-        fuse[pos] += 1 / (rrfK + float64(r))
-    }
-    for pos, r := range vecRanked {
-        fuse[pos] += 1 / (rrfK + float64(r))
-    }
-    var hits []Hit
-    for pos, s := range fuse {
-        it := idx.items[pos]
-        if !passes(it, f) {
-            continue
-        }
-        hits = append(hits, Hit{
-            Item: it, RRF: s,
-            BM25Rank: bmRanked[pos], VecRank: vecRanked[pos],
-        })
-    }
-    sort.Slice(hits, func(a, b int) bool { return hits[a].RRF > hits[b].RRF })
-    return hits
-}`,
+    diagram: {
+      kind: "split",
+      head: {
+        label: "\"warm comforting dessert\"",
+        sub: "one query, two readers",
       },
-    ],
+      channels: [
+        {
+          label: "BM25 · lexical",
+          nodes: [
+            { label: "exact tokens", sub: "no 'warm' on menus" },
+            { label: "0 hits", tone: "muted" },
+          ],
+        },
+        {
+          label: "vectors · semantic",
+          nodes: [
+            { label: "bge-small cosine" },
+            { label: "brownie · 0.62", tone: "hot" },
+          ],
+        },
+      ],
+      tail: {
+        label: "RRF fusion",
+        sub: "every result shows both ranks",
+      },
+      note:
+        "Follow-up questions get grounded RAG answers that cite dish numbers — dishes outside the retrieved set are contractually excluded.",
+    },
+    diagramCaption: "Why hybrid wins: the channels fail differently, and the fusion shows it.",
   },
   {
     slug: "career-ops",
@@ -319,51 +275,29 @@ func (idx *Index) Query(query string, queryVec []float32, f Filters, topK int) [
     liveUrl: "https://career-ops-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — jobs, evidence, gaps",
     github: "https://github.com/gorredinesh21/career-ops",
-    code: [
-      {
-        file: "app/fit.py",
-        lang: "python",
-        note: "The evidence-based evaluator: each required skill resolves to match / indirect / weak / missing — with its proof attached.",
-        code: `def evaluate(conn, job, profile_skills_rows, reviews=None, user_band=None,
-             user_prefs=None) -> dict:
-    """Full evidence-based fit evaluation for one job vs one profile."""
-    job_skills = conn.execute(
-        "SELECT skill, requirement FROM job_skill WHERE job_id = ? "
-        "ORDER BY requirement, skill", (job["id"],)).fetchall()
-    best, listed, strong, rejected, confirmed = _profile_index(
-        profile_skills_rows, reviews)
-
-    rows = []
-    for r in job_skills:
-        skill, req = r["skill"], r["requirement"]
-        entry = {"skill": skill, "requirement": req, "status": "missing",
-                 "depth": "", "evidence": "", "market": ...}
-        hit = best.get(skill)
-        if hit is not None and skill not in rejected:
-            entry.update(status="match" if skill in strong else "weak",
-                         depth=hit["depth"],
-                         evidence=(hit["evidence"] or "")[:200])
-        else:
-            child = indirect_evidence_for(skill, set(best) - rejected)
-            if child:
-                entry.update(status="indirect", depth=f"via {child}")
-        rows.append(entry)
-
-    required = [r for r in rows if r["requirement"] == "required"] or rows
-    matched = sum(1 for r in required if r["status"] == "match")
-    ratio = matched / len(required) if required else 0
-    if ratio >= 0.75:   band = "Strong Evidence"
-    elif ratio >= 0.5:  band = "Good Evidence"
-    ...
-    return {"band": band, "rows": rows}`,
-      },
-    ],
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "1,606 postings", sub: "real daily pipelines" },
+        { label: "Dedup + provenance", sub: "one listing per opening" },
+        {
+          label: "Skill graph",
+          sub: "each claim: resume line or repo",
+          tone: "hot",
+        },
+        { label: "Fit bands", sub: "Strong → Major Gap" },
+        { label: "Typed gaps", sub: "presentation / evidence / capability" },
+      ],
+      note:
+        "Ask “what are my gaps for GenAI?” → answered from the live corpus (“Vector DBs: 38% of postings”), never from vibes.",
+    },
+    diagramCaption: "Evidence in, decisions out — with the trail visible at every step.",
   },
 ];
 
 // ── Workbench: live projects with real UIs, filterable grid ──────────────────
 
-export type WorkbenchCategory = "GenAI" | "ML / Data" | "Full-Stack" | "Systems";
+export type WorkbenchCategory = "GenAI" | "ML / Data" | "Full-Stack";
 
 export const workbenchCategories: WorkbenchCategory[] = [
   "GenAI",
@@ -380,7 +314,7 @@ export type WorkbenchItem = {
   stack: string[]; // dot-separated line
   liveUrl: string;
   github?: string; // source link (repo or notebook); some projects have none
-  code: CodeSample;
+  diagram: Diagram;
 };
 
 export const workbench: WorkbenchItem[] = [
@@ -394,38 +328,15 @@ export const workbench: WorkbenchItem[] = [
     stack: ["React", "Web Speech API", "Gemini", "FastAPI", "Cloud Run"],
     liveUrl: "https://voicebank-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/voicebank",
-    code: {
-      file: "server/app.py",
-      lang: "python",
-      note: "The server sanitises every model action down to a typed whitelist — the LLM can propose, but only valid NAVIGATE/FILL/TAP actions reach the UI.",
-      code: `def _sanitize_actions(raw: list) -> list:
-    out = []
-    for a in raw or []:
-        if not isinstance(a, dict):
-            continue
-        t = str(a.get("type", "")).upper()
-        if t not in VALID_ACTIONS:
-            continue
-        act = {"type": t}
-        if t == "NAVIGATE":
-            screen = str(a.get("screen", "")).lower()
-            if screen not in VALID_SCREENS:
-                continue
-            act["screen"] = screen
-        elif t == "FILL":
-            field, value = str(a.get("field", "")), a.get("value")
-            if not field or value is None:
-                continue
-            act["field"], act["value"] = field, value
-        elif t == "TAP":
-            target = str(a.get("target", ""))
-            if not target:
-                continue
-            act["target"] = target
-        out.append(act)
-        if len(out) >= 6:      # one intent per turn; cap runaway replies
-            break
-    return out`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Mic", sub: "continuous en-IN STT" },
+        { label: "Gemini", sub: "intent → typed actions" },
+        { label: "Sanitizer", sub: "NAVIGATE/FILL/TAP only", tone: "hot" },
+        { label: "UI state machine", sub: "same path as a tap" },
+        { label: "Spoken PIN gate", sub: "money moves only after it" },
+      ],
     },
   },
   {
@@ -433,25 +344,19 @@ export const workbench: WorkbenchItem[] = [
     eyebrow: "5K CORPUS → 1M-DOC DESIGN",
     title: "RAGMill",
     blurb:
-      "RAG designed to survive a million documents: sharded Cloud Run ingest with idempotent uuid5 upserts, hybrid dense+BM25 retrieval fused by RRF, Gemini answers with [n] citations, and a golden-set eval harness that gates every retrieval change.",
+      "RAG designed to survive a million documents: sharded Cloud Run ingest with idempotent upserts, hybrid dense+BM25 retrieval fused by RRF, Gemini answers with [n] citations, and a golden-set eval harness that gates every retrieval change.",
     category: "GenAI",
     stack: ["FastAPI", "Vertex AI", "Qdrant", "fastembed", "Cloud Run Jobs"],
     liveUrl: "https://ragmill-yzzxrxetcq-uc.a.run.app",
     github: "https://github.com/gorredinesh21/ragmill",
-    code: {
-      file: "app/retrieval.py",
-      lang: "python",
-      note: "Reciprocal Rank Fusion as a pure function — unit-testable with known math (tests/test_rrf.py).",
-      code: `def rrf_fuse(ranked_lists: list[list[str]], k: int = None,
-               weights: list[float] = None) -> list[tuple[str, float]]:
-    """Fuse ranked ID lists into [(id, rrf_score)] sorted desc."""
-    k = config.RRF_K if k is None else k
-    weights = weights or [1.0] * len(ranked_lists)
-    scores: dict[str, float] = {}
-    for lst, w in zip(ranked_lists, weights):
-        for rank, item in enumerate(lst, start=1):
-            scores[item] = scores.get(item, 0.0) + w / (k + rank)
-    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))`,
+    diagram: {
+      kind: "split",
+      head: { label: "1M documents", sub: "sharded ingest · idempotent upserts" },
+      channels: [
+        { label: "dense", nodes: [{ label: "bge vectors", sub: "fastembed ONNX" }] },
+        { label: "sparse", nodes: [{ label: "BM25", sub: "in-process index" }] },
+      ],
+      tail: { label: "RRF → rerank → cited answer", sub: "hit@10: 0.72 vs 0.67 dense-only", tone: "hot" },
     },
   },
   {
@@ -464,31 +369,15 @@ export const workbench: WorkbenchItem[] = [
     stack: ["FastAPI", "Gemini", "DuckDB", "SSE", "SQLite cache"],
     liveUrl: "https://quackquery-yzzxrxetcq-uc.a.run.app",
     github: "https://github.com/gorredinesh21/quackquery",
-    code: {
-      file: "app/guard.py",
-      lang: "python",
-      note: "The guard runs before execution: comments and string literals are stripped so smuggled keywords can't dodge the scan.",
-      code: `def _strip(sql: str) -> str:
-    """Remove comments and literals so hides inside them can't dodge the scan."""
-    sql = _COMMENT_RE.sub(" ", sql)
-    sql = _LITERAL_RE.sub(" '' ", sql)
-    return sql
-
-def validate(sql: str) -> str:
-    """Return the SQL if it is a single read-only SELECT; raise GuardError."""
-    cleaned = sql.strip().rstrip(";")
-    if ";" in cleaned:
-        raise GuardError("multiple statements are not allowed (stacked query)")
-
-    stripped = _strip(cleaned)
-    head = stripped.lstrip("( \\n\\t").split(None, 1)
-    if head[0].upper() not in _ALLOWED_STARTS:
-        raise GuardError(f"only SELECT statements are allowed")
-
-    tokens = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", stripped.upper()))
-    if hit := tokens & _DENIED_KEYWORDS:
-        raise GuardError(f"forbidden keyword(s): {', '.join(sorted(hit))}")
-    return cleaned`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "English question" },
+        { label: "SQL draft" },
+        { label: "Guard", sub: "SELECT-only, no smuggling", tone: "hot" },
+        { label: "DuckDB", sub: "rows + chart next to the SQL" },
+      ],
+      loop: "SQL error → repair ×3",
     },
   },
   {
@@ -501,21 +390,14 @@ def validate(sql: str) -> str:
     stack: ["FastAPI", "Gemini", "ruff", "bandit", "SQLite"],
     liveUrl: "https://diffwarden-yzzxrxetcq-uc.a.run.app",
     github: "https://github.com/gorredinesh21/diffwarden",
-    code: {
-      file: "app/reviewer.py",
-      lang: "python",
-      note: "Cost control as code: findings are packed into a fixed character budget before the model ever sees them.",
-      code: `parts, budget = [], config.MAX_LLM_DIFF_CHARS
-for score, f, hunk in gate.score_hunks(files)[:config.MAX_HUNKS_TO_LLM]:
-    header = (f"\\n### {f.path} (hunk at line ~{hunk.new_start}, "
-              f"risk score {score:.0f})\\n\u0060\u0060\u0060diff\\n")
-    body_lines = [f"+{t}" for t in hunk.added_text[:80]]
-    chunk = header + "\\n".join(body_lines) + "\\n\u0060\u0060\u0060"
-    if len(chunk) > budget:
-        break
-    parts.append(chunk)
-    budget -= len(chunk)
-diff_payload = "\\n".join(parts)`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "PR diff" },
+        { label: "Gates", sub: "secrets · ruff · bandit — free & instant", tone: "hot" },
+        { label: "Budget-capped Gemini", sub: "hard character limit" },
+        { label: "Findings", sub: "cached by diff hash" },
+      ],
     },
   },
   {
@@ -528,21 +410,15 @@ diff_payload = "\\n".join(parts)`,
     stack: ["React", "FastAPI", "Gemini", "RAG", "KQL"],
     liveUrl: "https://support-copilot-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/support-copilot",
-    code: {
-      file: "backend/app/llm.py",
-      lang: "python",
-      note: "Citation enforcement as a measurable retry — measured, not hoped for.",
-      code: `answer, wait_ms = _call(base_prompt)
-cited = bool(re.search(r"\\[\\d+\\]", answer))
-if contexts and not cited and "could not find" not in answer.lower():
-    retry_prompt = (base_prompt
-                    + "\\n\\nREMINDER: your previous answer forgot the [n] "
-                      "citation markers. Rewrite it, citing every claim with [n].")
-    answer2, wait2 = _call(retry_prompt)
-    if re.search(r"\\[\\d+\\]", answer2):
-        answer, cited = answer2, True
-    wait_ms += wait2
-return {"answer": answer, "cited": cited, "wait_ms": wait_ms}`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "30 support docs" },
+        { label: "Header-aware chunks" },
+        { label: "Retrieve" },
+        { label: "Answer with [n]", sub: "citation rate 1.00", tone: "hot" },
+      ],
+      loop: "forgot citations → regenerate once",
     },
   },
   {
@@ -561,20 +437,26 @@ return {"answer": answer, "cited": cited, "wait_ms": wait_ms}`,
     ],
     liveUrl: "https://startup-intel-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/Startup-Intelligence-Platform",
-    code: {
-      file: "backend/agents/workflow.py",
-      lang: "python",
-      note: "The reasoning agent as an explicit graph — every step is a node you can watch execute in the UI's stepper.",
-      code: `def build_agent_graph():
-    workflow = StateGraph(AgentState)
-    workflow.add_node("intent_detection", detect_intent)
-    workflow.add_node("planner", plan_subqueries)
-    workflow.add_node("graph_retrieval", retrieve_graph)
-    workflow.add_node("raptor_retrieval", retrieve_raptor)
-    workflow.add_node("reranker", rerank_nodes)
-    workflow.add_node("generator", generate_answer)
-    # intent → plan → (graph ∥ raptor) → rerank → generate → END
-    return workflow.compile()`,
+    diagram: {
+      kind: "split",
+      head: { label: "Ecosystem corpus", sub: "scraped + curated" },
+      channels: [
+        {
+          label: "RAPTOR tree",
+          nodes: [
+            { label: "cluster → summarise", sub: "recursive levels" },
+            { label: "Qdrant" },
+          ],
+        },
+        {
+          label: "relationship graph",
+          nodes: [
+            { label: "entities + edges", sub: "COMPETES_WITH · FUNDED_BY" },
+            { label: "Neo4j / NetworkX" },
+          ],
+        },
+      ],
+      tail: { label: "LangGraph agent", sub: "live node-stepper UI + citations", tone: "hot" },
     },
   },
   {
@@ -587,28 +469,14 @@ return {"answer": answer, "cited": cited, "wait_ms": wait_ms}`,
     stack: ["React Flow", "Zustand", "FastAPI"],
     liveUrl: "https://vector-shift-yzzxrxetcq-uc.a.run.app",
     github: "https://github.com/gorredinesh21/vector_shift",
-    code: {
-      file: "frontend/src/nodes/index.js",
-      lang: "js",
-      note: "The whole node catalog as data — this is why 5+ node types shipped without duplicating a component.",
-      code: `// Every config becomes a component:
-// (props) => <BaseNode {...props} config={cfg} />
-const makeNode = (config) => (props) => <BaseNode {...props} config={config} />;
-
-// definitions.js — adding a node here (and nothing else) makes it
-// fully functional: toolbar, canvas, rendering, connections.
-{
-  type: 'customInput',
-  title: 'Input',
-  category: 'io',
-  handles: [{ id: 'value', type: 'source', side: 'right' }],
-  fields: [
-    { name: 'inputName', label: 'Name', kind: 'text',
-      default: (id) => id.replace('customInput-', 'input_') },
-    { name: 'inputType', label: 'Type', kind: 'select',
-      options: ['Text', 'File'], default: 'Text' },
-  ],
-}`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Node config", sub: "pure data", tone: "hot" },
+        { label: "One BaseNode", sub: "renders any node" },
+        { label: "Canvas + wires", sub: "React Flow · Zustand" },
+        { label: "DAG analysis", sub: "cycles · reachability" },
+      ],
     },
   },
   {
@@ -621,25 +489,16 @@ const makeNode = (config) => (props) => <BaseNode {...props} config={config} />;
     stack: ["LangChain", "Gemini", "Ollama", "FastAPI", "Vision"],
     liveUrl: "https://tinder-ai-coach-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/TINDER_MCP_AI",
-    code: {
-      file: "src/llm.py",
-      lang: "python",
-      note: "The provider-agnostic brain: one env flag switches between local Ollama, Hugging Face and Vertex — the rest of the app never knows.",
-      code: `def make_llm() -> LLM:
-    backend = os.getenv("LLM_BACKEND", "ollama").lower()
-
-    if backend == "hf":
-        from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-        endpoint = HuggingFaceEndpoint(
-            repo_id=os.getenv("HF_MODEL", "Qwen/Qwen2.5-72B-Instruct"),
-            task="conversational",
-            temperature=temperature, max_new_tokens=max_tokens)
-        return LLM(_impl=ChatHuggingFace(llm=endpoint), name=f"hf:{model}")
-
-    if backend == "ollama":
-        from langchain_ollama import ChatOllama
-        impl = ChatOllama(model=os.getenv("OLLAMA_MODEL", "llama3.1"))
-        return LLM(_impl=impl, name=f"ollama:{model}")`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Your profile" },
+        { label: "Rubric score", sub: "research-backed" },
+        { label: "Rewrites", sub: "never invented facts" },
+        { label: "Vision photo plan", sub: "keep / drop / order" },
+        { label: "You approve → publish", tone: "hot" },
+      ],
+      note: "Brain swappable at runtime: Ollama · Gemini · Hugging Face — the app never knows which.",
     },
   },
   {
@@ -652,28 +511,14 @@ const makeNode = (config) => (props) => <BaseNode {...props} config={config} />;
     stack: ["Node.js", "LangChain.js", "Zod", "LaTeX"],
     liveUrl: "https://career-ops-dashboard-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/career-ops-3.0",
-    code: {
-      file: "lc/schemas.mjs",
-      lang: "js",
-      note: "Zod schemas that both validate model output and document the data contract — the LLM speaks JSON, the pipeline speaks types.",
-      code: `/**
- * lc/schemas.mjs — zod schemas shared across the LangChain stages.
- * These both validate model output and document the data contract.
- */
-export const ProjectSchema = z.object({
-  title: z.string(),
-  tech_stack: z.string().default(''),
-  repo_link: z.string().optional().default(''),
-  points: z.array(z.string()).default([]),
-});
-
-export const ResumeSchema = z.object({
-  name: z.string(),
-  education: z.array(EducationSchema).default([]),
-  experience: z.array(ExperienceSchema).default([]),
-  projects: z.array(ProjectSchema).default([]),
-  skills: z.array(SkillSchema).default([]),
-});`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Greenhouse · Lever · Ashby", sub: "$0 LLM cost" },
+        { label: "Fit score /5", sub: "Zod-validated chains", tone: "hot" },
+        { label: "Tailored resume", sub: "distilled from 23 repos" },
+        { label: "ATS-ready PDF" },
+      ],
     },
   },
   {
@@ -686,19 +531,14 @@ export const ResumeSchema = z.object({
     stack: ["Python", "scikit-learn", "Cosine similarity", "Streamlit", "TMDb API"],
     liveUrl: "https://movie-recommender-441384612427.us-central1.run.app",
     github: "https://github.com/gorredinesh21/MOVIE_RECOMENDATION_SYSTEM",
-    code: {
-      file: "app.py",
-      lang: "python",
-      note: "The entire inference path — a precomputed similarity matrix and one sorted enumerate.",
-      code: `def recommend(movie):
-    index = movies[movies['title'] == movie].index[0]
-    distances = sorted(
-        list(enumerate(similarity[index])),
-        reverse=True, key=lambda x: x[1])
-    for i in distances[1:11]:
-        print(movies.iloc[i[0]].title)
-
-similarity = pickle.load(open('similarity.pkl', 'rb'))`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "A movie" },
+        { label: "BoW vector", sub: "genre · cast · crew · overview" },
+        { label: "Cosine vs 5,000", sub: "precomputed matrix" },
+        { label: "Top-10 + posters", tone: "hot" },
+      ],
     },
   },
   {
@@ -711,35 +551,16 @@ similarity = pickle.load(open('similarity.pkl', 'rb'))`,
     stack: ["FastAPI", "Gemini", "SQLite", "Web Speech API", "Cloud Run"],
     liveUrl: "https://sahayak-yzzxrxetcq-uc.a.run.app",
     github: "https://github.com/gorredinesh21/sahayak",
-    code: {
-      file: "backend/ai.py",
-      lang: "python",
-      note: "The system's voice when Gemini is unavailable — same facts, same numbers, no model required.",
-      code: `def detect_intent(text):
-    t = text.lower()
-    for intent, pat in INTENT_RULES:
-        if re.search(pat, t, re.I):
-            return intent
-    return "general"
-
-
-# System's voice when Gemini is unavailable — same grounded facts.
-def fallback_reply(txn_id, S, intent):
-    p, sla, fr = S.payment(txn_id), S.sla(txn_id), S.fraud(txn_id)
-    amt = f"₹{p['amount_paise']/100:,.0f}"
-    rrn = S.db.execute(
-        "SELECT rrn FROM npci_switch_log WHERE txn_id=?",
-        (txn_id,)).fetchone()
-    if intent == "wrong_recipient":
-        analysis = ScenarioEngines(S.db).wrong_recipient(txn_id)
-        verdict = analysis["verdict"].replace("_", " ").title()
-        ev = "; ".join(e["label"] for e in analysis["evidence"][:3])
-        return (f"Your payment of {amt} went through successfully. Based on "
-                f"my analysis ({verdict}, confidence {analysis['confidence']}): "
-                f"{ev}. Completed UPI transfers cannot be auto-reversed, but "
-                f"you can: (1) contact the recipient directly, (2) file a "
-                f"dispute, or (3) if within 24h, the beneficiary bank may "
-                f"recall it. Reference RRN {rrn}.")`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "UPI failure", sub: "voice or chat" },
+        { label: "Stage diagnosis", sub: "which NPCI hop died" },
+        { label: "7-signal analysis", sub: "verdict + confidence", tone: "hot" },
+        { label: "SLA clock", sub: "RBI-style deadlines" },
+        { label: "Dispute auto-filed", sub: "on breach, with evidence" },
+      ],
+      note: "Gemini unavailable → the same grounded reply, same RRN, same numbers — from the deterministic engine.",
     },
   },
   {
@@ -752,26 +573,14 @@ def fallback_reply(txn_id, S, intent):
     stack: ["PyTorch", "Transformers", "Kaggle T4", "Constrained decoding"],
     liveUrl: "https://jev-laya-benchmark-yzzxrxetcq-el.a.run.app",
     github: "https://www.kaggle.com/code/gorredineshchandan/jev-laya-slm-benchmark",
-    code: {
-      file: "benchmark.py",
-      lang: "python",
-      note: "Constrained scoring — every answer is a real logprob comparison between label continuations, so an invalid answer is impossible by construction.",
-      code: `def score_labels(model, tok, prompt_text, cand_strings):
-    """exact logprob of each candidate continuation; argmax.
-    0% invalid by construction."""
-    with torch.no_grad():
-        enc = tok(prompt_text, return_tensors="pt").to(DEV)
-        pout = model(**enc, use_cache=True)
-        past, base_logits = pout.past_key_values, pout.logits[0, -1]
-        scores = []
-        for cs in cand_strings:
-            ids = tok(cs, add_special_tokens=False,
-                      return_tensors="pt").to(DEV)["input_ids"][0]
-            lp = torch.log_softmax(base_logits.float(), -1)[ids[0]].item()
-            # ... score the remaining candidate tokens via the KV cache
-            scores.append(lp)
-        return cand_strings[int(max(range(len(scores)),
-                                    key=lambda i: scores[i]))]`,
+    diagram: {
+      kind: "split",
+      head: { label: "Same prompts, same free T4", sub: "toxicity · Banking77 · AG News" },
+      channels: [
+        { label: "Laya 1.2B", nodes: [{ label: "Sarvam", sub: "fine-tuned candidate" }] },
+        { label: "open 1.5B", nodes: [{ label: "baseline", sub: "same harness" }] },
+      ],
+      tail: { label: "Logprob-scored accuracy + latency", sub: "invalid answers impossible by construction", tone: "hot" },
     },
   },
   {
@@ -783,44 +592,22 @@ def fallback_reply(txn_id, S, intent):
     category: "Full-Stack",
     stack: ["Node.js", "ws (WebSockets)", "Vanilla JS", "Cloud Run"],
     liveUrl: "https://impostor-party-yzzxrxetcq-uc.a.run.app",
-    code: {
-      file: "server.js",
-      lang: "js",
-      note: "The whole multiplayer server is one WebSocket connection handler and a room phase machine.",
-      code: `const wss = new WebSocketServer({ server })
-
-wss.on('connection', (ws) => {
-  ws.isAlive = true
-  ws.on('pong', () => { ws.isAlive = true })
-  ws.on('message', (raw) => {
-    let m
-    try { m = JSON.parse(raw) } catch { return }
-    try { handle(ws, m) } catch (e) { console.error('handler', e) }
-  })
-  ws.on('close', () => {
-    const p = ws.__player
-    if (p && p.__room && rooms.get(p.__room))
-      removePlayer(rooms.get(p.__room), p.id)
-  })
-})
-
-function handle(ws, m) {
-  if (m.t === 'create') {
-    const code = newCode()
-    const room = { code, players: [], phase: 'lobby', word: null, reveal: null }
-    rooms.set(code, room)
-    return joinRoom(ws, room, m.name, true)
-  }
-  if (m.t === 'start' && p.host) {
-    if (room.players.length < 3) return
-    startRound(room, m.category, Math.max(1, Math.min(2, m.impostors || 1)))
-  }`,
+    diagram: {
+      kind: "flow",
+      loop: "next round",
+      nodes: [
+        { label: "Host creates room", sub: "4-letter code" },
+        { label: "Word dealt", sub: "one player gets a different one", tone: "hot" },
+        { label: "Discuss", sub: "find the impostor" },
+        { label: "Vote + reveal" },
+      ],
+      note: "One WebSocket server, rooms in memory — no database, no framework.",
     },
   },
 ];
 
 // ── Mini projects: no live link, or live-but-plain UIs ───────────────────────
-// Each carries a short explanation and a real excerpt from its repo.
+// Each carries a short explanation and a diagram of how it works.
 
 export type MiniProject = {
   slug: string;
@@ -830,7 +617,7 @@ export type MiniProject = {
   github: string;
   liveUrl?: string;
   explanation: string[]; // 2–4 sentences, why + how
-  code: CodeSample;
+  diagram: Diagram;
 };
 
 export const miniProjects: MiniProject[] = [
@@ -846,28 +633,14 @@ export const miniProjects: MiniProject[] = [
       "It speaks the real RESP2 wire protocol, so redis-cli and redis-benchmark connect without knowing the difference. 16 keyspace shards with per-shard locks keep it correct under thousands of connections; a background sweeper handles TTL and an optional AOF survives restarts.",
       "It lives here rather than up top because the web demo is a plain command page — the product is the protocol, not the pixels.",
     ],
-    code: {
-      file: "internal/resp/resp.go",
-      lang: "go",
-      note: "The RESP2 parser: real Redis arrays, plus a fallback for inline commands.",
-      code: `func (r *Reader) ReadCommand() ([]string, error) {
-    prefix, err := r.r.ReadByte()
-    if err != nil {
-        return nil, err
-    }
-    switch prefix {
-    case '*':
-        return r.readArray()
-    default:
-        // Inline command: put the byte back, read a whitespace-split line.
-        _ = r.r.UnreadByte()
-        line, err := r.readLine()
-        if err != nil {
-            return nil, err
-        }
-        return splitInline(line), nil
-    }
-}`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "redis-cli", sub: "real clients just work" },
+        { label: "RESP2 parser", tone: "hot" },
+        { label: "16 shards", sub: "per-shard locks" },
+        { label: "TTL sweep · AOF" },
+      ],
     },
   },
   {
@@ -882,35 +655,15 @@ export const miniProjects: MiniProject[] = [
       "A bounded worker pool keeps many provider calls in flight (1 → 32 workers ≈ 32× speedup, verified), a token-bucket limiter respects provider RPS, and context threads through every call. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled.",
       "The live page is a plain API reference — so it's filed as a mini project while the benchmarks do the talking.",
     ],
-    code: {
-      file: "internal/pool/pool.go",
-      lang: "go",
-      note: "Fan-out / fan-in with bounded concurrency — results keep input order; cancellation bails out fast.",
-      code: `// Map runs fn over inputs using at most 'workers' goroutines.
-// Results are returned in the same order as inputs.
-func Map[I, O any](ctx context.Context, workers int, inputs []I,
-                   fn WorkFn[I, O]) []Result[O] {
-    results := make([]Result[O], len(inputs))
-    jobs := make(chan job)
-
-    var wg sync.WaitGroup
-    wg.Add(workers)
-    for w := 0; w < workers; w++ {
-        go func() {
-            defer wg.Done()
-            for j := range jobs {
-                if err := ctx.Err(); err != nil {
-                    results[j.idx] = Result[O]{Index: j.idx, Err: err}
-                    continue
-                }
-                val, err := fn(ctx, j.in)
-                results[j.idx] = Result[O]{Index: j.idx, Value: val, Err: err}
-            }
-        }()
-    }
-    // ... dispatch, close(jobs), wg.Wait()
-    return results
-}`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "2,000 chunks", sub: "10.7s serial" },
+        { label: "Bounded pool", sub: "1 → 32 workers", tone: "hot" },
+        { label: "Token bucket", sub: "respects provider RPS" },
+        { label: "0.33s pooled", sub: "≈ 32× faster", tone: "hot" },
+      ],
+      note: "One cancellation kills the whole batch cleanly — context runs through every call.",
     },
   },
   {
@@ -924,23 +677,15 @@ func Map[I, O any](ctx context.Context, workers int, inputs []I,
       "Each posting gets its apply_url scraped and cleaned by an LLM, scored 1–100 against my resume, stored in SQLite as the single source of truth, and strong matches get a tailored resume rendered through LaTeX to PDF — all browsable in a Flask dashboard where every score, source and apply link stays visible.",
       "It later evolved into Career-Ops 3.0, but this was the organizer that started the lineage.",
     ],
-    code: {
-      file: "02_job_filtering/job_scorer.py",
-      lang: "python",
-      note: "The scoring step — structured output, clamped to a safe range before it touches the database.",
-      code: `def score_job(chain, resume_text, job):
-    result = chain.invoke({
-        "resume": resume_text,
-        "job_title": job.get("job_title") or "N/A",
-        "company_name": job.get("company_name") or "N/A",
-        "experience_required": job.get("experience_required") or "N/A",
-        "job_description": job.get("job_description") or "N/A"
-    })
-    if isinstance(result, dict):
-        score = result.get("score", 50)
-    else:
-        score = 50
-    return max(1, min(100, score))`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Raw leads", sub: "Telegram · Gmail JSON" },
+        { label: "Enrich JD", sub: "LLM-cleaned" },
+        { label: "Score 1–100", sub: "vs my resume" },
+        { label: "SQLite ledger" },
+        { label: "Tailored PDF", tone: "hot" },
+      ],
     },
   },
   {
@@ -953,24 +698,14 @@ func Map[I, O any](ctx context.Context, workers int, inputs []I,
       "I wanted a real, production-shaped web app end-to-end — not a toy CRUD demo: auth, payments, image hosting, transactional email, an admin control plane and a deployable build.",
       "An 18+ endpoint Express/Mongo API backs a Redux storefront with search, filters and reviews; Stripe PaymentIntents handle money; JWT rides HTTP-only cookies with role-based access to the admin dashboard, which manages products, orders, users and revenue analytics.",
     ],
-    code: {
-      file: "backend/controller/paymentController.js",
-      lang: "js",
-      note: "Real payments: a Stripe PaymentIntent minted server-side, only the client_secret crosses the wire.",
-      code: `const myPayment = await stripe.paymentIntents.create({
-  amount: req.body.amount,
-  currency: "inr",
-  metadata: {
-    company: "Ecommerce",
-    userId: req.user?.id || 'unknown',
-    timestamp: new Date().toISOString()
-  },
-});
-
-res.status(200).json({
-  success: true,
-  client_secret: myPayment.client_secret
-});`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Storefront", sub: "Redux · filters · reviews" },
+        { label: "Cart" },
+        { label: "PaymentIntent", sub: "client_secret only", tone: "hot" },
+        { label: "Admin panel", sub: "orders · users · revenue" },
+      ],
     },
   },
   {
@@ -983,27 +718,15 @@ res.status(200).json({
       "My bridge into the strongly-typed, enterprise-style JVM world: a layered Spring Boot backend modelling users, accounts, transactions and payments, paired with a React + Redux dashboard.",
       "The transaction engine does deposits, inter-account transfers, withdrawals and bill payments with balance validation on every path — and every attempt, failed or not, lands in the audit log.",
     ],
-    code: {
-      file: "finnest-api/.../controllers/TransactController.java",
-      lang: "java",
-      note: "The transfer path: validate, check funds, log the failure before it happens.",
-      code: `@PostMapping("/transfer")
-ResponseEntity transfer(@RequestBody TransferRequest request, HttpSession session) {
-    // ... parse + validate: empty fields, same-account, zero amount
-
-    double currentBalanceOfAccountTransferringFrom =
-            accountRepository.getAccountBalance(user_id, transferFromId);
-
-    if (currentBalanceOfAccountTransferringFrom < transferAmount) {
-        // Log failed transaction
-        transactRepository.logTransaction(transferFromId, "transfer",
-                transferAmount, "online", "failed",
-                "Insufficient funds.", currentDateTime);
-        return ResponseEntity.badRequest()
-                .body("You have insufficient Funds to perform this transfer.");
-    }
-    // ... debit, credit, log success
-}`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Transfer request" },
+        { label: "Validate", sub: "same-account · zero · empty" },
+        { label: "Balance check", tone: "hot" },
+        { label: "Debit + credit" },
+        { label: "Audit log", sub: "failures logged too" },
+      ],
     },
   },
   {
@@ -1016,24 +739,14 @@ ResponseEntity transfer(@RequestBody TransferRequest request, HttpSession sessio
       "Hands-on Web3: wallet auth, multi-chain detection, ERC-20 UX and on-chain value movement — shipping something that actually moved real testnet funds end-to-end.",
       "A custom PayPal-like Solidity contract stores payment history on-chain; the React client auto-detects network switches and re-fetches balances, and pasting any token contract address makes it transactable.",
     ],
-    code: {
-      file: "src/App.js",
-      lang: "js",
-      note: "Two transfer paths share one UX: ERC-20 via contract call, plain ETH via contract value.",
-      code: `const transferAmount = async () => {
-  if (tokenChanged) {
-    const tx = await ERCContract.transfer(
-      recipientAddress,
-      ethers.utils.parseEther(amount)
-    );
-    await tx.wait();
-  } else {
-    const tx = await paypalContract._transfer(recipientAddress, symbol, {
-      value: ethers.utils.parseEther(amount),
-    });
-    await tx.wait();
-  }
-};`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "MetaMask", sub: "signs everything" },
+        { label: "ethers.js" },
+        { label: "Contract call", sub: "ERC-20 or ETH", tone: "hot" },
+        { label: "On-chain history" },
+      ],
     },
   },
   {
@@ -1046,29 +759,15 @@ ResponseEntity transfer(@RequestBody TransferRequest request, HttpSession sessio
       "Fraud and rare-event tabular datasets are pathologically imbalanced, and naïve oversampling distorts decision boundaries. My thesis asked how far a custom tabular GAN could push recall without sacrificing precision — and whether the lift was statistically real.",
       "GAN-synthesised positives combined with SMOTE feed four classifier families (RF, XGBoost, LightGBM, GBM) under 5-fold CV; McNemar's test compares them head-to-head. On a 10M+ row credit-card dataset: false negatives down to 9, recall 0.91 → 0.99.",
     ],
-    code: {
-      file: "custom_gan.py",
-      lang: "python",
-      note: "The Generator — noise in, synthetic minority-class rows out, Tanh-scaled.",
-      code: `class Generator(nn.Module):
-    def __init__(self, input_dim=128, output_dim=512):
-        super(Generator, self).__init__()
-        self.model = nn.Sequential(
-            nn.Linear(input_dim, 256),
-            nn.LeakyReLU(0.2),
-            nn.BatchNorm1d(256),
-
-            nn.Linear(256, 512),
-            nn.ReLU(),
-            nn.BatchNorm1d(512),
-
-            nn.Linear(512, output_dim),
-            nn.Tanh()
-        )
-        self.model.apply(init_weights)
-
-    def forward(self, x):
-        return self.model(x)`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Noise" },
+        { label: "Generator", sub: "128 → 512 · Tanh" },
+        { label: "Synthetic rows + SMOTE", tone: "hot" },
+        { label: "4 classifier families", sub: "5-fold CV · McNemar's" },
+        { label: "Recall 0.91 → 0.99" },
+      ],
     },
   },
   {
@@ -1081,19 +780,14 @@ ResponseEntity transfer(@RequestBody TransferRequest request, HttpSession sessio
       "Rovers and orbiters generate huge image streams, but identifying craters, valleys and plateaus still leans on manual inspection. I tested how far a frozen ImageNet backbone could automate that on a real planetary-science dataset.",
       "VGG16's convolutional base stays frozen over 8,200 training images; a small dense head learns the 8 landmark classes — reaching 88% training accuracy, with weights exported so inference rehydrates in a few lines.",
     ],
-    code: {
-      file: "model.ipynb",
-      lang: "ipynb",
-      note: "Classic transfer learning: frozen conv base, trainable compact head.",
-      code: `conv_base = VGG16(
-    weights='imagenet',
-    include_top = False,
-    input_shape=(227,227,3)
-)
-model.add(Flatten())
-model.add(Dense(256,activation='relu'))
-model.add(Dense(128,activation='relu'))
-model.add(Dense(8,activation='softmax'))`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Mars image" },
+        { label: "Frozen VGG16", sub: "ImageNet features", tone: "hot" },
+        { label: "Small dense head", sub: "only this trains" },
+        { label: "8 classes", sub: "crater · valley · plateau…" },
+      ],
     },
   },
   {
@@ -1106,21 +800,14 @@ model.add(Dense(8,activation='softmax'))`,
       "Product catalogues often hide critical attributes — weight, voltage, dimensions — inside images. The Amazon ML Challenge handed us 260K training images of wildly variable quality and no GPU budget.",
       "I ran PyTesseract on raw images (no preprocessing, to stay inside CPU limits) and built regex post-processors per entity type with unit-normalisation maps. 130K+ images processed, top 200 of 18,500+ teams.",
     ],
-    code: {
-      file: "app.py",
-      lang: "python",
-      note: "Per-entity regex extraction over OCR text, unit suffixes escaped and matched case-insensitively.",
-      code: `def extract_values_and_units(text, unit_suffix_map):
-    extracted = {}
-    for entity_key, suffixes in unit_suffix_map.items():
-        for suffix in suffixes:
-            # number followed by the unit (with optional space)
-            pattern = r'(\\d+\\.?\\d*)\\s*(' + re.escape(suffix) + r')'
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            if matches:
-                extracted[entity_key] = matches[0]
-                break
-    return extracted`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Product image" },
+        { label: "PyTesseract", sub: "no preprocessing — CPU budget" },
+        { label: "Regex + unit map", tone: "hot" },
+        { label: "Entity table", sub: "weight · volts · dims" },
+      ],
     },
   },
   {
@@ -1133,27 +820,14 @@ model.add(Dense(8,activation='softmax'))`,
       "Roll calls eat class time and the records are hard to audit. For Hackfest'23 our team shipped the full loop: enrol faces once, then a live camera marks attendance and writes the roster.",
       "Encoded faces are compared per frame with distance-based best-match; recognised students are removed from the pending list and logged with a timestamp to CSV — a teacher dashboard handles resources and announcements.",
     ],
-    code: {
-      file: "face-recognition/facerecognition3.py",
-      lang: "python",
-      note: "The marking loop: compare encodings, take the best match, write the roster row.",
-      code: `face_locations = face_recognition.face_locations(rgb_small__frame)
-face_encodings = face_recognition.face_encodings(
-    rgb_small__frame, face_locations)
-
-for face_encoding in face_encodings:
-    matches = face_recognition.compare_faces(
-        known_face_encodings, face_encoding)
-    face_distance = face_recognition.face_distance(
-        known_face_encodings, face_encoding)
-    best_match_index = np.argmin(face_distance)
-
-    if matches[best_match_index]:
-        name = known_face_names[best_match_index]
-        if name in students:
-            students.remove(name)
-            current_time = now.strftime("%H:%M:%S")
-            lnwriter.writerow([name, current_time])  # name + time to CSV`,
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "Camera", sub: "live frames" },
+        { label: "Face encodings" },
+        { label: "Best-distance match", tone: "hot" },
+        { label: "CSV roster", sub: "name + timestamp" },
+      ],
     },
   },
   {
@@ -1166,20 +840,15 @@ for face_encoding in face_encodings:
       "The OS course wanted systems-level work that demonstrated socket programming and protocol design — not a library being run.",
       "The server binds, listens and accepts; each connection hands a URL from the client, persists it to GET.txt, acknowledges, and the accept loop keeps listening. Raw sockets in C++, no wrappers.",
     ],
-    code: {
-      file: "server.c++",
-      lang: "cpp",
-      note: "The accept-loop pattern every networked server grows out of.",
-      code: `n = bind(server_sock,
-        (struct sockaddr *)&server_addr, sizeof(server_addr));
-listen(server_sock, 5);
-
-while (1) {
-    client_sock = accept(server_sock,
-        (struct sockaddr *)&client_addr, &addr_size);
-    recv(client_sock, buffer, sizeof(buffer), 0);
-    // persist the URL, acknowledge, keep listening
-}`,
+    diagram: {
+      kind: "flow",
+      loop: "accept loop",
+      nodes: [
+        { label: "Client" },
+        { label: "bind · listen · accept", tone: "hot" },
+        { label: "recv URL" },
+        { label: "GET.txt + ack" },
+      ],
     },
   },
   {
@@ -1193,22 +862,15 @@ while (1) {
       "Early in college I wanted C++ beyond textbook exercises, so I reproduced real games inside the Windows terminal — loops, non-blocking input, screen refresh and state, with no graphics library.",
       "Snake runs a grid loop with kbhit steering; Flappy adds gravity, rolling pipes and collision on the same console primitives. Both later got HTML5 canvas ports so they're playable in a browser.",
     ],
-    code: {
-      file: "snake__game (C++) + snake.html (web port)",
-      lang: "cpp",
-      note: "The whole architecture of a first-year game: draw → input → logic → sleep.",
-      code: `// C++ console original
-while(!gameover)
-{
-    draw();
-    input();     // _kbhit() steering
-    logic();
-    Sleep(40);
-}
-
-// web port keeps the same shape on a canvas
-function init(){snake=[{x:10,y:10}];dir={x:1,y:0};food={x:15,y:15};
-  score=0;gameOver=false;loop=setInterval(tick,120)}`,
+    diagram: {
+      kind: "flow",
+      loop: "every frame",
+      nodes: [
+        { label: "draw" },
+        { label: "input", sub: "non-blocking", tone: "hot" },
+        { label: "logic", sub: "collision · physics" },
+        { label: "sleep 40ms" },
+      ],
     },
   },
 ];

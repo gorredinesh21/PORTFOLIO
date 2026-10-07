@@ -1,7 +1,7 @@
 import { featured } from "@/lib/data";
 import { Reveal } from "@/components/reveal";
 import { OrbitRatio } from "@/components/orbit-ratio";
-import { CodeBlock } from "@/components/code-block";
+import { HowItWorks } from "@/components/how-it-works";
 
 function SectionHead({
   eyebrow,
@@ -112,13 +112,17 @@ export function Work() {
                 </div>
               </div>
 
-              <div className="mt-10 grid gap-6 lg:grid-cols-2">
-                {p.code.map((c) => (
-                  <Reveal key={c.file + c.code.slice(0, 24)} delay={0.08}>
-                    <CodeBlock sample={c} />
-                  </Reveal>
-                ))}
-              </div>
+              <Reveal delay={0.1}>
+                <div className="mt-10">
+                  <div className="eyebrow !text-[0.62rem] mb-3">
+                    How it works
+                  </div>
+                  <HowItWorks d={p.diagram} />
+                  <p className="mt-3 text-[0.78rem] text-muted-2">
+                    {p.diagramCaption}
+                  </p>
+                </div>
+              </Reveal>
 
               {i < featured.length - 1 && (
                 <div className="hairline mt-20 sm:mt-28" aria-hidden="true" />

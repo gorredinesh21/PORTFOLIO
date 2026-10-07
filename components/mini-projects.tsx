@@ -1,7 +1,7 @@
 import { miniProjects } from "@/lib/data";
 import { Reveal } from "@/components/reveal";
 import { SectionHead } from "@/components/work";
-import { CodeBlock } from "@/components/code-block";
+import { HowItWorks } from "@/components/how-it-works";
 
 export function MiniProjects() {
   return (
@@ -10,7 +10,7 @@ export function MiniProjects() {
         <SectionHead
           eyebrow="MINI PROJECTS"
           title="The small ones, kept honestly."
-          lede="Coursework, systems exercises and early builds — some with plain demo pages or no live link at all. They still get the same treatment: a real explanation and the code that backs it."
+          lede="Coursework, systems exercises and early builds — some with plain demo pages or no live link at all. They still get the same treatment: a real explanation and a diagram of how each one works."
         />
 
         <div className="flex flex-col">
@@ -65,7 +65,7 @@ export function MiniProjects() {
                       </a>
                     </div>
                   </div>
-                  <CodeBlock sample={m.code} />
+                  <HowItWorks d={m.diagram} dense />
                 </div>
               </details>
             </Reveal>
