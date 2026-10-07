@@ -89,14 +89,16 @@ export function Workbench() {
                     >
                       open live ↗
                     </a>
-                    <a
-                      href={w.github}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[0.82rem] text-muted hover:text-foreground transition-colors"
-                    >
-                      source ↗
-                    </a>
+                    {w.github && (
+                      <a
+                        href={w.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[0.82rem] text-muted hover:text-foreground transition-colors"
+                      >
+                        source ↗
+                      </a>
+                    )}
                   </div>
                   <CodeBlock sample={w.code} />
                 </div>

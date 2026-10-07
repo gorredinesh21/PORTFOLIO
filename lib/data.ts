@@ -379,7 +379,7 @@ export type WorkbenchItem = {
   category: WorkbenchCategory;
   stack: string[]; // dot-separated line
   liveUrl: string;
-  github: string;
+  github?: string; // source link (repo or notebook); some projects have none
   code: CodeSample;
 };
 
@@ -699,6 +699,122 @@ export const ResumeSchema = z.object({
         print(movies.iloc[i[0]].title)
 
 similarity = pickle.load(open('similarity.pkl', 'rb'))`,
+    },
+  },
+  {
+    slug: "sahayak",
+    eyebrow: "WRONG UPI TRANSFER → GUIDED RECOVERY",
+    title: "Sahayak",
+    blurb:
+      "A voice-first UPI support agent inside a simulated payments app: it diagnoses wrong-recipient transfers with a 7-signal evidence engine, runs RBI-style SLA clocks that auto-file disputes when banks breach them, explains failures by NPCI stage — and keeps the same grounded voice even when Gemini is down.",
+    category: "GenAI",
+    stack: ["FastAPI", "Gemini", "SQLite", "Web Speech API", "Cloud Run"],
+    liveUrl: "https://sahayak-yzzxrxetcq-uc.a.run.app",
+    github: "https://github.com/gorredinesh21/sahayak",
+    code: {
+      file: "backend/ai.py",
+      lang: "python",
+      note: "The system's voice when Gemini is unavailable — same facts, same numbers, no model required.",
+      code: `def detect_intent(text):
+    t = text.lower()
+    for intent, pat in INTENT_RULES:
+        if re.search(pat, t, re.I):
+            return intent
+    return "general"
+
+
+# System's voice when Gemini is unavailable — same grounded facts.
+def fallback_reply(txn_id, S, intent):
+    p, sla, fr = S.payment(txn_id), S.sla(txn_id), S.fraud(txn_id)
+    amt = f"₹{p['amount_paise']/100:,.0f}"
+    rrn = S.db.execute(
+        "SELECT rrn FROM npci_switch_log WHERE txn_id=?",
+        (txn_id,)).fetchone()
+    if intent == "wrong_recipient":
+        analysis = ScenarioEngines(S.db).wrong_recipient(txn_id)
+        verdict = analysis["verdict"].replace("_", " ").title()
+        ev = "; ".join(e["label"] for e in analysis["evidence"][:3])
+        return (f"Your payment of {amt} went through successfully. Based on "
+                f"my analysis ({verdict}, confidence {analysis['confidence']}): "
+                f"{ev}. Completed UPI transfers cannot be auto-reversed, but "
+                f"you can: (1) contact the recipient directly, (2) file a "
+                f"dispute, or (3) if within 24h, the beneficiary bank may "
+                f"recall it. Reference RRN {rrn}.")`,
+    },
+  },
+  {
+    slug: "jev-laya-benchmark",
+    eyebrow: "MODEL CLAIMS → MEASURED",
+    title: "Jev vs Laya — SLM Benchmark",
+    blurb:
+      "A measured head-to-head between Laya (Sarvam's 1.2B model) and a 1.5B open LLM on the same free GPU: toxicity moderation, Banking77 intent, AG News — constrained label scoring (0% invalid outputs by construction), honest latency columns, and a results site anyone can check. The full harness is a public Kaggle notebook.",
+    category: "ML / Data",
+    stack: ["PyTorch", "Transformers", "Kaggle T4", "Constrained decoding"],
+    liveUrl: "https://jev-laya-benchmark-yzzxrxetcq-el.a.run.app",
+    github: "https://www.kaggle.com/code/gorredineshchandan/jev-laya-slm-benchmark",
+    code: {
+      file: "benchmark.py",
+      lang: "python",
+      note: "Constrained scoring — every answer is a real logprob comparison between label continuations, so an invalid answer is impossible by construction.",
+      code: `def score_labels(model, tok, prompt_text, cand_strings):
+    """exact logprob of each candidate continuation; argmax.
+    0% invalid by construction."""
+    with torch.no_grad():
+        enc = tok(prompt_text, return_tensors="pt").to(DEV)
+        pout = model(**enc, use_cache=True)
+        past, base_logits = pout.past_key_values, pout.logits[0, -1]
+        scores = []
+        for cs in cand_strings:
+            ids = tok(cs, add_special_tokens=False,
+                      return_tensors="pt").to(DEV)["input_ids"][0]
+            lp = torch.log_softmax(base_logits.float(), -1)[ids[0]].item()
+            # ... score the remaining candidate tokens via the KV cache
+            scores.append(lp)
+        return cand_strings[int(max(range(len(scores)),
+                                    key=lambda i: scores[i]))]`,
+    },
+  },
+  {
+    slug: "impostor-party",
+    eyebrow: "TWELVE PLAYERS → ONE LIAR",
+    title: "Impostor Party",
+    blurb:
+      "A real-time multiplayer party game — everyone gets the same word except the impostor. Pure Node + WebSockets: rooms with a phase state machine (lobby → reveal → discuss → vote), up to 12 players, host-controlled impostor count, single-instance in-memory state on Cloud Run. No frameworks, no database.",
+    category: "Full-Stack",
+    stack: ["Node.js", "ws (WebSockets)", "Vanilla JS", "Cloud Run"],
+    liveUrl: "https://impostor-party-yzzxrxetcq-uc.a.run.app",
+    code: {
+      file: "server.js",
+      lang: "js",
+      note: "The whole multiplayer server is one WebSocket connection handler and a room phase machine.",
+      code: `const wss = new WebSocketServer({ server })
+
+wss.on('connection', (ws) => {
+  ws.isAlive = true
+  ws.on('pong', () => { ws.isAlive = true })
+  ws.on('message', (raw) => {
+    let m
+    try { m = JSON.parse(raw) } catch { return }
+    try { handle(ws, m) } catch (e) { console.error('handler', e) }
+  })
+  ws.on('close', () => {
+    const p = ws.__player
+    if (p && p.__room && rooms.get(p.__room))
+      removePlayer(rooms.get(p.__room), p.id)
+  })
+})
+
+function handle(ws, m) {
+  if (m.t === 'create') {
+    const code = newCode()
+    const room = { code, players: [], phase: 'lobby', word: null, reveal: null }
+    rooms.set(code, room)
+    return joinRoom(ws, room, m.name, true)
+  }
+  if (m.t === 'start' && p.host) {
+    if (room.players.length < 3) return
+    startRound(room, m.category, Math.max(1, Math.min(2, m.impostors || 1)))
+  }`,
     },
   },
 ];
