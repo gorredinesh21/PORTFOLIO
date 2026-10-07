@@ -639,3 +639,293 @@ body.motion-paused .drift {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VISUAL-FIRST LAYER — image cards, highlighted names, browser frames
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Project cards: full-bleed image, name as the hero ────────────────────── */
+.pcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--background-alt);
+  transition: transform 0.45s var(--ease), border-color 0.45s var(--ease),
+    box-shadow 0.45s var(--ease);
+  height: 100%;
+}
+.pcard:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-strong);
+  box-shadow: 0 22px 60px -18px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(179, 173, 255, 0.08);
+}
+.pcard-shot {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: #0a0a14;
+}
+.pcard-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform 0.7s var(--ease), filter 0.7s var(--ease);
+}
+.pcard:hover .pcard-shot img {
+  transform: scale(1.045);
+}
+.pcard-shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(8, 8, 15, 0.92) 0%,
+    rgba(8, 8, 15, 0.35) 34%,
+    rgba(8, 8, 15, 0) 62%
+  );
+}
+.pcard-body {
+  padding: 0.9rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+.pcard-tag {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.pcard-foot {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* name overlaid on the image — THE highlight of the card */
+.pcard-name {
+  position: absolute;
+  left: 1.05rem;
+  right: 1.05rem;
+  bottom: 0.8rem;
+  z-index: 2;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  color: #fff;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
+}
+.pcard-name .grad {
+  background: linear-gradient(92deg, #ffffff 8%, var(--accent) 55%, var(--amber) 105%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.pcard-flag {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.85rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d9d5ff;
+  background: rgba(10, 10, 20, 0.62);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(179, 173, 255, 0.3);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+}
+.pcard-flag.live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7ee2a8;
+  box-shadow: 0 0 10px #7ee2a8;
+}
+
+/* featured (home) variant — taller, bigger name */
+.pcard.feat .pcard-shot {
+  aspect-ratio: 16 / 10.5;
+}
+.pcard.feat .pcard-name {
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  bottom: 0.95rem;
+}
+.pcard.feat .pcard-tag {
+  font-size: 0.95rem;
+}
+
+/* ── Browser frame around screenshots ─────────────────────────────────────── */
+.bframe {
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: #16161f;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+}
+.bframe-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  background: #1d1d29;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.bframe-dots {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+.bframe-dots i {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+}
+.bframe-dots i:nth-child(1) { background: #ff5f57; }
+.bframe-dots i:nth-child(2) { background: #febc2e; }
+.bframe-dots i:nth-child(3) { background: #28c840; }
+.bframe-url {
+  flex: 1;
+  margin-left: 0.55rem;
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.45rem;
+  padding: 0.28rem 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bframe img {
+  display: block;
+  width: 100%;
+  object-position: top center;
+}
+
+/* ── Page hero band (inner pages) ─────────────────────────────────────────── */
+.page-hero {
+  position: relative;
+  padding: clamp(3.5rem, 7vw, 5.5rem) 0 clamp(2rem, 4vw, 3rem);
+  overflow: hidden;
+}
+.page-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+}
+.page-title .grad {
+  background: linear-gradient(92deg, var(--foreground) 0%, var(--accent) 60%, var(--amber) 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* home hero over generated art */
+.home-hero {
+  position: relative;
+  min-height: clamp(560px, 88vh, 860px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.home-hero-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.home-hero-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+}
+.home-hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 8, 15, 0.5) 0%,
+    rgba(8, 8, 15, 0.25) 45%,
+    rgba(8, 8, 15, 0.94) 88%,
+    var(--background) 100%
+  );
+}
+.home-hero-name {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  font-size: clamp(2.8rem, 8vw, 6rem);
+}
+
+/* ── Stat tiles ────────────────────────────────────────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+@media (min-width: 768px) {
+  .stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.stat-tile {
+  border: 1px solid var(--border);
+  border-radius: 0.95rem;
+  padding: 1.05rem 1.15rem;
+  background: var(--surface);
+}
+.stat-tile .v {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
+  color: var(--accent);
+  line-height: 1.1;
+}
+.stat-tile .k {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Detail page bits ──────────────────────────────────────────────────────── */
+.detail-title {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+}
+.detail-title .grad {
+  background: linear-gradient(92deg, #ffffff 0%, var(--accent) 62%, var(--amber) 112%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}

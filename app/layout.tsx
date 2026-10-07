@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/nav";
+import { SiteNav } from "@/components/site-nav";
 import { Footer } from "@/components/footer";
 import { Starfield } from "@/components/starfield";
 import { profile } from "@/lib/data";
@@ -48,7 +48,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col text-foreground">
         <Starfield />
-        <Nav />
+        <SiteNav />
         <main className="relative z-10 flex-1">{children}</main>
         <Footer />
       </body>
