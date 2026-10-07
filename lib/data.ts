@@ -1016,6 +1016,36 @@ export const featuredProjects = projects
   .filter((p) => p.featured)
   .sort((a, b) => (a.featured ?? 0) - (b.featured ?? 0));
 
+// ── Journey timeline (About page graphic) ─────────────────────────────────────
+
+export const journey = [
+  {
+    year: "2021",
+    title: "IIT (ISM) Dhanbad",
+    sub: "JEE AIR 2903 → CS branch. First C++ games shipped this year.",
+  },
+  {
+    year: "2023",
+    title: "Deep into ML",
+    sub: "GAN thesis begins; Hackfest'23 win with facial attendance.",
+  },
+  {
+    year: "2024",
+    title: "GenAI + proof",
+    sub: "LangChain/RAG era; Amazon ML Challenge top 200 of 18,500+.",
+  },
+  {
+    year: "2025",
+    title: "Reliance + Homaatri",
+    sub: "Graduated, joined as GET — Data/AI; Homaatri goes live.",
+  },
+  {
+    year: "2026",
+    title: "Agents in production",
+    sub: "WhatsApp ordering agent, Go agents, benchmarks, OSS merges.",
+  },
+];
+
 // ── Home stats strip ─────────────────────────────────────────────────────────
 
 export const homeStats: Metric[] = [

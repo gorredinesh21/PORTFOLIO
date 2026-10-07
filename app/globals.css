@@ -929,3 +929,231 @@ body.motion-paused .drift {
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
+
+/* ── Visual cards for About / Experience ───────────────────────────────────── */
+.imgcard {
+  position: relative;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--background-alt);
+  transition: transform 0.45s var(--ease), border-color 0.45s var(--ease);
+}
+.imgcard:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+}
+.imgcard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.imgcard .cap {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  right: 0.85rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.imgcard .cap span {
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #d9d5ff;
+  background: rgba(10, 10, 20, 0.66);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(179, 173, 255, 0.28);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+}
+.imgcard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(8, 8, 15, 0.72) 0%,
+    rgba(8, 8, 15, 0.12) 40%,
+    rgba(8, 8, 15, 0) 65%
+  );
+  pointer-events: none;
+}
+
+/* visual card with text under the image (awards, highlights) */
+.vcard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.05rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: transform 0.4s var(--ease), border-color 0.4s var(--ease);
+  height: 100%;
+}
+.vcard:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+}
+.vcard-shot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0a0a14;
+}
+.vcard-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+.vcard:hover .vcard-shot img {
+  transform: scale(1.04);
+}
+.vcard-shot .badge {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 2;
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: #ffd9ac;
+  background: rgba(10, 10, 20, 0.66);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 176, 84, 0.35);
+  border-radius: 999px;
+  padding: 0.24rem 0.65rem;
+}
+.vcard-body {
+  padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+.vcard-body p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.vcard-shot.glyph {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+      circle at 50% 118%,
+      rgba(179, 173, 255, 0.16),
+      transparent 62%
+    ),
+    var(--background-alt);
+}
+
+/* ── Journey timeline graphic ──────────────────────────────────────────────── */
+.journey {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding-top: 2.1rem;
+}
+.journey::before {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-deep),
+    var(--accent) 55%,
+    var(--amber)
+  );
+  opacity: 0.65;
+}
+.j-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.j-dot {
+  position: absolute;
+  top: -1.72rem;
+  left: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--background);
+  box-shadow: 0 0 14px rgba(179, 173, 255, 0.4);
+}
+.j-node:last-child .j-dot {
+  border-color: var(--amber);
+  box-shadow: 0 0 14px rgba(255, 176, 84, 0.45);
+}
+.j-year {
+  font-family: var(--font-mono-code), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.j-node:last-child .j-year {
+  color: var(--amber);
+}
+.j-node b {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.j-node span {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .journey {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+    gap: 1.1rem;
+  }
+  .journey::before {
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.42rem;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(
+      180deg,
+      var(--accent-deep),
+      var(--accent) 55%,
+      var(--amber)
+    );
+  }
+  .j-node {
+    padding-left: 2rem;
+  }
+  .j-dot {
+    top: 0.05rem;
+    left: 0;
+  }
+}
+
+/* glyph chip: icon beside a label */
+.gchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent);
+}
+.gchip svg {
+  flex: none;
+}
