@@ -10,7 +10,7 @@ export const profile = {
   name: "Gorre Dinesh Chandan Reddy",
   shortName: "Dinesh",
   monogram: "gd",
-  roleLine: "Software Engineer — AI, Data & Full-Stack",
+  roleLine: "Forward Deployed AI Engineer — full-stack, data & agents",
   location: "Mumbai, India",
   email: "gorredinesh21@gmail.com",
   github: "https://github.com/gorredinesh21",
@@ -108,10 +108,10 @@ export const projects: Project[] = [
       "GCP Cloud Run",
     ],
     story:
-      "Homaatri is a hyper-local marketplace for home food — real kitchens, real riders, real payments. I built the whole production system myself: a Next.js storefront, a FastAPI backend on Cloud Run, PostgreSQL, three Android apps, and an AI agent on WhatsApp Business that takes a customer from \u201cwhat's near me?\u201d to a paid order in one conversation. It runs with real users and real orders every day.",
+      "Homaatri is a hyper-local marketplace for home food — real kitchens, real riders, real payments. I built the whole production system myself: a Next.js storefront, a FastAPI backend on Cloud Run, PostgreSQL, three Android apps, and an AI agent on WhatsApp Business that takes a customer from \u201cwhat's near me?\u201d to a paid order in one conversation. It runs with real users and real orders every day — and when a payment webhook or an integration breaks at midnight, I am the on-call.",
     question: "Has anyone actually brought regional home food online?",
     reply:
-      "Aggregators list restaurants. A home kitchen needs storefront, payments, delivery coordination and trust — so I built all of it, shipped it, and kept it running. Building the startup taught me more about systems than any course could.",
+      "Aggregators list restaurants. A home kitchen needs storefront, payments, delivery coordination and trust — so I built all of it, shipped it, and kept it running. Building and operating it taught me more about systems than any course could.",
     metrics: [
       { v: "40–50", k: "orders / day, live" },
       { v: "4", k: "production codebases" },
@@ -142,7 +142,6 @@ export const projects: Project[] = [
     name: "Startup Intelligence Platform",
     tagline: "GraphRAG + RAPTOR market intelligence over 175 startups",
     category: "GenAI",
-    featured: 2,
     cover: "/shots/startup-intel-graph.png",
     gallery: ["/shots/startup-intel-agent.png"],
     liveUrl: "https://startup-intel-441384612427.us-central1.run.app",
@@ -194,7 +193,7 @@ export const projects: Project[] = [
     name: "VectorShift Pipeline Builder",
     tagline: "No-code AI pipeline canvas — nodes as data, not copy-paste",
     category: "Full-Stack",
-    featured: 3,
+    featured: 2,
     cover: "/shots/vectorshift-canvas.png",
     liveUrl: "https://vector-shift-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — drag, wire, run",
@@ -226,7 +225,6 @@ export const projects: Project[] = [
     name: "OrderPilot",
     tagline: "Agentic food ordering in pure Go — survives its own model dying",
     category: "GenAI",
-    featured: 4,
     cover: "/shots/orderpilot-chat.png",
     liveUrl: "https://orderpilot-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — simulated Bangalore map",
@@ -268,6 +266,39 @@ export const projects: Project[] = [
         "LLM unavailable or breaks protocol → a deterministic planner takes over the same tools: full ordering with 0 LLM calls.",
     },
     diagramCaption: "The loop, the guardrail, and the way out when the model dies.",
+  },
+
+  {
+    slug: "llmgateway",
+    name: "LLM Gateway",
+    tagline: "Concurrent LLM / embedding gateway in Go — 32× faster batch embedding",
+    category: "Systems",
+    cover: "/art/gateway.jpg",
+    gallery: ["/shots/llmgateway.png"],
+    liveUrl: "https://llmgateway-441384612427.us-central1.run.app",
+    liveLabel: "API reference, live",
+    github: "https://github.com/gorredinesh21/llmgateway",
+    stack: ["Go", "Worker pools", "Token-bucket", "context", "Benchmarks"],
+    story:
+      "Calling LLM and embedding providers at scale is easy to get wrong: unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. This was my way of learning to do the concurrency, backpressure and cancellation properly — with Go benchmarks to check myself. A bounded worker pool keeps many provider calls in flight (1 → 32 workers ≈ 32× speedup, verified), a token-bucket limiter respects provider RPS, and context threads through every call. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled.",
+    question: "Why does \u201cjust add goroutines\u201d break at scale?",
+    reply:
+      "Unbounded concurrency trips rate limits and loses cancellation. Bounded pools, token buckets and context-propagation are the actual answer — and benchmarks prove it instead of asserting it.",
+    metrics: [
+      { v: "32×", k: "faster batch embedding, verified" },
+      { v: "10.7s→0.33s", k: "2,000 chunks, serial → pooled" },
+    ],
+    diagram: {
+      kind: "flow",
+      nodes: [
+        { label: "2,000 chunks", sub: "10.7s serial" },
+        { label: "Bounded pool", sub: "1 → 32 workers", tone: "hot" },
+        { label: "Token bucket", sub: "respects provider RPS" },
+        { label: "0.33s pooled", sub: "≈ 32× faster", tone: "hot" },
+      ],
+      note: "One cancellation kills the whole batch cleanly — context runs through every call.",
+    },
+    diagramCaption: "Concurrency with receipts.",
   },
 
   // ── GenAI ─────────────────────────────────────────────────────────────────
@@ -408,6 +439,7 @@ export const projects: Project[] = [
     name: "Sahayak",
     tagline: "Voice-first UPI support agent — 7-signal wrong-transfer recovery with RBI-style SLA clocks",
     category: "GenAI",
+    featured: 3,
     cover: "/shots/sahayak.png",
     liveUrl: "https://sahayak-yzzxrxetcq-uc.a.run.app",
     liveLabel: "Try it live — inside a Paytm-style demo app",
@@ -418,6 +450,7 @@ export const projects: Project[] = [
     metrics: [
       { v: "7", k: "scoring signals per case" },
       { v: "auto", k: "dispute filed on SLA breach" },
+      { v: "finale", k: "Paytm Build for India" },
     ],
     diagram: {
       kind: "flow",
@@ -519,6 +552,7 @@ export const projects: Project[] = [
     name: "Support Copilot",
     tagline: "Microsoft-docs RAG assistant — 1.00 citation rate, answers regenerate when citations vanish",
     category: "GenAI",
+    featured: 4,
     cover: "/shots/support-copilot.png",
     liveUrl: "https://support-copilot-441384612427.us-central1.run.app",
     liveLabel: "Try it live",
@@ -953,38 +987,6 @@ export const projects: Project[] = [
     diagramCaption: "The product is the protocol, not the pixels.",
   },
   {
-    slug: "llmgateway",
-    name: "LLM Gateway",
-    tagline: "Concurrent LLM / embedding gateway in Go — 32× faster batch embedding",
-    category: "Systems",
-    cover: "/art/gateway.jpg",
-    gallery: ["/shots/llmgateway.png"],
-    liveUrl: "https://llmgateway-441384612427.us-central1.run.app",
-    liveLabel: "API reference, live",
-    github: "https://github.com/gorredinesh21/llmgateway",
-    stack: ["Go", "Worker pools", "Token-bucket", "context", "Benchmarks"],
-    story:
-      "Calling LLM and embedding providers at scale is easy to get wrong: unbounded goroutines trip rate limits, and a cancelled request should cancel the whole batch. This was my way of learning to do the concurrency, backpressure and cancellation properly — with Go benchmarks to check myself. A bounded worker pool keeps many provider calls in flight (1 → 32 workers ≈ 32× speedup, verified), a token-bucket limiter respects provider RPS, and context threads through every call. Embedding 2,000 chunks drops from 10.7s serial to 0.33s pooled.",
-    question: "Why does \u201cjust add goroutines\u201d break at scale?",
-    reply:
-      "Unbounded concurrency trips rate limits and loses cancellation. Bounded pools, token buckets and context-propagation are the actual answer — and benchmarks prove it instead of asserting it.",
-    metrics: [
-      { v: "32×", k: "faster batch embedding, verified" },
-      { v: "10.7s→0.33s", k: "2,000 chunks, serial → pooled" },
-    ],
-    diagram: {
-      kind: "flow",
-      nodes: [
-        { label: "2,000 chunks", sub: "10.7s serial" },
-        { label: "Bounded pool", sub: "1 → 32 workers", tone: "hot" },
-        { label: "Token bucket", sub: "respects provider RPS" },
-        { label: "0.33s pooled", sub: "≈ 32× faster", tone: "hot" },
-      ],
-      note: "One cancellation kills the whole batch cleanly — context runs through every call.",
-    },
-    diagramCaption: "Concurrency with receipts.",
-  },
-  {
     slug: "tcp-proxy-server",
     name: "TCP Client–Proxy Server",
     tagline: "Raw C++ sockets, POSIX threads, persistence — no wrappers",
@@ -1048,11 +1050,25 @@ export const journey = [
 
 // ── Home stats strip ─────────────────────────────────────────────────────────
 
+// ── The loop I work in (homepage strip) ──────────────────────────────────────
+
+export const workLoop: Diagram = {
+  kind: "flow",
+  nodes: [
+    { label: "Ambiguous problem", sub: "from a real user" },
+    { label: "Prototype fast", sub: "days, not quarters" },
+    { label: "Integrate for real", sub: "payments · messaging · maps", tone: "hot" },
+    { label: "Deploy & operate", sub: "on-call is me" },
+  ],
+  loop: "iterate on real usage",
+  note: "Latest loop: the WhatsApp ordering agent — hallucination fix → smaller model → SLA-guarded behaviour.",
+};
+
 export const homeStats: Metric[] = [
-  { v: "40–50", k: "orders/day on Homaatri" },
-  { v: "24", k: "projects, most of them live" },
-  { v: "175", k: "startups in one graph" },
+  { v: "40–50", k: "orders/day on the live marketplace" },
+  { v: "20", k: "systems live in production" },
   { v: "32×", k: "faster embeddings in Go" },
+  { v: "100%", k: "payments + messaging integrated" },
 ];
 
 // ── Approach ─────────────────────────────────────────────────────────────────

@@ -4,9 +4,16 @@ import {
   homeStats,
   projects,
   profile,
+  workLoop,
 } from "@/lib/data";
+import { HowItWorks } from "@/components/how-it-works";
+import { Hero3d } from "@/components/hero3d";
 import { ProjectCard } from "@/components/project-card";
 import { Reveal } from "@/components/reveal";
+import { Constellation3d } from "@/components/constellation3d";
+import { CountUp } from "@/components/countup";
+import { Magnetic } from "@/components/magnetic";
+import { MarqueeBand } from "@/components/marquee";
 
 export default function Home() {
   const teaser = projects
@@ -18,37 +25,59 @@ export default function Home() {
       {/* ── Hero over generated art ─────────────────────────────────────── */}
       <section className="home-hero">
         <div className="home-hero-art">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/art/hero.jpg" alt="" />
+          <Hero3d />
+          <div className="nebula" aria-hidden="true" />
+          <span className="hero-drag-hint" aria-hidden="true">drag the knot ↻</span>
         </div>
         <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 pb-14 w-full">
           <p className="eyebrow mb-4">{profile.location} · {profile.roleLine}</p>
           <h1 className="home-hero-name">
-            I build AI systems
-            <br />
-            <span className="page-title grad">and ship them live.</span>
+            <span className="ln"><span>I build AI systems</span></span>
+            <span className="ln"><span className="grad-ink">and ship them live.</span></span>
           </h1>
           <p className="mt-5 max-w-xl text-[1.02rem] leading-relaxed text-muted">
-            {profile.tagline} Right now that means a home-food startup doing
-            40–50 orders a day, agents and retrieval engines in Go and Python,
-            and data platforms at Reliance.
+            {profile.tagline} Right now that means a live home-food
+            marketplace I build and operate — 40–50 orders a day through web,
+            apps and a WhatsApp AI agent — agent and retrieval infrastructure
+            in Go and Python, and enterprise data platforms at Reliance.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Link href="/projects" className="pill solid">
-              Explore the work →
-            </Link>
-            <a href={profile.resumeUrl} target="_blank" rel="noreferrer" className="pill">
-              Resume
-            </a>
-            <a
-              href={`mailto:${profile.email}`}
-              className="pill"
-            >
-              {profile.email}
-            </a>
+            <Magnetic>
+              <Link href="/projects" className="pill solid">
+                Explore the work →
+              </Link>
+            </Magnetic>
+            <Magnetic>
+              <a href={profile.resumeUrl} target="_blank" rel="noreferrer" className="pill">
+                Resume
+              </a>
+            </Magnetic>
+            <Magnetic>
+              <a href={`mailto:${profile.email}`} className="pill">
+                {profile.email}
+              </a>
+            </Magnetic>
           </div>
         </div>
       </section>
+
+      {/* ── Marquee band ────────────────────────────────────────────────── */}
+      <MarqueeBand>
+        <div className="mq-track-inner" style={{ display: "inline-flex" }}>
+          {[0, 1].map((k) => (
+            <span key={k} style={{ display: "inline-flex" }}>
+              <b>Forward deployed</b>
+              <span>20 systems live in production</span>
+              <b>WhatsApp AI ordering</b>
+              <span>40–50 orders a day</span>
+              <b>Payments · messaging · maps</b>
+              <span>Python · Go · LangGraph</span>
+              <b>Build → integrate → operate</b>
+              <span>IIT (ISM) Dhanbad CSE</span>
+            </span>
+          ))}
+        </div>
+      </MarqueeBand>
 
       {/* ── Stats strip ─────────────────────────────────────────────────── */}
       <section className="section !pt-12 !pb-4">
@@ -57,12 +86,27 @@ export default function Home() {
             {homeStats.map((s, i) => (
               <Reveal key={s.k} delay={i * 0.06}>
                 <div className="stat-tile">
-                  <div className="v">{s.v}</div>
+                  <div className="v"><CountUp v={s.v} /></div>
                   <div className="k">{s.k}</div>
                 </div>
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── How I work ──────────────────────────────────────────────────── */}
+      <section className="section !pt-6">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal>
+            <div className="mb-6">
+              <p className="eyebrow mb-2">01 · How I work</p>
+              <h2 className="page-title" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.3rem)" }}>
+                From fuzzy problem to <span className="grad">system in production</span>
+              </h2>
+            </div>
+            <HowItWorks d={workLoop} />
+          </Reveal>
         </div>
       </section>
 
@@ -72,7 +116,7 @@ export default function Home() {
           <Reveal>
             <div className="flex items-end justify-between gap-6 mb-8">
               <div>
-                <p className="eyebrow mb-2">Featured work</p>
+                <p className="eyebrow mb-2">02 · Featured work</p>
                 <h2 className="page-title" style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)" }}>
                   Four systems I keep <span className="grad">running</span>
                 </h2>
@@ -95,7 +139,7 @@ export default function Home() {
           <Reveal>
             <div className="flex items-end justify-between gap-6 mb-8">
               <div>
-                <p className="eyebrow mb-2">The rest of the constellation</p>
+                <p className="eyebrow mb-2">03 · The rest of the constellation</p>
                 <h2 className="page-title" style={{ fontSize: "clamp(1.6rem, 3.4vw, 2.3rem)" }}>
                   <span className="grad">{projects.length} projects</span>, most of them live
                 </h2>
@@ -107,6 +151,9 @@ export default function Home() {
                 All projects →
               </Link>
             </div>
+          </Reveal>
+          <Reveal>
+            <Constellation3d projects={projects} />
           </Reveal>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {teaser.map((p, i) => (

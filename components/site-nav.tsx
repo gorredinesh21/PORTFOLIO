@@ -23,7 +23,7 @@ export function SiteNav() {
     <header
       className={`sticky top-0 z-50 transition-colors duration-300 ${
         scrolled
-          ? "backdrop-blur-xl bg-[rgba(8,8,15,0.82)] border-b border-[var(--border)]"
+          ? "backdrop-blur-xl bg-[rgba(250,248,242,0.86)] border-b border-[var(--border)]"
           : "border-b border-transparent"
       }`}
     >

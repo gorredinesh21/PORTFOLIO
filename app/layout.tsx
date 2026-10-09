@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "./interactive.css";
 import { SiteNav } from "@/components/site-nav";
 import { Footer } from "@/components/footer";
-import { Starfield } from "@/components/starfield";
 import { profile } from "@/lib/data";
 
 const display = Bricolage_Grotesque({
@@ -47,7 +47,6 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col text-foreground">
-        <Starfield />
         <SiteNav />
         <main className="relative z-10 flex-1">{children}</main>
         <Footer />

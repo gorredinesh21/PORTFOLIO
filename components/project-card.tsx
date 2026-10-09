@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Project } from "@/lib/data";
+import { Tilt } from "@/components/tilt";
 
 // Image-first card. The project NAME is the visual anchor (overlaid, big,
 // gradient-highlighted); text stays to one tagline line.
@@ -13,11 +14,12 @@ export function ProjectCard({
   index?: number;
 }) {
   return (
-    <Link
-      href={`/projects/${p.slug}`}
-      className={`pcard ${feat ? "feat" : ""}`}
-      aria-label={`${p.name} — ${p.tagline}`}
-    >
+    <Tilt>
+      <Link
+        href={`/projects/${p.slug}`}
+        className={`pcard ${feat ? "feat" : ""}`}
+        aria-label={`${p.name} — ${p.tagline}`}
+      >
       <div className="pcard-shot">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={p.cover} alt={`${p.name} interface`} loading={index && index > 5 ? "lazy" : undefined} />
@@ -38,6 +40,7 @@ export function ProjectCard({
           <span className="stackline">{p.stack.slice(0, 3).join(" · ")}</span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </Tilt>
   );
 }
