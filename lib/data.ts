@@ -15,7 +15,7 @@ export const profile = {
   email: "gorredinesh21@gmail.com",
   github: "https://github.com/gorredinesh21",
   linkedin: "https://www.linkedin.com/in/gorredinesh21",
-  resumeUrl: "/Gorre_Dinesh_Chandan_Reddy_Resume.pdf",
+  resumeUrl: "/dinesh_chandan_cv.pdf",
   tagline: "I build AI systems end-to-end and put them in front of real users.",
   intro:
     "I build AI systems end-to-end and put them in front of real users. By day I move data into Gold KPI tables and RAG platforms at Reliance; the rest of the time I run a live home-food marketplace and a growing constellation of deployed side projects — agents, retrieval engines and systems written from scratch.",
